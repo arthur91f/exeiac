@@ -39,15 +39,10 @@ function fmt {
 }
 
 function show_dependencies {
-    if [ -d "$brick_path" ]; then
-        egrep -r '(#|//)EXEIAC:depends:' |
-            sed 's|^.*#EXEIAC:depends:||g' |
-            sed 's|^.*//EXEIAC:depends:||g'
-    else
-        egrep '(#|//)EXEIAC:depends:' "$brick_path" |
-        sed 's|^.*#EXEIAC:depends:||g' |
-        sed 's|^.*//EXEIAC:depends:||g'
-    fi
+    egrep -r '(#|//)EXEIAC:depends:' |
+        sed 's|^.*#EXEIAC:depends: *||g' |
+        sed 's|^.*//EXEIAC:depends: *||g' |
+        cut -d: -f1
 }
 
 function help {

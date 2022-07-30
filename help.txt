@@ -1,0 +1,38 @@
+exeiac (BRICK_PATH|BRICK_NAME) (install|init|plan|apply|output|destroy|validate|fmt|help|show_dependencies|show_dependents|list_bricks) ["--exeiac-opts=OPT1,OPT2='VAL 1'"] [MODUE_ARGS]
+exeiac (list_bricks|help)
+exeiac debug FUNCTION
+
+ACTIONS:
+install: installs or check that all tools are installs to execute 
+    the brick
+init: get some dependencies, typically download terraform modules
+    or ansible deps
+plan: a dry run to check what we want to apply
+apply: run the IaC with the right tools
+output: display some outputs that can be used by other bricks
+destroy: revert the apply
+validate: validate that the syntaxe is ok
+fmt: rewrite file to pass linter
+help: display help for this brick or general help
+show_dependencies: get brick_name whom output is needed
+show_dependents: get all brick_name that call the brick's output
+list_bricks: list all elementary brick of the super brick or all
+    elementary brick
+debug: run a function of this file (use for
+    unitary test
+
+EXEIAC_OPTS:
+all-room|all-bricks: make the action on all bricks
+plan-dependencies-before
+plan-dependents-after
+apply-dependents-after
+plan-dependencies-before-recursively
+plan-dependents-after-recursively
+apply-dependents-after-recursively
+non-interactive
+unit-testing-function=EXEIAC_FUNCTION
+disbale-debug-classic-output
+
+MODULE_ARGS:
+Very useful for filter a brick output. But despite it is possible to send ARGS to module, remember that exeIaC aim is to manage the apply of the whole IaC, not for debugging and send ARGS to super_brick is dangerous as it will send useless ARGS to some elementary_bricks
+
