@@ -114,18 +114,17 @@ function execute_brick {
         ;;
         elementary_directory_brick)
             cd "$brick_path"
-            module=""
+            module_found="false"
             for module in $( ls -1 "$modules_path") ; do
                 source "$exeiac_lib_path/default_module.sh"
                 source "$modules_path/$module"
                 if is_brick_using_this_module ; then
-                    module=$module
+                    module_found="true"
                     break
                 fi
             done
-            if [ -z "$module" ]; then
-                echo "Error: no known modules can execute that brick:" >&2
-                echo "    $brick_name" >&2
+            if [ "$module_found" == "false" ]; then
+                echo "Error: no known modules can execute that brick: $brick_name" >&2
                 exit 5
             fi
             $action "$@"
@@ -145,11 +144,12 @@ function execute_brick {
 function list_bricks {
     brick_name="$1"
     if [ -n "$brick_name" ]; then
-        elementary_bricks_list="$(get_elementary_brick_list |
+        elementary_bricks_list="$(get_elementary_bricks_list |
             grep "^$brick_name")"
     else
-        elementary_bricks_list="$(get_elementary_brick_list)"
+        elementary_bricks_list="$(get_elementary_bricks_list)"
     fi
+    echo "$elementary_bricks_list"
 }
 
 function display_help {
@@ -190,10 +190,22 @@ function display_help {
     echo "Very useful for filter a brick output. But despite it is possible to send ARGS to module, remember that exeIaC aim is to manage the apply of the whole IaC, not for debugging and send ARGS to super_brick is dangerous as it will send useless ARGS to some elementary_bricks"
 }
 
+function display_line_after_match {
+    text="$1"
+    regex="$2"
+    match_line="$(echo "$text" | grep -n "$regex" | cut -d: -f1)"
+    if [ -z "$match_line" ]; then
+        return 1
+    else
+        echo "$text" | sed -n $match_line',$p'
+    fi
+}
+
 function show_dependents {
-    bricks_to_check="$(list_bricks | sed -e "1,/^$brick_name$/ d")"
+    bricks_to_check="$(
+        display_line_after_match "$(get_elementary_bricks_list)" "$brick_name")"
     for brick in $bricks_to_check ; do
-        if $0 "$brick" show_dependencies | grep -q "$brick_name" ; then
+        if grep -q "$brick_name" <<<"$($0 "$brick" show_dependencies)"; then
             echo "$brick"
         fi
     done
