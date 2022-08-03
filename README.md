@@ -23,6 +23,7 @@ In a bit complexe infra code it brings :
 
 ExeIaC try to answer to those problems.
 
+
 ### ExeIaC philosophy
 
 The main philosophy of exeIaC is to decouple the brick technology complexity to the way bricks interact with each other. It try to respond to the dependency inversion principle of SOLID.
@@ -45,27 +46,105 @@ You can also avoid to discover cloud provider resources that you can't link to a
 
 ### IaC vocabulary
 
-- brick: a part of the infra that can be managed unitary. It can be the configuration of a monitoring user on a database or the creation a an entire cluster. A brick as a part of a wall is on top of other bricks that can be considered as dependencies and some brick can be on top of it that are the dependents. As we are in infra as code a brick is describe by code and the code can be execute. By convention we can execute some task on a brick :
-  - init (install tools, download library...)
-  - plan (check what code will change on existing)
-  - apply (apply the code)
-  - output (return some value use by dependents bricks)
-  - destroy (revert the apply)
-  - validate (check that code is correct)
-  - fmt (linter, able to rewrite files)
-  - show_dependencies (show dependencies bricks)
+- brick: a part of the infra that can be managed unitary. It can be the configuration of a monitoring user on a database or the creation a an entire cluster. A brick as a part of a wall is on top of other bricks that can be considered as dependencies and some brick can be on top of it that are the dependents. As we are in infra as code a brick is describe by code and the code can be execute. By convention we can execute some task on a brick : init, apply, output, destroy, validate, fmt, show_dependencies
 - super brick: a super brick is a brick that contains other bricks it can be applied by apply sequentially all subricks it contains by following the dependency tree recursively.
 - elementary brick: a brick that is not a super brick
 - room: a super brick that is subjective cut of the infra that make sense. Generally a team have a specific ownership on a room and it can be assimilate to a domain (in DDD overview). But in a simple code overview lets say that a room is a git repository.
 - other brick regroupment :
   - floor you can talk about floor the first floor is the room infra transverse to all domains. on the second floor you have the room client, backoffice, AI... it's the floor used by developers and feature teams. The third floor is transverse to all domains and manage users access on the infra.
 the floor abstraction should simplify the dependencies abstraction.
-  - pillar
+  - column 
 - furniture: a set of scripts to use in daily usage but that isn't use for building your infra. It can be a script to dump a databae. It is a good idea to put those sort of script on your infra as code so when you have to debug you have all your tools and documentation in the same place but obviously they are completely optionnal and they have nothing to do with dependency tree.
 brick path: the full path of a brick on your computer
 brick name: the name of the repo and the relative path from nome of repo to the brick
 brick name sanitized: if you use brick name as tag on your cloud resources you may have to change slash 
  to underscore or dash. it's up to you to define a the sanitized regex
+
+
+
+## HOWTO
+
+### Install
+
+As it is written in bash you just need to get code and precise where all part are can be found. here an example :
+
+- git clone repository `git clone git@github.com:arthur91f/exeiac.git`
+- add an alias to your .bashrc `alias exeiac="$HOME/git/exeiac/exeiac.sh"`
+- Create in your home a .exeiac file:
+```exeiac_lib_path="$HOME/git/exeiac"
+modules_path="$HOME/git/my-modules/modules"
+room_paths_list="$HOME/git/my-infra-core
+$HOME/git/my-team1-app
+$HOME/git/my-team2-app
+$HOME/git/my-infra-users-access"
+function sanitize_function {
+    sed -e "s|/[0-9]*-|--|g" -e 's|[^0-9a-zA-Z_-]|?|g' <<<"$1"
+}
+```
+
+What are all those variables:
+
+- exeiac_lib_path: exeiac script have been cut in multiple files containing bash functions. They are sourced at the start of execution.
+- room_paths_lits: list of your infra code repository
+- modules_path: it's a set of function developed by you that you used to apply you different infra code brick. See below for best practice and what function you have to implement but basically you will have one module by technology you use (terraform, ansible) and you will specify how to do a "terraform plan,apply,output...", an "ansible plan,apply,output...", ...
+- sanitize_function: used to sanitized brick name if necessary.
+
+### Create your modules
+
+First how your module will be called:
+
+- Your modules will overload default_module.sh functions so you don't have to rewrite everythings. Actually you also have access to all exeiac functions, but just don't overload them.
+- Before executing your module action, exeiac will place you in the brick directory
+- All options passed to exeiac will be passed to your module
+
+Then remember few important things:
+
+- Don't forget to overwrite is_brick_using_this_module function (return 0 is true, return 1 or an other int is false)
+- Don't forget to support --non-interactive option or to code non-interactive functions
+- show_dependents haven't to be implemented in the module (it's an exeiac function that use show_dependencies)
+
+Here, a list of useful functions you can use:
+
+- source "$modules_path/MODULE_NAME"
+    to import all functions of an other module to use them
+- copy_function SOURCE_NAME NEW_NAME
+    so you can rename the apply function of your terraform module as terraform_apply and then overwrite your apply function
+- import_modules_functions MODULE_NAME
+    to do import and rename all MODULE function
+- get_brick_sanitized_name
+- get_arg -boolean=OPT1 "$@"  check if --OPT1 or -OPT1 is present in arguments
+- get_arg -string=STR1 "$@"   check if STR1 option exist and display its value -STR1=VALUE -STR1 "VALUE"
+- get_absolute_path
+- merge_string_on_new_line
+
+Then ... I think all have been said. Check our *Best Practice* chapter and *Short Introduction to Bash* if needed.
+
+
+### Now lets use exeiac command line
+
+exeiac ACTION BRICK [OPTIONS]
+
+- **BRICK**: directory or script that correspond to infra code. It can be the brickname (path beginning by the room (infra code git repository) name or an absolute or relative path.
+
+- **ACTION**:
+  - init: install or check that all tools are installed (terraform) and download dependencies as `terraform init`
+  - apply: apply the brick codes
+  - plan: a dry run of what it will be applied
+  - output: display outputs that can be used by dependents bricks. Generated secrets or id.
+  - destroy: revert the apply
+  - help: display a the specific bricks help (usually it will always be the same as the basic help (all bricks should have the same behaviour except maybe for debugging)
+  - validate: check that the code can be run (for CI)
+  - fmt: a linter for the brick code
+  - show_dependencies: get brick name whom output is needed or that have to be applied before
+  - show_dependents: get all brick name that call the brick's output
+
+- **OPTIONS**:
+  - plan-dependencies-before: check everything is applied before execute the brick action
+  - apply-dependents-after-recursively: apply all bricks that depends of the brick given in parameter
+  - non-interactive: the brick action will be executed without waiting answer from user
+  - ... (use exeiac help to get more options)
+
+
 
 ## ExeIaC
 
@@ -100,6 +179,8 @@ brick name sanitized: if you use brick name as tag on your cloud resources you m
 
 **dependencies**: is the need that an other brick is already applied or some previous brick output.
 
+
+
 ## CONVENTION & BEST PRACTICES
 
 ### Convention
@@ -111,6 +192,7 @@ Then choose one unique convention beside for all your infra code:
 - No action should be interactive (the code will be simplier if you haven't to implement non-interactive option)
 All brick are directory or file with name begins by a figure and a dash (2-database). It permit to identify brick and brick content prioritize the apply of different brick in the same directory and to add directory and file that are not re
 
+
 ### Best practices 
 
 1. Don't multiply modules that use different technology. Try to keep the applying infra code easy and intuitive. You should know how to apply a brick without reading its module ( Because it is always the sames ). We tend to say that an average infra collaborator should not masterize more than 3 modules and that masterize one complexe module is too much for most of developers.
@@ -118,6 +200,8 @@ However you can use heritage to get multiple modules that use a different terraf
 Don't hesitate to display warning messages or asking confirmation when you implement a tricky shortcut.
 2. Tag your cloud resources with the brick_name or sanitized_brick_name so when you will see something in cloud it will be very easy to find it in code.
 3. All outputs have to present the same format like json. The more you will define convention about outputs the more pass on change on dependents will be easy after modifying a brick.
+
+
 
 ## DISCUSSION
 
@@ -127,10 +211,11 @@ For the first version, the aim is to execute bash instrcution write in console s
 Moreover, even if bash isn't the easiest language to develop, it's not a such big deal for me, and it will be more simple to debug module for others as you just have to copy paste code on terminal.
 Modules can call bash exeiac functions if needed. But better try to call them with exeiac. 
 
+
 ### Performance aim:
 
 - exeIaC runtime to execute one bricks should be instant and very cheap on resources
 - exeIaC runtime to plan its execute plan should be less than 3 seconds
-- exeIaC should not open to much bash in the same time ithout parallelism
+- exeIaC should not open to much bash in the same time without parallelism
 - enable parallelism
 
