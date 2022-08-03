@@ -2,6 +2,8 @@
 
 Execute infra code according to a bricks dependencies metaphore
 
+---
+
 ## METAPHORE EXPLANATION
 
 ### Brief explanation
@@ -60,7 +62,7 @@ brick name: the name of the repo and the relative path from nome of repo to the 
 brick name sanitized: if you use brick name as tag on your cloud resources you may have to change slash 
  to underscore or dash. it's up to you to define a the sanitized regex
 
-
+---
 
 ## HOWTO
 
@@ -144,7 +146,7 @@ exeiac ACTION BRICK [OPTIONS]
   - non-interactive: the brick action will be executed without waiting answer from user
   - ... (use exeiac help to get more options)
 
-
+---
 
 ## ExeIaC
 
@@ -179,7 +181,7 @@ exeiac ACTION BRICK [OPTIONS]
 
 **dependencies**: is the need that an other brick is already applied or some previous brick output.
 
-
+---
 
 ## CONVENTION & BEST PRACTICES
 
@@ -201,7 +203,7 @@ Don't hesitate to display warning messages or asking confirmation when you imple
 2. Tag your cloud resources with the brick_name or sanitized_brick_name so when you will see something in cloud it will be very easy to find it in code.
 3. All outputs have to present the same format like json. The more you will define convention about outputs the more pass on change on dependents will be easy after modifying a brick.
 
-
+---
 
 ## DISCUSSION
 
