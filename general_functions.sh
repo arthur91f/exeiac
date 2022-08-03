@@ -1,6 +1,47 @@
 #!/bin/bash
 # Here are functions that aren't sticky to exeIaC
 
+function get_arg {
+    # get_arg --TYPE=ARG_SEARCHED ARG1 ARG2 AR3 ...
+    type="$(sed 's|^-*\([a-zA-Z0-9_-]*\)=.*$|\1|g' <<<"$1")"
+    arg_name="$(sed 's|^-*[a-zA-Z0-9_-]*=\(.*\)$|\1|g' <<<"$1" |
+        sed 's|^-\{1,2\}||g')"
+    shift
+    previous_arg=""
+    case "$type" in
+    boolean|b)
+        for arg in "$@" ; do
+            if [ "$arg_name" == "$(sed 's|^-\{1,2\}||g' <<<"$arg")" ]; then
+                return 0
+            elif grep -q "^-\{1,2\}$arg_name=true" <<<"$arg"; then
+                return 0
+            elif grep -q "^-\{1,2\}$arg_name=false" <<<"$arg"; then
+                return 1
+            fi
+        done
+        return 1
+    ;;
+    string|s)
+        for arg in "$@" ; do
+            if grep -q "^-\{1,2\}$arg_name=.*" <<<"$arg"; then
+                sed "s|^-\{1,2\}$arg_name=\(.*\)$|\1|g" <<<"$arg"
+                return 0
+            elif grep -q "^-\{1,2\}$arg_name$" <<<"$arg"; then
+                previous_arg="$arg_name"
+            elif [ "$previous_arg" == "$arg_name" ]; then
+                echo "$arg"
+                return 0
+            fi
+        done
+        return 1
+    ;;
+    *)
+        echo "ERROR:get_arg:bad_argument:$type" >&2
+        return 2
+    ;;
+    esac 
+}
+
 function get_arg_in_string {
     # string="quiet,string=\"I'm good, and you ?\",output='filename with space',type=file"
     # get_arg_in_string "$string" quiet ; echo $?
