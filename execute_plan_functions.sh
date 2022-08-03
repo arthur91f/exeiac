@@ -166,5 +166,3 @@ function destroy_bricks_list {
     fi
 }
 
-
-
