@@ -1,36 +1,66 @@
 #!/bin/bash
-source $HOME/.exeiac
-    # room_paths_list (list of exeiac repo in the right order)
-    # sanitize_function
-    # modules_path
-room_paths_list="$(sed 's|/ *$||g' <<<"$room_paths_list")"
-current_path="$(pwd)"
+# launcher script
 
+#######################
+# DECLARE GLOBAL VARS #
+#######################
+INITIAL_CURRENT_PATH="$(pwd)" # used by soft_exit
+BRICK_NAME=""                 # will be set after arguments interpretation
+BRICK_PATH=""                 # will be set after arguments interpretation
+ACTION=""                     # will be set after arguments interpretation
+declare -a OPTS               # will be set after arguments interpretation
+ROOMS_LIST=""                 # will be set after sourcing configuration files
+MODULES_PATH=""               # will be set after sourcing configuration files 
+DEFAULT_MODULE_PATH=""        # will be set after sourcing configuration files 
+EXECUTE_SUM_UP_FILE="/tmp/exeiac_execute_sum_up-$(date +%y%m%d-%H%M%S-%N)"
+    # fill in during execution and display at the end
+
+##############################
+# SOURCE CONFIGURATION FILES #
+##############################
+configuration_files_list="/usr/lib/exeiac/exeiac.conf
+/usr/local/exeiac/exeiac.conf
+/opt/exeiac/exeiac.conf
+/etc/exeiac.conf
+$HOME/.exeiac
+$HOME/.exeiac.conf"
+for conf_file in $configuration_files_list ; do
+    if [ -f "$conf_file" ]; then
+        source "$conf_file"
+    fi
+done
+
+########################
+# IMPORT ALL FUNCTIONS #
+########################
 source "$exeiac_lib_path/general_functions.sh"
 source "$exeiac_lib_path/develop_functions.sh"
 source "$exeiac_lib_path/brick_arg_functions.sh"
 source "$exeiac_lib_path/actions_functions.sh"
 source "$exeiac_lib_path/execute_plan_functions.sh"
 
-function get_elementary_bricks_list {
-    bricks_path_list="$(for room_path in $room_paths_list ; do
-        cd "$room_path"
-        find . | grep "/[0-9]\+-[^/]*$" | grep -v '/[^0-9]' | 
-        sed "s|^\./|$room_path/|g" ; done)"
-    for brick_path in $bricks_path_list ; do
-        if [ "$(get_brick_type "$brick_path")" != "super_brick" ]; then
-            get_brick_name "$brick_path"
-        fi
-    done
-}
+#######################################
+# CHECK CONFIGURATION FILES ARGUMENTS #
+#######################################
+if [ -z "$room_paths_list" ]; then
+    echo "ERROR: room_path_list isn't set in configfile as ~/.exeiac" >&2
+else
+    ROOMS_LIST="$(sed 's|/ *$||g' <<<"$room_paths_list")"
+fi
+if [ ! -d "$modules_path" ]; then
+    echo "ERROR: modules_path set in configfiles as ~/.exeiac isn't a directory" >&2
+fi
 
-# Identify which parameters is ACTION, BRICK, EXEIAC_OPTS or MODULE_OPTS
-arg_case=null
-actions_list=" install init 
+#######################################
+# SET GLOBAL VARIABLES FROM ARGUMENTS #
+#######################################
+actions_list=" init validate fmt
  plan apply output destroy 
- validate fmt 
  show_dependencies show_dependents list_bricks 
  help -h --help debug "
+
+# Identify which parameters is ACTION, BRICK, OPTS
+arg_case=null
 
 if grep -q " $1 " <<<"$actions_list" || grep -q " $2 " <<<"$actions_list"; then
     if [ -e "$2" ] ; then
@@ -39,51 +69,77 @@ if grep -q " $1 " <<<"$actions_list" || grep -q " $2 " <<<"$actions_list"; then
         brick_path="$(get_absolute_path "$2")"
         brick_name="$(get_brick_name "$brick_path")"
         shift 2
+        OPTS=("$@")
     elif [ -e "$1" ] ; then
         arg_case="brick+action"
         action="$2"
         brick_path="$(get_absolute_path "$1")"
         brick_name="$(get_brick_name "$brick_path")"
         shift 2
+        OPTS=("$@")
     elif brick_path="$(get_brick_path "$1")"; then
         arg_case="brick+action"
         action="$2"
         brick_name="$1"
         shift 2
+        OPTS=("$@")
     elif brick_path="$(get_brick_path "$2")"; then
         arg_case="action+brick"
         action="$1"
         brick_name="$2"
         shift 2
+        OPTS=("$@")
     elif grep -q " $1 " <<<"$actions_list"; then
         arg_case="action_only"
         action="$1"
         shift 1
+        OPTS=("$@")
     else
-        echo "Error: bad argument: \"exeiac help\" for help" >&2
-        dispdebug "- $1 - $2 - $3 -"
-        exit 1
+        soft_exit 1 "Error: bad argument: \"exeiac help\" for help"
     fi
 else
-    echo "Error: bad argument: \"exeiac help\" for help" >&2
-    exit 1
+    soft_exit 1 "Error: bad argument: \"exeiac help\" for help"
 fi
 
-declare -a MODULE_OPTS
-EXEIAC_OPTS=""
-for arg in "$@"; do
-    if grep -q '^--exeiac-opts=' <<<"$arg"; then
-        exeiac_opt="$(sed 's/^--exeiac-opts=//g' <<<"$arg")"
-        EXEIAC_OPTS="$EXEIAC_OPTS,$exeiac_opt"
-    fi
-    MODULE_OPTS[${#MODULE_OPTS[@]}]="$arg"
-done
+##################
+# BEFORE EXECUTE #
+##################
+EXECUTE_ALLOWED="true"
+
+if get_arg --boolean=init-before "$@"; then
+    echo "init_before not implemented yet"
+    # have to check all params to init the before bricks the specifier bricks and the after bricks
+fi
+
+if get_arg --boolean=plan-dependencies-recursively-before "$@"; then
+    bricks_list="$(get_dependencies_recursively $BRICK_PATH)"
+    execute_bricks_list -bricks-paths-list "$bricks_list" -action=plan
+elif get_arg --boolean=plan-dependencies-before "$@"; then
+    bricks_list="$(get_dependencies $BRICK_PATH)"
+    execute_bricks_list -bricks-paths-list "$bricks_list" -action=plan
+fi
+
+if get_arg --boolean=plan-dependents-recursively-before "$@"; then
+    bricks_list="$(get_dependents_recursively $BRICK_PATH)"
+    execute_bricks_list -bricks-paths-list "$bricks_list" -action=plan
+elif get_arg --boolean=plan-dependents-before "$@"; then
+    bricks_list="$(get_dependents_recursively $BRICK_PATH)"
+    execute_bricks_list -bricks-paths-list "$bricks_list" -action=plan
+fi
+
+
+if [ EXECUTE_ALLOWED != "true" ]; then
+    cat "$EXECUTE_SUM_UP_FILE" 
+    echo "ABORT:$ACTION $BRICK_NAME" >&2
+    soft_exit 1 "ABORT:the before execution failed"
+fi
+
+###########
+# EXECUTE #
+###########
 
 if [ "$arg_case" == "action_only" ]; then
     case "$action" in
-    install)
-        install
-    ;;
     list_bricks)
         list_bricks
     ;;
@@ -94,10 +150,19 @@ if [ "$arg_case" == "action_only" ]; then
         cmd_debug        
     ;;
     *)
-        if grep -q "all-room" <<<"$EXEIAC_OPTS"; then
-            for room_path in $room_paths_list ; do
-                $0 "$action" "$room_path" "$@"
-            done
+        if get_arg --boolean=all-bricks "$@"; then
+            execute_bricks_list \
+                -bricks-paths-list "$(list_bricks)"
+                -action="$ACTION"
+        elif bricks_list="$(get_arg --string=bricks-paths-list "$@")"; then
+            execute_bricks_list \
+                -bricks-paths-list "$bricks_list"
+                -action="$ACTION"
+        elif bricks_list="$(get_arg --string=bricks-names-list "$@")"; then
+            bricks_list="$(get_bricks_paths_list "$bricks_list")"
+            execute_bricks_list \
+                -bricks-paths-list "$bricks_list"
+                -action="$ACTION"
         else
             echo "Error: bad argument" >&2
             display_help >&2
@@ -108,59 +173,29 @@ if [ "$arg_case" == "action_only" ]; then
 else
     case "$action" in
     list_bricks)
-        list_bricks "$brick_name"
+        list_bricks "$BRICK_NAME"
     ;;
     show_dependents)
-        show_dependents
+        show_dependents "$BRICK_NAME"
+    ;;
+    show_dependents_recursively)
+        get_dependents_recursively "$BRICK_NAME"
+    ;;
+    show_dependencies_recursively)
+        get_dependencies_recursively "$BRICK_PATH"
     ;;
     debug)
         cmd_debug
     ;;
     *)
-        if get_arg_in_string "plan-dependencies-before" "$EXEIAC_OPTS"; then
-            for dependency in $($0 show_dependencies "$brick_path"); do
-                if ! $0 "plan" "$dependency"; then
-                    execute_brick_authorize="false"
-                    break
-                fi
-            done
-            execute_brick_authorize="true"
-        elif get_arg_in_string "plan-dependencies-before-recursively" "$EXEIAC_OPTS"; then
-            for dependency in $(get_dependencies_recursively); do
-                if ! $0 "plan" "$dependency"; then
-                    execute_brick_authorize="false"
-                    break
-                fi
-            done
-            execute_brick_authorize="true"
-        else
-            execute_brick_authorize="true"
-        fi
-        
-        if execute_brick ; then
-            apply_succeed="true"
-        else
-            apply_succeed="false"
-        fi
-
-        dependents
-        if get_arg_in_string "plan-dependents-after" "$EXEIAC_OPTS"; then
-            for dependency in $($0 show_dependencies "$brick_path"); do
-                if ! $0 "plan" "$dependency"; then
-                    execute_brick_authorize="false"
-                    break
-                fi
-            done
-        elif get_arg_in_string "plan-dependents-after-recursively" "$EXEIAC_OPTS"; then
-
-        elif get_arg_in_string "apply-dependents-after" "$EXEIAC_OPTS"; then
-
-        elif get_arg_in_string "apply-dependents-after-recursively" "$EXEIAC_OPTS"; then
-
-        fi
-
+        execute_brick -brick-path=$brick_path -action=$action
     ;;
     esac
 fi
-cd "$current_path"
+#################
+# AFTER EXECUTE #
+#################
+
+
+soft_exit 0
 

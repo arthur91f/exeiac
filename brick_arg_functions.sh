@@ -1,10 +1,10 @@
 #!/bin/bash
-function get_brick_sanitized_name {
+function get_brick_sanitized_name { # brick_name
     brick_name="$1"
     sanitize_function "$brick_name"
 }
 
-function get_brick_type {
+function get_brick_type { # brick_path
     brick_path="$1"
     if ! grep -q "/[0-9]\+-[^/]*$" <<<"$brick_path" ; then
         echo "not_a_brick"
@@ -26,9 +26,9 @@ function get_brick_type {
     return 0
 }
 
-function get_brick_name {
+function get_brick_name { # brick_path
     brick_path="$1"
-    for room_path in $room_paths_list ; do
+    for room_path in $ROOMS_LIST ; do
         if grep -q "$room_path" <<<"$brick_path" ; then
             room_name="$(sed 's|^.*/\([^/]*\)$|\1|g' <<<"$room_path")"
             sed "s|$room_path|$room_name|g" <<<"$brick_path"
@@ -36,14 +36,32 @@ function get_brick_name {
     done
 }
 
-function get_brick_path {
+function get_brick_path { # brick_name
     brick_name="$1"
     room_name="$(sed 's|^\([^/]*\)/.*$|\1|g' <<<"$brick_name")"
-    room_path="$(grep "/$room_name$" <<<"$room_paths_list")"
+    room_path="$(grep "/$room_name$" <<<"$ROOMS_LIST")"
     if [ -z "$room_path" ]; then # if $1 wasn't a brick name
         return 1
     fi
     parent_room_path="$(sed "s|/$room_name$||g" <<<"$room_path")"
     echo "$parent_room_path/$brick_name"
+}
+
+function get_bricks_paths_list { # bricks_names_list
+    output="$bricks_names_list"
+    for room_path in $ROOMS_LIST; do
+        room_name="$(sed 's|^.*/\([^/]*\)$|\1|g' <<<"$room_path")"
+        output="$(sed "s|^$room_path|$room_name|g" <<<"$output")"
+    done
+    echo "$output"
+}
+
+function get_bricks_names_list { # bricks_paths_list
+    output="$bricks_paths_list"
+    for room_path in $ROOMS_LIST; do
+        room_name="$(sed 's|^.*/\([^/]*\)$|\1|g' <<<"$room_path")"
+        output="$(sed "s|^$room_name|$room_path|g" <<<"$output")"
+    done
+    echo "$output"
 }
 

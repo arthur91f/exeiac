@@ -1,4 +1,4 @@
-exeiac (BRICK_PATH|BRICK_NAME) (install|init|plan|apply|output|destroy|validate|fmt|help|show_dependencies|show_dependents|list_bricks) ["--exeiac-opts=OPT1,OPT2='VAL 1'"] [MODUE_ARGS]
+exeiac (BRICK_PATH|BRICK_NAME) (install|init|plan|apply|output|destroy|validate|fmt|help|show_dependencies|show_dependents|list_bricks) [OPTIONS]
 exeiac (list_bricks|help)
 exeiac debug FUNCTION
 
@@ -16,23 +16,34 @@ fmt: rewrite file to pass linter
 help: display help for this brick or general help
 show_dependencies: get brick_name whom output is needed
 show_dependents: get all brick_name that call the brick's output
-list_bricks: list all elementary brick of the super brick or all
-    elementary brick
-debug: run a function of this file (use for
-    unitary test
+show_dependencies_recursively: get dependencies and dependencies of dependencies
+show_dependents_recursively: get dependents and dependents of dependents...
+list_bricks: list all elementary brick of the super brick or all elementary
+    bricks
+debug: run a function of this file (use for unitary tests)
 
-EXEIAC_OPTS:
-all-room|all-bricks: make the action on all bricks
-plan-dependencies-before
-plan-dependents-after
-apply-dependents-after
-plan-dependencies-before-recursively
-plan-dependents-after-recursively
-apply-dependents-after-recursively
-non-interactive
-unit-testing-function=EXEIAC_FUNCTION
-disbale-debug-classic-output
+BOOLEAN OPTIONS:
+-non-interactive
+-init-before
+-output-after
+-plan-dependencies-before: and fail if there is a diff  or an error
+-plan-dependencies-recursively-before: and fail if there is a diff or an error
+-plan-dependents-before: and fail if there is a diff or an error
+-plan-dependents-recursively-before: and fail if there is a diff or an error
+-plan-dependents-after:
+-apply-dependents-after: (stop applying if one failed)
+-apply-dependents-recursively-after: (stop applying if one failed)
 
-MODULE_ARGS:
-Very useful for filter a brick output. But despite it is possible to send ARGS to module, remember that exeIaC aim is to manage the apply of the whole IaC, not for debugging and send ARGS to super_brick is dangerous as it will send useless ARGS to some elementary_bricks
+SINGLE LINE STRING OPTIONS:
+-unit-testing-function="EXEIAC_FUNCTION ARG1 ARG2..."
+-bricks-specifier=all
+-bricks-specifier=dependencies
+-bricks-specifier=recursive-dependencies
+-bricks-specifier=dependents
+-bricks-specifier=recursive-dependents
+
+
+MULTI LINES STRING OPTIONS:
+-bricks-paths-list
+-bricks-names-list
 

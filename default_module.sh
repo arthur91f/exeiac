@@ -65,6 +65,11 @@ function help {
     "install" is specific to the exeiac module'
 }
 
+function pass {
+    # used to execute option like plan-before without plan the actual brick
+    true
+}
+
 ### Those function can eventually be used in other modules
 function copy_function {
     source_function_name="$1"

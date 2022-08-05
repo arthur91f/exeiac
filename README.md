@@ -202,6 +202,7 @@ However you can use heritage to get multiple modules that use a different terraf
 Don't hesitate to display warning messages or asking confirmation when you implement a tricky shortcut.
 2. Tag your cloud resources with the brick_name or sanitized_brick_name so when you will see something in cloud it will be very easy to find it in code.
 3. All outputs have to present the same format like json. The more you will define convention about outputs the more pass on change on dependents will be easy after modifying a brick.
+4. Show dependencies should as much as possible present elementary_brick. It's more precise and it will drastically improve excution of exeiac with special options.
 
 ---
 

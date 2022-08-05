@@ -42,36 +42,6 @@ function get_arg {
     esac 
 }
 
-function get_arg_in_string {
-    # string="quiet,string=\"I'm good, and you ?\",output='filename with space',type=file"
-    # get_arg_in_string "$string" quiet ; echo $?
-        # true
-        # 0
-    # get_arg_in_string "$string" string ; echo $?
-        # I'm good, and you ?
-        # 0
-    # get_arg_in_string "$string" test-arg-not-present ; echo $?
-        #
-        # 1
-    arg_searched="$1"
-    args_list_string=",$2,"
-
-    if grep -q ",$arg_searched.*," <<<"$args_list_string"; then
-        if grep -q ",$arg_searched," <<<"$args_list_string"; then
-            echo "true"
-        elif grep -q ",$arg_searched='.*'," <<<"$args_list_string"; then
-            sed "s/^.*,$arg_searched='\(.*\)',.*$/\1/g" <<<"$args_list_string"
-        elif grep -q ",$arg_searched=\".*\"," <<<"$args_list_string"; then
-            sed "s/^.*,$arg_searched=\"\(.*\)\",.*$/\1/g" <<<"$args_list_string"
-        elif grep -q ",$arg_searched=.*," <<<"$args_list_string"; then
-            sed "s/^.*,$arg_searched=\([^,]*\),.*$/\1/g" <<<"$args_list_string"
-        fi
-        return 0
-    else
-        return 1
-    fi
-}
-
 function display_line_after_match {
     text="$1"
     regex="$2"
@@ -111,5 +81,14 @@ function merge_string_on_new_line {
 	if [ -n "$2" ]; then
 		echo "$2"
 	fi
+}
+
+function soft_exit { return_code error_message
+    return_code="$1"
+    cd "$INITIAL_CURRENT_PATH"
+    if [ -n "$2" ]
+        echo "$2" >&2
+    fi
+    return "$return_code"
 }
 
