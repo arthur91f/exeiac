@@ -194,5 +194,6 @@ else
         ;;
     esac
 fi
+cat "$EXECUTE_SUM_UP_FILE"
 soft_exit $return_code
 
