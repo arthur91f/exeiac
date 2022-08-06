@@ -5,7 +5,7 @@ function dispdebug {
 }
 
 function cmd_debug {
-    if ! get_arg_in_string "disbale-debug-classic-output" "$EXEIAC_OPTS" >/dev/null ; then
+    if ! get_arg --boolean=disbale-debug-classic-output "$@" ; then
         echo "### DEBUG ###"
         echo "  arg_case: \"$arg_case\", action: \"$action\""
         echo "  brick_path: $brick_path"
@@ -14,7 +14,7 @@ function cmd_debug {
         echo "  MODULE_OPTS: $MODULE_OPTS"
         echo "#############"
     fi
-    if cmd="$(get_arg_in_string "unit-testing-function" "$EXEIAC_OPTS")"; then
+    if cmd="$(get_arg --string=unit-testing-function "$@")"; then
         $cmd
         echo "return code: $?"
     fi

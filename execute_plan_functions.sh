@@ -22,7 +22,7 @@ function write_sum_up { # string
 }
 
 function get_elementary_bricks_list { # [-rooms-list]
-    if ! rooms_list="$(get_arg -string=rooms-list)" ; then
+    if ! rooms_list="$(get_arg -string=rooms-list "$@")" ; then
         rooms_list=$ROOMS_LIST
     fi
     bricks_path_list="$(for room_path in $rooms_list ; do

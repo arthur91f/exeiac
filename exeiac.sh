@@ -69,7 +69,7 @@ fi
 ################################
 # SET VARIABLES FROM ARGUMENTS #
 ################################
-if EXECUTE_SUM_UP_FILE="$(get_arg --string=execute-plan-file)"; then
+if EXECUTE_SUM_UP_FILE="$(get_arg --string=execute-plan-file "$@")"; then
     touch "$EXECUTE_SUM_UP_FILE"
     if [ ! -w "$EXECUTE_SUM_UP_FILE" ]; then
         soft_exit 1 "ERROR:execute-sum-up-file not writable:$EXECUTE_SUM_UP_FILE"

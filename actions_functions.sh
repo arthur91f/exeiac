@@ -14,7 +14,7 @@ function list_bricks { # [brick_name]
 function execute_brick { # -brick-path -action [-brick-type]
     arg_brick="$(get_arg --string=brick-path "$@")"
     arg_action="$(get_arg --string=action "$@")"
-    if ! brick_type="$(get_arg --string=brick-type)" ; then
+    if ! brick_type="$(get_arg --string=brick-type "$@")" ; then
         brick_type="$(get_brick_type "$arg_brick")"        
     fi
     case "$brick_type" in
@@ -63,7 +63,7 @@ function execute_brick { # -brick-path -action [-brick-type]
 
 function show_dependents { #-brick-name
     if [ -z "$1" ]; then
-        arg_brick="$(get_arg -string=brick-name)"
+        arg_brick="$(get_arg -string=brick-name "$@")"
     else
         arg_brick="$BRICK_NAME"
     fi
