@@ -91,7 +91,7 @@ function execute_bricks_list { # -bricks-paths-list -action
             dependencies_list="$(get_list_dependencies "$bricks_list")"
             return_code="$?"
             display_bricks_in_right_order "$dependencies_list"
-            if [ "$?" !=0 ]
+            if [ "$?" !=0 ]; then
                 return_code=1
             fi
         ;;

@@ -29,11 +29,6 @@ brick_name=""                 # will be set after arguments interpretation
 brick_path=""                 # will be set after arguments interpretation
 action=""                     # will be set after arguments interpretation
 
-
-AFTER_EXECUTE_PLAN
-BEFORE_EXECUTE_PLAN
-bricks_list
-EXECUTE_ALLOWED
 ##############################
 # SOURCE CONFIGURATION FILES #
 ##############################
@@ -58,12 +53,12 @@ source "$exeiac_lib_path/exeiac_functions.sh"
 # CHECK CONFIGURATION FILES ARGUMENTS #
 #######################################
 if [ -z "$room_paths_list" ]; then
-    echo "ERROR: room_path_list isn't set in configfile as ~/.exeiac" >&2
+    echo "ERROR:exeiac: room_path_list isn't set in configfile as ~/.exeiac" >&2
 else
     ROOMS_LIST="$(sed 's|/ *$||g' <<<"$room_paths_list")"
 fi
 if [ ! -d "$modules_path" ]; then
-    echo "ERROR: modules_path set in configfiles as ~/.exeiac isn't a directory" >&2
+    echo "ERROR:exeiac: modules_path set in configfiles as ~/.exeiac isn't a directory" >&2
 fi
 
 ################################
@@ -72,7 +67,7 @@ fi
 if EXECUTE_SUM_UP_FILE="$(get_arg --string=execute-plan-file "$@")"; then
     touch "$EXECUTE_SUM_UP_FILE"
     if [ ! -w "$EXECUTE_SUM_UP_FILE" ]; then
-        soft_exit 1 "ERROR:execute-sum-up-file not writable:$EXECUTE_SUM_UP_FILE"
+        soft_exit 1 "ERROR:exeiac:execute-sum-up-file not writable:$EXECUTE_SUM_UP_FILE"
     fi
 else
     EXECUTE_SUM_UP_FILE="/tmp/exeiac_execute_sum_up-$(date +%y%m%d-%H%M%S-%N)"
@@ -113,19 +108,18 @@ else
     soft_exit 1 "Error: bad argument: \"exeiac help\" for help"
 fi
 
-# DEFINE selected_bricks # --------------
-selected_bricks="$(get_selected_bricks -brick-path="$brick_path" "${OPTS[@]}")"
-if [ "$?" != 0 ]; then
-    soft_exit 1 "ERROR:get_selected_bricks"
+if [ -n "$brick_path" ]; then
+    selected_bricks="$(get_selected_bricks -brick-path="$brick_path" "${OPTS[@]}")"
+    if [ "$?" != 0 ]; then
+        soft_exit 1 "ERROR:exeiac:get_selected_bricks"
+    fi
 fi
-
-# DEFINE execute_plan # -----------------
 if specifiers_list="$(get_arg --string=bricks-specifier "$@")"; then
     execute_plan="$(get_specified_bricks \
         -selected-bricks "$selected_bricks" \
         -bricks-specifier "$specifier_list")"
     if [ "$?" != 0 ]; then
-        soft_exit 1 "ERROR:get_specified_bricks"
+        soft_exit 1 "ERROR:exeiac:get_specified_bricks"
     fi
 else
     execute_plan="$selected_bricks"
@@ -140,11 +134,11 @@ if [ -n "$execute_plan" ]; then
         execute_bricks_list -bricks-paths-list "$execute_plan" -action "$action"
         return_code=$?
         ;;
-    show_dependents|)
+    show_dependents)
         bricks_list="$(get_dependents "$execute_plan")"
         return_code="$?"
         display_bricks_in_right_order "$bricks_list"
-        if [ "$?" !=0 ]
+        if [ "$?" !=0 ]; then
             return_code=1
         fi
         ;;
@@ -152,7 +146,7 @@ if [ -n "$execute_plan" ]; then
         bricks_list="$(get_dependencies_recursively "$execute_plan")"
         return_code="$?"
         display_bricks_in_right_order "$bricks_list"
-        if [ "$?" !=0 ]
+        if [ "$?" !=0 ]; then
             return_code=1
         fi
         ;;
@@ -160,7 +154,7 @@ if [ -n "$execute_plan" ]; then
         bricks_list="$(get_dependents "$execute_plan")"
         return_code="$?"
         display_bricks_in_right_order "$bricks_list"
-        if [ "$?" !=0 ]
+        if [ "$?" !=0 ]; then
             return_code=1
         fi
         ;;
@@ -172,7 +166,7 @@ if [ -n "$execute_plan" ]; then
         return_code=$?
         ;;
     *)
-        soft_exit 1 "ERROR:unrecognized_action:$action"
+        soft_exit 1 "ERROR:exeiac:unrecognized_action:$action"
         ;;
     esac
 else
@@ -190,7 +184,7 @@ else
         return_code=$?
         ;;
     *)
-        soft_exit 1 "ERROR:unrecognized_action:$action"
+        soft_exit 1 "ERROR:exeiac:unrecognized_action:$action"
         ;;
     esac
 fi

@@ -83,10 +83,10 @@ function merge_string_on_new_line {
 	fi
 }
 
-function soft_exit { return_code error_message
+function soft_exit { # return_code error_message
     return_code="$1"
     cd "$INITIAL_CURRENT_PATH"
-    if [ -n "$2" ]
+    if [ -n "$2" ]; then
         echo "$2" >&2
     fi
     return "$return_code"
