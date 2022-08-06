@@ -1,4 +1,6 @@
-exeiac (BRICK_PATH|BRICK_NAME) (install|init|plan|apply|output|destroy|validate|fmt|help|show_dependencies|show_dependents|list_bricks) [OPTIONS]
+exeiac (BRICK_PATH|BRICK_NAME) ACTIONS [OPTIONS] 
+exeiac ACTIONS (BRICK_PATH|BRICK_NAME)[OPTIONS]
+exeiac ACTIONS (--bricks-paths-list|--bricks-names-list) [OPTIONS]
 exeiac (list_bricks|help)
 exeiac debug FUNCTION
 
@@ -22,28 +24,20 @@ list_bricks: list all elementary brick of the super brick or all elementary
     bricks
 debug: run a function of this file (use for unitary tests)
 
-BOOLEAN OPTIONS:
+OPTIONS:
 -non-interactive
--init-before
--output-after
--plan-dependencies-before: and fail if there is a diff  or an error
--plan-dependencies-recursively-before: and fail if there is a diff or an error
--plan-dependents-before: and fail if there is a diff or an error
--plan-dependents-recursively-before: and fail if there is a diff or an error
--plan-dependents-after:
--apply-dependents-after: (stop applying if one failed)
--apply-dependents-recursively-after: (stop applying if one failed)
-
-SINGLE LINE STRING OPTIONS:
+-execute-sum-up-file=FILE
 -unit-testing-function="EXEIAC_FUNCTION ARG1 ARG2..."
--bricks-specifier=all
--bricks-specifier=dependencies
--bricks-specifier=recursive-dependencies
--bricks-specifier=dependents
--bricks-specifier=recursive-dependents
+-bricks-specifier=SPECIFIER
+-bricks-paths-list BRICKS_LIST 
+-bricks-names-list BRICKS_LIST
 
-
-MULTI LINES STRING OPTIONS:
--bricks-paths-list
--bricks-names-list
-
+SPECIFIER: they can be combined with + "as dependencies+dependents"
+all
+dependencies
+recursive_dependencies
+dependents
+recursive_dependents
+dependents_dependencies
+recursive_dependents_dependencies
+selected(default)

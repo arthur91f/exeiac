@@ -67,14 +67,9 @@ function show_dependents { #-brick-name
     else
         arg_brick="$BRICK_NAME"
     fi
-
-    bricks_to_check="$(
-        display_line_after_match "$(get_elementary_bricks_list)" "$arg_brick")"
-    for brick in $bricks_to_check ; do
-        if grep -q "$arg_brick" <<<"$($0 "$brick" show_dependencies)"; then
-            echo "$brick"
-        fi
-    done
+    
+    get_dependents "$arg_brick"
+    return $?
 }
 
 function display_help {
