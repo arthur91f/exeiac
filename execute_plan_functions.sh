@@ -1,15 +1,20 @@
 #!/bin/bash
 
-function convert_to_elementary_bricks_path { # bricks_list
+function convert_to_elementary_bricks_path { #< bricks_list # name or path
+    #> elementary_bricks_paths_list
     bricks_list="$(get_bricks_paths_list "$1")"
     return_code=0
     for brick in $bricks_list; do
         brick_type="$(get_brick_type "$brick")"
         if [ "$?" != 0 ]; then
-            echo "ERROR:convert_to_elementary_bricks_path:get_brick_type:$brick"
+            echo "ERROR:convert_to_elementary_bricks_path:get_brick_type:$brick" >&2
             return_code=1
         elif [ "$brick_type" == "super_brick" ]; then
-            list_bricks "$(get_brick_name "$brick")"        
+            get_bricks
+            get_child_bricks "$(get_brick_name "$brick")"
+            if [ $? != 0 ]; then
+                return_code=1
+            fi
         else
             echo "$brick"
         fi
@@ -17,15 +22,20 @@ function convert_to_elementary_bricks_path { # bricks_list
     return $return_code
 }
 
-function write_sum_up { # string
+function get_child_bricks { #< super_brick_name
+    #> child_bricks_list_in_right_order
+    get_elementary_bricks_list | grep "^$brick_name"
+    return $?
+}
+
+function write_sum_up { #< string
+    #>EXECUTE_SUM_UP_FILE 
     echo "$1" >> "$EXECUTE_SUM_UP_FILE"
 }
 
-function get_elementary_bricks_list { # [-rooms-list]
-    if ! rooms_list="$(get_arg -string=rooms-list "$@")" ; then
-        rooms_list=$ROOMS_LIST
-    fi
-    bricks_path_list="$(for room_path in $rooms_list ; do
+function get_elementary_bricks_list { #< nothing but read global ROOMS_LIST 
+    #> all_rooms_elementary_bricks_paths_ordered_list
+    bricks_path_list="$(for room_path in $ROOMS_LIST ; do
         cd "$room_path"
         find . | grep "/[0-9]\+-[^/]*$" | grep -v '/[^0-9]' |
         sed "s|^\./|$room_path/|g" ; done)"
@@ -36,7 +46,8 @@ function get_elementary_bricks_list { # [-rooms-list]
     done
 }
 
-function display_bricks_in_right_order { # brick_to_display
+function display_bricks_in_right_order { #< brick_to_display
+    #> bricks_ordered_list
     brick_to_display="$1"
     get_elementary_bricks_list | while read brick ; do
         grep "^$brick$" <<<"$brick_to_display"
@@ -44,7 +55,8 @@ function display_bricks_in_right_order { # brick_to_display
     return 0
 }
 
-function execute_bricks_list { # -bricks-paths-list -action
+function execute_bricks_list { #< -bricks-paths-list -action
+    #> ~
     bricks_list="$(get_arg --string=bricks-paths-list "$@")"
     action="$(get_arg --string=action "$@")"
     return_code=0

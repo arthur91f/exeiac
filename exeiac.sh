@@ -131,7 +131,9 @@ fi
 if [ -n "$execute_plan" ]; then
     case "$action" in
     init|validate|fmt|pass|help|output|plan|apply|destroy|show_dependencies)
-        execute_bricks_list -bricks-paths-list "$execute_plan" -action "$action"
+        execute_bricks_list \
+            -bricks-paths-list "$execute_plan" \
+            -action "$action"
         return_code=$?
         ;;
     show_dependents)
@@ -188,6 +190,11 @@ else
         ;;
     esac
 fi
-cat "$EXECUTE_SUM_UP_FILE"
+if [ -f "$EXECUTE_SUM_UP_FILE" ]; then
+    content="$(cat "$EXECUTE_SUM_UP_FILE")"
+    if [ -n "$content" ]; then
+        echo "$content"   
+    fi
+fi
 soft_exit $return_code
 

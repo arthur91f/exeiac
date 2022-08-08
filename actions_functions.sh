@@ -1,17 +1,22 @@
 #!/bin/bash
 
-function list_bricks { # [brick_name]
-    brick_name="$1"
-    if [ -n "$brick_name" ]; then
-        elementary_bricks_list="$(get_elementary_bricks_list |
-            grep "^$brick_name")"
-    else        
-        elementary_bricks_list="$(get_elementary_bricks_list)"
-    fi              
-    echo "$elementary_bricks_list" 
+function list_bricks { #< (brick_name|bricks_list)
+    #> bricks_list
+    arg="$1"
+    if [ -z "$arg" ]; then
+        get_elementary_bricks_list
+        return $?
+        get_bricks_names_list "$(convert_to_elementary_bricks_path "$arg")"
+    else
+        bricks_list="$(convert_to_elementary_bricks_path "$arg")"
+        return_code=$?
+        get_bricks_names_list "$bricks_list"
+        return $return_code
+    fi
 }
 
-function execute_brick { # -brick-path -action [-brick-type]
+function execute_brick { #< -brick-path -action [-brick-type]
+    #> ~ # depending of -action 
     arg_brick="$(get_arg --string=brick-path "$@")"
     arg_action="$(get_arg --string=action "$@")"
     if ! brick_type="$(get_arg --string=brick-type "$@")" ; then
@@ -19,9 +24,9 @@ function execute_brick { # -brick-path -action [-brick-type]
     fi
     case "$brick_type" in
         super_brick)
-            list_bricks="$(list_bricks "$brick_name")"
+            bricks_list="$(get_child_bricks "$brick_name")"
             execute_bricks_list \
-                -bricks-paths-list="$list_bricks" \
+                -bricks-paths-list="$bricks_list" \
                 -action="$arg_action"
             return $?
         ;;
@@ -61,18 +66,19 @@ function execute_brick { # -brick-path -action [-brick-type]
     esac
 }
 
-function show_dependents { #-brick-name
+function show_dependents { #< -brick-name
+    #> dependents_bricks_list
     if [ -z "$1" ]; then
         arg_brick="$(get_arg -string=brick-name "$@")"
     else
         arg_brick="$BRICK_NAME"
     fi
-    
     get_dependents "$arg_brick"
     return $?
 }
 
-function display_help {
+function display_help { #< # nothing
+    #> ~ # display the help
     cat "$exeiac_lib_path/help.txt"
 }
 

@@ -1,51 +1,51 @@
 #!/bin/bash
-function is_brick_using_this_module {
+function is_brick_using_this_module { #> ?
     echo "default-module: get_type function have to be overloaded" >&2
     return 1
 }
 
-function install {
+function install { #> ~
     echo "default-module: nothing to install"
 }
 
-function init {
+function init { #> ~
     echo "default-module: no init needed"
 }
 
-function plan {
+function plan { #> ~
     echo "default-module: no plan possible"
 }
 
-function apply {
+function apply { #> ~
     echo "default-module: apply function have to be overloaded" >&2
     return 1
 }
 
-function output {
+function output { #> ~
     echo ""
 }
 
-function destroy {
+function destroy { #> ~
     echo "default-module: destroy function have to be overloaded" >&2
     return 1
 }
 
-function validate {
+function validate { #> ?
     return 0
 }
 
-function fmt {
+function fmt { #> ?
     return 0
 }
 
-function show_dependencies {
+function show_dependencies { #> dependencies_list
     egrep -r '(#|//)EXEIAC:depends:' |
         sed 's|^.*#EXEIAC:depends: *||g' |
         sed 's|^.*//EXEIAC:depends: *||g' |
         cut -d: -f1
 }
 
-function help {
+function help { #> ~
     echo "The help of this brick haven't been overloaded 
     so it runs the normal way."
     echo execiac BRICK_PATH ACTION [OPTIONS]
@@ -65,13 +65,14 @@ function help {
     "install" is specific to the exeiac module'
 }
 
-function pass {
+function pass { #> return true
     # used to execute option like plan-before without plan the actual brick
-    true
+    return 0
 }
 
 ### Those function can eventually be used in other modules
-function copy_function {
+function copy_function { #< source_function_name new_function_name
+    #> # nothing only duplicates function to overload function without loosing them
     source_function_name="$1"
     new_function_name="$2"
     local local_func
@@ -79,12 +80,12 @@ function copy_function {
     eval "function $new_function_name ${local_func#*"()"}"
 }
 
-function import_module_functions {
-    # for terrform module will import functions as
-    # init -> terraform_init
-    # plan -> terraform_plan
-    # ...
-    # then it will reimport default function
+function import_module_functions { #< module_path
+    #> for terrform module will import functions as
+    #> init -> terraform_init
+    #> plan -> terraform_plan
+    #> ...
+    #> then it will reimport default function
     # https://webdevdesigner.com/q/how-do-i-rename-a-bash-function-587410/
     module="$1"
     shift

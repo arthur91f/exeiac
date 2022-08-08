@@ -1,6 +1,7 @@
 #!/bin/bash
 
-function get_dependencies_tree { # [brick_name]
+function get_dependencies_tree { #< [brick_name]
+    #> bricks_ordered_list_with_their_dependencies # "brick1:deps1 deps2", "brick2:deps1 deps3 deps4"
     if [ -n "$1" ]; then
         brick_name="$1"
         bricks_list="$( display_line_after_match \
@@ -17,7 +18,8 @@ function get_dependencies_tree { # [brick_name]
     done
 }
 
-function get_dependents { # brick_name
+function get_dependents { #< brick_name
+    #> bricks_ordered_list
     brick_name="$1"
     return_code=0
     bricks_to_check="$( display_line_after_match \
@@ -36,7 +38,8 @@ function get_dependents { # brick_name
     return $return_code
 }
 
-function get_dependents_recursively { # brick_name [-dependencies-tree]
+function get_dependents_recursively { #< brick_name [-dependencies-tree]
+    #> bricks_ordered_list
     brick_name="$1"
     dependents_list="$brick_name"
     if ! dependencies_tree="$(get_arg --string=dependencies-tree "$@")"; then
@@ -55,7 +58,8 @@ function get_dependents_recursively { # brick_name [-dependencies-tree]
     done <<<"$dependencies_tree"
 }
 
-function get_list_dependents { # bricks_names_list
+function get_list_dependents { #< bricks_names_list
+    #> bricks_disordered_list
     bricks_list="$1"
     return_code=0
     dependents_list=""
@@ -69,7 +73,8 @@ function get_list_dependents { # bricks_names_list
     return $return_code
 }
 
-function get_list_dependents_recursively { # bricks_names_list
+function get_list_dependents_recursively { #< bricks_names_list
+    #> bricks_disordered_list
     bricks_list="$(display_bricks_in_right_order "$1")"
     dependencies_tree="$(get_depencies_tree "$(head -n1 <<<"bricks_list")")"
     return_code=0
@@ -79,11 +84,12 @@ function get_list_dependents_recursively { # bricks_names_list
         if [ "$?" != 0 ]; then
             return_code=1
         fi
-    done | sort -u
+    done | sort -u # sort -u use the right order 
     return $return_code
 }
 
-function get_dependencies { # brick_path
+function get_dependencies { #< brick_path
+    #> bricks_disorder_list
     execute_brick -action=show_dependencies -brick-path="$1"
     if [ "$?" != 0 ]; then
         echo "ERROR:get_dependencies: $1"
@@ -91,7 +97,8 @@ function get_dependencies { # brick_path
     fi
 }
 
-function get_dependencies_recursively { # brick_path
+function get_dependencies_recursively { #< brick_path
+    #> bricks_disorder_list
     brick_path="$1"
     dependencies_list="$(execute_brick \
         -action=show_dependencies \
@@ -129,7 +136,8 @@ function get_dependencies_recursively { # brick_path
     done
 }
 
-function get_list_dependencies { # bricks_paths_list
+function get_list_dependencies { #< bricks_paths_list
+    #> bricks_disorder_list
     bricks_list="$1"
     return_code=0
     dependencies_list=""
@@ -153,7 +161,8 @@ function get_list_dependencies { # bricks_paths_list
     return $return_code
 }
 
-function get_list_dependencies_recursively { # bricks_paths_list
+function get_list_dependencies_recursively { #< bricks_paths_list
+    #> bricks_disorder_list
     bricks_paths_list="$1"
     return_code=0
     for brick in $bricks_paths_list ; do
@@ -162,7 +171,7 @@ function get_list_dependencies_recursively { # bricks_paths_list
             echo "ERROR:get_list_dependencies_recursively: $brick" >&2
             return_code=1
         fi
-    done
+    done | sort -u
     return $return_code
 }
 

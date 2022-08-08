@@ -1,6 +1,7 @@
 #!/bin/bash
 
-function get_selected_bricks { # -brick-path $@
+function get_selected_bricks { #< -brick-path -bricks-paths-list -bricks-names-list
+    #> selected_bricks
     brick_path="$(get_arg --string=brick-path "$@")"
     selected_bricks=""
     return_code=0
@@ -13,7 +14,7 @@ function get_selected_bricks { # -brick-path $@
                 selected_bricks="$bricks_path"
                 ;;
             super_brick)
-                selected_bricks="$(list_bricks "$brick_name")"
+                selected_bricks="$(get_child_bricks "$brick_name")"
                 ;;
             *)
                 soft_exit 1 "ERROR:get_selected_bricks: brick type not known"
@@ -35,8 +36,8 @@ function get_selected_bricks { # -brick-path $@
     return $return_code
 }
 
-
-function get_specified_bricks { # -selected-bricks -bricks-specifier
+function get_specified_bricks { #< -selected-bricks -bricks-specifier
+    #> specified_bricks_list
     selected_bricks="$(get_arg --string=selected-bricks "$@")"
     specifiers_list="$(get_arg --string=bricks-specifiers "$@")"
     specified_bricks=""
@@ -47,7 +48,7 @@ function get_specified_bricks { # -selected-bricks -bricks-specifier
                 bricks_to_add="$selected_bricks"
                 ;;
             all)
-                bricks_to_add="$(list_bricks)"
+                bricks_to_add="$(get_elementary_bricks_list)"
                 ;;
             dependencies)
                 bricks_to_add="$(get_list_dependencies \

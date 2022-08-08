@@ -1,10 +1,13 @@
 #!/bin/bash
-function get_brick_sanitized_name { # brick_name
+function get_brick_sanitized_name { #< brick_name
+    #> sanitize_brick_name
     brick_name="$1"
     sanitize_function "$brick_name"
 }
 
-function get_brick_type { # brick_path
+function get_brick_type { #< brick_path
+    #> ? if recognize a brick_type
+    #> (super_brick|elementary_script_brick|elementary_directory_brick|not_a_brick)
     brick_path="$1"
     if ! grep -q "/[0-9]\+-[^/]*$" <<<"$brick_path" ; then
         echo "not_a_brick"
@@ -26,7 +29,8 @@ function get_brick_type { # brick_path
     return 0
 }
 
-function get_brick_name { # brick_path
+function get_brick_name { #< brick_path
+    #> brick_name
     brick_path="$1"
     for room_path in $ROOMS_LIST ; do
         if grep -q "$room_path" <<<"$brick_path" ; then
@@ -36,7 +40,8 @@ function get_brick_name { # brick_path
     done
 }
 
-function get_brick_path { # brick_name
+function get_brick_path { #< brick_name
+    #> brick_path
     brick_name="$1"
     room_name="$(sed 's|^\([^/]*\)/.*$|\1|g' <<<"$brick_name")"
     room_path="$(grep "/$room_name$" <<<"$ROOMS_LIST")"
@@ -47,7 +52,8 @@ function get_brick_path { # brick_name
     echo "$parent_room_path/$brick_name"
 }
 
-function get_bricks_paths_list { # bricks_names_list
+function get_bricks_paths_list { #< bricks_names_list
+    #> bricks_paths_list # doesn't check bricks validity
     output="$bricks_names_list"
     for room_path in $ROOMS_LIST; do
         room_name="$(sed 's|^.*/\([^/]*\)$|\1|g' <<<"$room_path")"
@@ -56,7 +62,8 @@ function get_bricks_paths_list { # bricks_names_list
     echo "$output"
 }
 
-function get_bricks_names_list { # bricks_paths_list
+function get_bricks_names_list { #< bricks_paths_list
+    #> bricks_name_list # doesn't check bricks validity
     output="$bricks_paths_list"
     for room_path in $ROOMS_LIST; do
         room_name="$(sed 's|^.*/\([^/]*\)$|\1|g' <<<"$room_path")"
