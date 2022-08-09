@@ -43,7 +43,7 @@ done
 ########################
 source "$exeiac_lib_path/general_functions.sh"
 source "$exeiac_lib_path/develop_functions.sh"
-source "$exeiac_lib_path/brick_arg_functions.sh"
+source "$exeiac_lib_path/brick_referencer_functions.sh"
 source "$exeiac_lib_path/actions_functions.sh"
 source "$exeiac_lib_path/execute_plan_functions.sh"
 source "$exeiac_lib_path/dependencies_functions.sh"
@@ -164,7 +164,7 @@ if [ -n "$execute_plan" ]; then
         echo "$execute_plan"
         ;;
     debug)
-        cmd_debug
+        cmd_debug "$@"
         return_code=$?
         ;;
     *)
@@ -173,7 +173,7 @@ if [ -n "$execute_plan" ]; then
     esac
 else
     case "$action" in
-    help)
+    help|--help|-h)
         display_help
         return_code=$?
         ;;
@@ -182,7 +182,7 @@ else
         return_code=$?
         ;;
     debug)
-        cmd_debug
+        cmd_debug "$@" -disbale-debug-classic-output
         return_code=$?
         ;;
     *)

@@ -75,7 +75,7 @@ function get_absolute_path { #< relative_path_or_absolute_path
     if [ -e "$path" ]; then
         echo "$(cd "$(dirname "$path")"; pwd)/$(basename "$path")"
     else
-        echo "Error path not exist: $path"
+        echo "ERROR:get_absolute_path:path doesn't exist: $path"
         return 1
     fi
 }

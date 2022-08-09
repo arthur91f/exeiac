@@ -21,6 +21,24 @@ function cmd_debug { #< -disbale-debug-classic-output -unit-testing-function
     fi
 }
 
+function get_functions { #< =(-file|-function)
+    #> function_arguments
+    
+    if fx="$(get_arg --string=function "$@")"; then
+        files="$(grep -r "^function $fx" | cut -d: -f1)"
+    elif files="$(get_arg --string=file "$@")" ; then
+        true
+    else
+        files="$(ls -1 $exeiac_lib_path/ | grep "_functions\.sh$")"
+    fi
+
+    for file in $files ; do
+        echo "-- $file ------"
+        egrep '(^function|#<|#>)' "$exeiac_lib_path/$file"
+        echo ""
+    done
+}
+
 # function install {
 #     return_code=0
 #     if [ -z "$room_paths_list" ]; then

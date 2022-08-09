@@ -2,6 +2,7 @@
 copy_function show_dependencies default_show_dependencies
 
 function is_brick_using_this_module {
+    brick_path="$(pwd)"
     if [ -d "$brick_path" ] && ls -1 "$brick_path" | grep -q "\.tf$" &&
         ! grep -q "^[0-9]\+-[^/]*$" <<<"$(ls -1 "$brick_path")"; then
         return 0

@@ -4,13 +4,13 @@ function convert_to_elementary_bricks_path { #< bricks_list # name or path
     #> elementary_bricks_paths_list
     bricks_list="$(get_bricks_paths_list "$1")"
     return_code=0
+    dispdebug "ctebp:LBL1: $bricks_list LBL1:ctebp"
     for brick in $bricks_list; do
         brick_type="$(get_brick_type "$brick")"
         if [ "$?" != 0 ]; then
             echo "ERROR:convert_to_elementary_bricks_path:get_brick_type:$brick" >&2
             return_code=1
         elif [ "$brick_type" == "super_brick" ]; then
-            get_bricks
             get_child_bricks "$(get_brick_name "$brick")"
             if [ $? != 0 ]; then
                 return_code=1
@@ -23,7 +23,8 @@ function convert_to_elementary_bricks_path { #< bricks_list # name or path
 }
 
 function get_child_bricks { #< super_brick_name
-    #> child_bricks_list_in_right_order
+    #> childs_bricks_names_ordered_list
+    brick_name="$1"
     get_elementary_bricks_list | grep "^$brick_name"
     return $?
 }
@@ -39,6 +40,7 @@ function get_elementary_bricks_list { #< nothing but read global ROOMS_LIST
         cd "$room_path"
         find . | grep "/[0-9]\+-[^/]*$" | grep -v '/[^0-9]' |
         sed "s|^\./|$room_path/|g" ; done)"
+    dispdebug "get_elementary_bricks_list"
     for brick_path in $bricks_path_list ; do
         if [ "$(get_brick_type "$brick_path")" != "super_brick" ]; then
             get_brick_name "$brick_path"

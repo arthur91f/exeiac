@@ -5,13 +5,13 @@ function get_selected_bricks { #< -brick-path -bricks-paths-list -bricks-names-l
     brick_path="$(get_arg --string=brick-path "$@")"
     selected_bricks=""
     return_code=0
-    if [ -z "$brick_path" ]; then
+    if [ -n "$brick_path" ]; then
         case "$(get_brick_type "$brick_path")" in
             not_a_brick)
                 soft_exit 1 "ERROR:get_selected_bricks:not_a_brick: $brick_path"
                 ;;
             elementary_script_brick|elementary_directory_brick)
-                selected_bricks="$bricks_path"
+                selected_bricks="$brick_path"
                 ;;
             super_brick)
                 selected_bricks="$(get_child_bricks "$brick_name")"
@@ -25,10 +25,12 @@ function get_selected_bricks { #< -brick-path -bricks-paths-list -bricks-names-l
     elif get_arg --string=bricks-names-list "$@" >/dev/null; then
         selected_bricks="$(get_arg --string=bricks-names-list "$@" >/dev/null)"
     fi
+
     selected_bricks="$(convert_to_elementary_bricks_path "$selected_bricks")"
     if [ "$?" != 0 ]; then
         return_code=1
     fi
+
     get_bricks_paths_list "$selected_bricks"
     if [ "$?" != 0 ]; then
         return_code=1 

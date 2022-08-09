@@ -1,20 +1,22 @@
 #!/bin/bash
 
 function get_dependencies_tree { #< [brick_name]
-    #> bricks_ordered_list_with_their_dependencies # "brick1:deps1 deps2", "brick2:deps1 deps3 deps4"
+    #> bricks_path_ordered_list_with_their_dependencies # "brick1:deps1 deps2", "brick2:deps1 deps3 deps4"
     if [ -n "$1" ]; then
         brick_name="$1"
-        bricks_list="$( display_line_after_match \
+        bricks_paths_list="$( get_bricks_paths_list \
+            "$( display_line_after_match \
             "$(get_elementary_bricks_list)" \
-            "$brick_name")"
+            "$brick_name")")"
     else
-        bricks_list="$(get_elementary_bricks_list)"
+        bricks_paths_list="$( get_bricks_paths_list \
+            "$(get_elementary_bricks_list)")"
     fi
     
-    for brick in $bricks_list ; do
-        echo "$brick:$( echo $(execute_brick \
+    for brick_path in $bricks_paths_list ; do
+        echo "$brick_path:$( echo $(execute_brick \
             -action=show_dependencies \
-            -brick-path=$brick))"
+            -brick-path=$brick_path))"
     done
 }
 
@@ -26,9 +28,9 @@ function get_dependents { #< brick_name
         "$(get_elementary_bricks_list)" "$brick_name")"
     
     for brick in $bricks_to_check ; do
-        dependencies_list="$(get_dependencies "$brick")"
+        dependencies_list="$(get_dependencies "$(get_brick_path "$brick")")"
         if [ "$?" != 0 ]; then
-            echo "ERROR:get_dependents: $brick" >&2
+            echo "ERROR:get_dependents:get_dependencies $brick" >&2
             return_code=1
         fi
         if grep -q "$brick_name" <<<"$dependencies_list"; then
@@ -39,19 +41,19 @@ function get_dependents { #< brick_name
 }
 
 function get_dependents_recursively { #< brick_name [-dependencies-tree]
-    #> bricks_ordered_list
+    #> bricks_paths_ordered_list
     brick_name="$1"
-    dependents_list="$brick_name"
+    dependents_name_list="$brick_name"
     if ! dependencies_tree="$(get_arg --string=dependencies-tree "$@")"; then
         dependencies_tree="$(get_dependencies_tree "$brick_name")"
     fi
     while read line ; do
-        studied_brick="$(cut -d: -f1 <<<"$line")"
-        studied_bricks_dependencies="$(cut -d: -f2- <<<"$line")"
+        studied_brick_path="$(cut -d: -f1 <<<"$line")"
+        studied_bricks_dependencies_names="$(cut -d: -f2- <<<"$line")"
         for dependency in studied_bricks_dependencies ; do
             if grep -q "^$dependency$" <<<"$dependents_list"; then
-                dependents_list="$dependents_list $dependency"
-                echo "$studied_brick"
+                dependents_name_list="$dependents_list $dependency"
+                echo "$studied_brick_path"
                 break
             fi
         done
@@ -88,11 +90,11 @@ function get_list_dependents_recursively { #< bricks_names_list
     return $return_code
 }
 
-function get_dependencies { #< brick_path
+function get_dependencies { #< brick_path 
     #> bricks_disorder_list
     execute_brick -action=show_dependencies -brick-path="$1"
     if [ "$?" != 0 ]; then
-        echo "ERROR:get_dependencies: $1"
+        echo "ERROR:get_dependencies:execute_brick show dependencies $1"
         return 1
     fi
 }

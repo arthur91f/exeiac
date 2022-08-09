@@ -22,7 +22,7 @@ function get_brick_type { #< brick_path
         echo "elementary_directory_brick"
     else
         echo "not_a_brick"
-        echo "Warning: As it begins by a number this path should be considered 
+        echo "WARNING:get_brick_type:As it begins by a number this path should be considered 
     as a brick but is not : $brick_path" >&2
         return 1
     fi
@@ -52,22 +52,22 @@ function get_brick_path { #< brick_name
     echo "$parent_room_path/$brick_name"
 }
 
-function get_bricks_paths_list { #< bricks_names_list
+function get_bricks_paths_list { #< bricks_list # paths or names
     #> bricks_paths_list # doesn't check bricks validity
-    output="$bricks_names_list"
+    output="$1"
     for room_path in $ROOMS_LIST; do
         room_name="$(sed 's|^.*/\([^/]*\)$|\1|g' <<<"$room_path")"
-        output="$(sed "s|^$room_path|$room_name|g" <<<"$output")"
+        output="$(sed "s|^$room_name|$room_path|g" <<<"$output")"
     done
     echo "$output"
 }
 
-function get_bricks_names_list { #< bricks_paths_list
+function get_bricks_names_list { #< bricks_list # paths or names
     #> bricks_name_list # doesn't check bricks validity
-    output="$bricks_paths_list"
+    output="$1"
     for room_path in $ROOMS_LIST; do
         room_name="$(sed 's|^.*/\([^/]*\)$|\1|g' <<<"$room_path")"
-        output="$(sed "s|^$room_name|$room_path|g" <<<"$output")"
+        output="$(sed "s|^$room_path|$room_name|g" <<<"$output")"
     done
     echo "$output"
 }

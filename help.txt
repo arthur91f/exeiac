@@ -2,7 +2,7 @@ exeiac (BRICK_PATH|BRICK_NAME) ACTIONS [OPTIONS]
 exeiac ACTIONS (BRICK_PATH|BRICK_NAME)[OPTIONS]
 exeiac ACTIONS (--bricks-paths-list|--bricks-names-list) [OPTIONS]
 exeiac (list_bricks|help)
-exeiac debug [-unit-testing-function=FUNCTION]
+exeiac debug [-unit-testing-function=FUNCTION|-disbale-debug-classic-output]
 
 ACTIONS:
 install: installs or check that all tools are installs to execute 
