@@ -7,7 +7,14 @@ On the declaration function line we put commentary that specify arguments
 On the second line we put commentaries that specifies output beginning by ->.
 Of course everything is string, so we don't specify type. We specify sense of the string.
 
+### Naming convention
+
+We try to work only with brick_path. We display brick_name for prettiness.
+- function get_BLA_brick: return a brick_path
+- function show_BLA_brick: return a brick_name
+
 ### Arguments documentation notation
+
 - #< indicates arguments documentation
 - positionnal arguments use _ as bash vars convention
 - named arguments begins by a - and use - to be separate as current command line option. In exeiac they can get by calling get_arg.
@@ -18,6 +25,7 @@ Of course everything is string, so we don't specify type. We specify sense of th
   - `#< -action=(init|plan|apply)` is a named arguments that can only take those 3 values
 
 ### Output documentation
+
 - #> indicates output documenation
 - ? indicates that the function is really made to be used as a boolean or that you interprete the return code.
 - ~ indicates that the standard output isn't exploitable and is made to be displayed. If the function run a terraform apply or is interactive. So you shouldn't redirect the output in variable `var="$(my_fx)"` or in a file `my_fx > /tmp/myfile`
@@ -59,4 +67,22 @@ fucntion display_help {
     cat help.txt
 }
 ```
+
+## CONDITION WRITING
+
+To be easily readable by anyone that doesn't knwo well bash, each time you want to test something you have to use if or case settement.
+- **Forbiden:**
+    ```
+    is_brick_using_this_module && module="$current_module" || echo "module not found"
+    ```
+- **To do instead**
+    ```
+    if is_brick_using_this_module ; then
+    	module="$current_module"
+    else
+    	echo "module not found"
+    fi
+    ```
+##
+
 
