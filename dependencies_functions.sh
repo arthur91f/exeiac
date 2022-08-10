@@ -1,66 +1,64 @@
 #!/bin/bash
 
-function get_dependencies_tree { #< [brick_name]
+function get_dependencies_tree { #< [brick_path]
     #> bricks_path_ordered_list_with_their_dependencies # "brick1:deps1 deps2", "brick2:deps1 deps3 deps4"
     if [ -n "$1" ]; then
-        brick_name="$1"
-        bricks_paths_list="$( get_bricks_paths_list \
-            "$( display_line_after_match \
-            "$(get_elementary_bricks_list)" \
-            "$brick_name")")"
+        brick_path="$1"
+        bricks_paths_list="$( display_line_after_match \
+            "$(get_all_bricks_paths)" "$brick_path")"
     else
         bricks_paths_list="$( get_bricks_paths_list \
-            "$(get_elementary_bricks_list)")"
+            "$(get_all_bricks_paths)")"
     fi
     
     for brick_path in $bricks_paths_list ; do
-        echo "$brick_path:$( echo $(execute_brick \
-            -action=show_dependencies \
-            -brick-path=$brick_path))"
+        line="$brick_path: "
+        echo "$brick_path:$( echo $(get_dependencies "$brick_path"))"
     done
 }
 
-function get_dependents { #< brick_name
-    #> bricks_ordered_list
-    brick_name="$1"
+function get_dependents { #< brick_path
+    #> bricks_paths_ordered_list
+    brick_paths="$1"
     return_code=0
     bricks_to_check="$( display_line_after_match \
-        "$(get_elementary_bricks_list)" "$brick_name")"
+        "$(get_all_bricks_path)" "$brick_path")"
     
     for brick in $bricks_to_check ; do
-        dependencies_list="$(get_dependencies "$(get_brick_path "$brick")")"
+        dependencies_list="$(get_dependencies "$brick")"
         if [ "$?" != 0 ]; then
             echo "ERROR:get_dependents:get_dependencies $brick" >&2
             return_code=1
         fi
-        if grep -q "$brick_name" <<<"$dependencies_list"; then
+        if grep -q "^$brick_path$" <<<"$dependencies_list"; then
             echo "$brick"
         fi
     done
     return $return_code
 }
 
-function get_dependents_recursively { #< brick_name [-dependencies-tree]
+function get_dependents_recursively { #< brick_path [-dependencies-tree]
     #> bricks_paths_ordered_list
-    brick_name="$1"
-    dependents_name_list="$brick_name"
+    brick_path="$1"
+    dependents_list="$brick_path"
     if ! dependencies_tree="$(get_arg --string=dependencies-tree "$@")"; then
-        dependencies_tree="$(get_dependencies_tree "$brick_name")"
+        dependencies_tree="$(get_dependencies_tree "$brick_path")"
     fi
+    dispdebug "get_dependents_recursively:lbl1:$(wc -l <<<"$dependencies_tree")"
     while read line ; do
-        studied_brick_path="$(cut -d: -f1 <<<"$line")"
-        studied_bricks_dependencies_names="$(cut -d: -f2- <<<"$line")"
-        for dependency in studied_bricks_dependencies ; do
+        studied_brick="$(cut -d: -f1 <<<"$line")"
+        studied_bricks_dependencies="$(cut -d: -f2- <<<"$line")"
+        for dependency in $studied_bricks_dependencies ; do
             if grep -q "^$dependency$" <<<"$dependents_list"; then
-                dependents_name_list="$dependents_list $dependency"
-                echo "$studied_brick_path"
+                dependents_list="$dependents_list $dependency"
+                echo "$studied_brick"
                 break
             fi
         done
     done <<<"$dependencies_tree"
 }
 
-function get_list_dependents { #< bricks_names_list
+function get_list_dependents { #< bricks_paths_list
     #> bricks_disordered_list
     bricks_list="$1"
     return_code=0
@@ -75,10 +73,10 @@ function get_list_dependents { #< bricks_names_list
     return $return_code
 }
 
-function get_list_dependents_recursively { #< bricks_names_list
+function get_list_dependents_recursively { #< bricks_paths_list
     #> bricks_disordered_list
     bricks_list="$(display_bricks_in_right_order "$1")"
-    dependencies_tree="$(get_depencies_tree "$(head -n1 <<<"bricks_list")")"
+    dependencies_tree="$(get_dependencies_tree "$(head -n1 <<<"bricks_list")")"
     return_code=0
     for brick in $brick_list ; do
         get_dependents_recursively "$brick" \
@@ -90,21 +88,34 @@ function get_list_dependents_recursively { #< bricks_names_list
     return $return_code
 }
 
-function get_dependencies { #< brick_path 
-    #> bricks_disorder_list
-    execute_brick -action=show_dependencies -brick-path="$1"
+function get_dependencies { #< brick_path [-brick-type]
+    #> bricks_paths_disorder_list
+    return_code=0
+    if brick_type="$(get_arg --string=brick-type)"; then
+        brick_names_list="$(execute_brick \
+            -action=show_dependencies \
+            -brick-path="$1" \
+            -brick-type="$brick_type")"
+    else
+        brick_names_list="$(execute_brick \
+            -action=show_dependencies -brick-path="$1")"
+    fi
     if [ "$?" != 0 ]; then
         echo "ERROR:get_dependencies:execute_brick show dependencies $1"
-        return 1
+        return_code=1
     fi
+    get_bricks_paths_list "$brick_names_list"
+    if [ "$?" != 0 ]; then
+        echo "ERROR:get_dependencies:convert_to_brick_path $1"
+        return_code=1
+    fi
+    return $return_code
 }
 
 function get_dependencies_recursively { #< brick_path
     #> bricks_disorder_list
     brick_path="$1"
-    dependencies_list="$(execute_brick \
-        -action=show_dependencies \
-        -brick-path="$brick_path")"
+    dependencies_list="$(get_dependencies "$brick_path")" # fill step by step
     just_added_dependencies="$dependencies_list"
     
     while [ -n "$just_added_dependencies" ]; do
@@ -147,11 +158,9 @@ function get_list_dependencies { #< bricks_paths_list
         if brick_type=$(get_brick_type "$brick") ; then
             dependencies_list="$(merge_string_on_new_line \
                 "$dependencies_list" \ 
-                "$(execute_brick -brick-path="$brick" \
-                    -action=show_dependencies \
-                    -brick-type="$brick_type")")"
+                "$(get_dependencies "$brick" -brick-type="$brick_type")")"
             if [ "$?" != 0 ]; then
-                echo "ERROR:get_dependencies_list:fail on $(get_brick_name "$brick")" >&2
+                echo "ERROR:get_dependencies_list:fail on $brick" >&2
                 return_code=1
             fi
         else

@@ -21,19 +21,15 @@ function get_selected_bricks { #< -brick-path -bricks-paths-list -bricks-names-l
                 ;;
         esac
     elif get_arg --string=bricks-paths-list "$@" >/dev/null; then
-        selected_bricks="$(get_arg --string=bricks-paths-list "$@" >/dev/null)"
+        selected_bricks="$(get_arg --string=bricks-paths-list "$@")"
     elif get_arg --string=bricks-names-list "$@" >/dev/null; then
-        selected_bricks="$(get_arg --string=bricks-names-list "$@" >/dev/null)"
+        selected_bricks="$(get_bricks_paths_list \
+            "$(get_arg --string=bricks-names-list "$@")")"
     fi
 
     selected_bricks="$(convert_to_elementary_bricks_path "$selected_bricks")"
     if [ "$?" != 0 ]; then
         return_code=1
-    fi
-
-    get_bricks_paths_list "$selected_bricks"
-    if [ "$?" != 0 ]; then
-        return_code=1 
     fi
     return $return_code
 }
@@ -50,35 +46,30 @@ function get_specified_bricks { #< -selected-bricks -bricks-specifier
                 bricks_to_add="$selected_bricks"
                 ;;
             all)
-                bricks_to_add="$(get_elementary_bricks_list)"
+                bricks_to_add="$(get_all_bricks_paths)"
                 ;;
             dependencies)
-                bricks_to_add="$(get_list_dependencies \
-                    "$(get_bricks_paths_list "$selected_bricks")")"
+                bricks_to_add="$(get_list_dependencies "$selected_bricks")"
                 ;;
             recursive_dependencies)
                 bricks_to_add="$(get_list_dependencies_recursively \
-                    "$(get_bricks_paths_list "$selected_bricks")")"
+                    "$selected_bricks")"
                 ;;
             dependents)
-                bricks_to_add="$(get_list_dependents \
-                    "$(get_bricks_names_list "$selected_bricks")")"
+                bricks_to_add="$(get_list_dependents "$selected_bricks")"
                 ;;
             recursive_dependents)
                 bricks_to_add="$(get_list_dependents_recursively \
-                    "$(get_bricks_names_list "$selected_bricks")")"
+                    "$selected_bricks")"
                 ;;
             dependents_dependencies)
-                dependencies="$(get_list_dependencies \
-                    "$(get_bricks_paths_list "$selected_bricks")")"
-                bricks_to_add="$(get_list_dependents \
-                    "$(get_bricks_names_list "$dependencies")")"
+                dependencies="$(get_list_dependencies "$selected_bricks")"
+                bricks_to_add="$(get_list_dependents "$dependencies")"
                 ;;
             recursive_dependents_dependencies)
-                dependencies="$(get_list_dependencies \
-                    "$(get_bricks_paths_list "$selected_bricks")")"
+                dependencies="$(get_list_dependencies "$selected_bricks")"
                 bricks_to_add="$(get_list_dependents_recursively \
-                    "$(get_bricks_names_list "$dependencies")")"
+                    "$dependencies")"
                 ;;
             *)
                 soft_exit 1 "ERROR:bad_specifier:\"$specifier\""

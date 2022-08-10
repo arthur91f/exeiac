@@ -130,38 +130,47 @@ fi
 ################
 if [ -n "$execute_plan" ]; then
     case "$action" in
-    init|validate|fmt|pass|help|output|plan|apply|destroy|show_dependencies)
+    init|validate|fmt|pass|help|output|plan|apply|destroy)
         execute_bricks_list \
             -bricks-paths-list "$execute_plan" \
             -action "$action"
         return_code=$?
         ;;
-    show_dependents)
-        bricks_list="$(get_dependents "$execute_plan")"
+    show_dependencies)
+        bricks_list="$(get_list_dependencies "$execute_plan")"
         return_code="$?"
-        display_bricks_in_right_order "$bricks_list"
+        get_bricks_names_list "$(display_bricks_in_right_order "$bricks_list")"
+        if [ "$?" !=0 ]; then
+            return_code=1
+        fi
+        ;;
+    show_dependents)
+        bricks_list="$(get_list_dependents "$execute_plan")"
+        return_code="$?"
+        get_bricks_names_list "$(display_bricks_in_right_order "$bricks_list")"
         if [ "$?" !=0 ]; then
             return_code=1
         fi
         ;;
     show_dependencies_recursively)
-        bricks_list="$(get_dependencies_recursively "$execute_plan")"
+        bricks_list="$(get_list_dependencies_recursively "$execute_plan")"
         return_code="$?"
-        display_bricks_in_right_order "$bricks_list"
+        get_bricks_names_list "$(display_bricks_in_right_order "$bricks_list")"
         if [ "$?" !=0 ]; then
             return_code=1
         fi
         ;;
     show_dependents_recursively)
-        bricks_list="$(get_dependents "$execute_plan")"
+        bricks_list="$(get_list_dependents_recursively "$execute_plan")"
         return_code="$?"
-        display_bricks_in_right_order "$bricks_list"
+        get_bricks_names_list "$(display_bricks_in_right_order "$bricks_list")"
         if [ "$?" !=0 ]; then
             return_code=1
         fi
         ;;
     list_bricks)
-        echo "$execute_plan"
+        list_bricks "$execute_plan"
+        return_code="$?"
         ;;
     debug)
         cmd_debug "$@"

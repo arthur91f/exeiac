@@ -1,12 +1,11 @@
 #!/bin/bash
 
-function list_bricks { #< (brick_name|bricks_list)
+function list_bricks { #< [brick_path|bricks_list]
     #> bricks_list
     arg="$1"
     if [ -z "$arg" ]; then
         get_elementary_bricks_list
         return $?
-        get_bricks_names_list "$(convert_to_elementary_bricks_path "$arg")"
     else
         bricks_list="$(convert_to_elementary_bricks_path "$arg")"
         return_code=$?
@@ -24,8 +23,7 @@ function execute_brick { #< -brick-path -action [-brick-type]
     fi
     case "$brick_type" in
         super_brick)
-            bricks_list="$(get_bricks_paths_list \
-                "$(get_child_bricks "$(get_brick_name "$brick_path")")")"
+            bricks_list="$(get_child_bricks "$brick_path")"
             execute_bricks_list \
                 -bricks-paths-list="$bricks_list" \
                 -action="$action"
@@ -61,7 +59,7 @@ function execute_brick { #< -brick-path -action [-brick-type]
             return 3
         ;;
         *)
-            echo "ERROR:execute_brick: brick with unrecognized type: $brick_path" >&2
+            echo "ERROR:execute_brick: brick with unrecognized type: $brick_name" >&2
             return 4
         ;;
     esac

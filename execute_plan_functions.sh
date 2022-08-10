@@ -1,8 +1,8 @@
 #!/bin/bash
 
-function convert_to_elementary_bricks_path { #< bricks_list # name or path
+function convert_to_elementary_bricks_path { #< bricks_paths_list
     #> elementary_bricks_paths_list
-    bricks_list="$(get_bricks_paths_list "$1")"
+    bricks_list="$1"
     return_code=0
     dispdebug "ctebp:LBL1: $bricks_list LBL1:ctebp"
     for brick in $bricks_list; do
@@ -11,7 +11,7 @@ function convert_to_elementary_bricks_path { #< bricks_list # name or path
             echo "ERROR:convert_to_elementary_bricks_path:get_brick_type:$brick" >&2
             return_code=1
         elif [ "$brick_type" == "super_brick" ]; then
-            get_child_bricks "$(get_brick_name "$brick")"
+            get_child_bricks "$brick"
             if [ $? != 0 ]; then
                 return_code=1
             fi
@@ -22,16 +22,36 @@ function convert_to_elementary_bricks_path { #< bricks_list # name or path
     return $return_code
 }
 
-function get_child_bricks { #< super_brick_name
-    #> childs_bricks_names_ordered_list
-    brick_name="$1"
-    get_elementary_bricks_list | grep "^$brick_name"
+function get_child_bricks { #< super_brick_path
+    #> childs_bricks_paths_ordered_list
+    brick_path="$1"
+    get_all_bricks_paths | grep "^$brick_path/"
     return $?
 }
 
 function write_sum_up { #< string
     #>EXECUTE_SUM_UP_FILE 
     echo "$1" >> "$EXECUTE_SUM_UP_FILE"
+}
+
+function get_all_bricks_paths { #< nothing but read global ROOMS_LIST
+    #> all_rooms_elementary_bricks_paths_ordered_list
+    bricks_path_list="$(for room_path in $ROOMS_LIST ; do
+        cd "$room_path"
+        find . | grep "/[0-9]\+-[^/]*$" | grep -v '/[^0-9]' |
+        sed "s|^\./|$room_path/|g" ; done)"
+    for brick_path in $bricks_path_list ; do
+        if [ "$(get_brick_type "$brick_path")" != "super_brick" ]; then
+            echo "$brick_path"
+        fi
+    done
+}
+
+function get_all_bricks_names { #< nothing
+    #> all_rooms_elementary_bricks_names_ordered_list
+    for brick_path in $(get_all_bricks_paths); do
+        get_brick_name "$brick_path"
+    done
 }
 
 function get_elementary_bricks_list { #< nothing but read global ROOMS_LIST 
@@ -48,10 +68,10 @@ function get_elementary_bricks_list { #< nothing but read global ROOMS_LIST
     done
 }
 
-function display_bricks_in_right_order { #< brick_to_display
-    #> bricks_ordered_list
-    brick_to_display="$1"
-    get_elementary_bricks_list | while read brick ; do
+function display_bricks_in_right_order { #< brick_paths_list_to_display
+    #> bricks_paths_ordered_list
+    bricks_to_display="$1"
+    get_all_bricks_path | while read brick ; do
         grep "^$brick$" <<<"$brick_to_display"
     done
     return 0

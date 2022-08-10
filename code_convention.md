@@ -9,7 +9,8 @@ Of course everything is string, so we don't specify type. We specify sense of th
 
 ### Naming convention
 
-We try to work only with brick_path. We display brick_name for prettiness.
+We try to work only with brick_path. We display brick_name for prettinessi.
+To avoid confusing: brick_path are always absolute and directory doesn't finsh with /
 - function get_BLA_brick: return a brick_path
 - function show_BLA_brick: return a brick_name
 

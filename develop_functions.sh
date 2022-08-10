@@ -11,8 +11,7 @@ function cmd_debug { #< -disbale-debug-classic-output -unit-testing-function
         echo "  arg_case: \"$arg_case\", action: \"$action\""
         echo "  brick_path: $brick_path"
         echo "  brick_name: $brick_name"
-        echo "  EXEIAC_OPTS: $EXEIAC_OPTS"
-        echo "  MODULE_OPTS: $MODULE_OPTS"
+        echo "  OPTS: ${OPTS[@]}"
         echo "#############"
     fi
     if cmd="$(get_arg --string=unit-testing-function "$@")"; then
