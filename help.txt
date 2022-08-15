@@ -2,7 +2,7 @@ exeiac (BRICK_PATH|BRICK_NAME) ACTIONS [OPTIONS]
 exeiac ACTIONS (BRICK_PATH|BRICK_NAME)[OPTIONS]
 exeiac ACTIONS (--bricks-paths-list|--bricks-names-list) [OPTIONS]
 exeiac (list_bricks|help)
-exeiac debug [-unit-testing-function=FUNCTION|-disbale-debug-classic-output]
+exeiac debug [-debug-command=FUNCTION|-disbale-debug-classic-output]
 
 ACTIONS:
 install: installs or check that all tools are installs to execute 
@@ -27,7 +27,8 @@ debug: run a function of this file (use for unitary tests)
 OPTIONS:
 -non-interactive
 -execute-sum-up-file=FILE
--unit-testing-function="EXEIAC_FUNCTION ARG1 ARG2..."
+-debug-command='EXEIAC_FUNCTION ARG1 ARG2...'
+-output-specifier=FIELD
 -bricks-specifier=SPECIFIER
 -bricks-paths-list BRICKS_LIST 
 -bricks-names-list BRICKS_LIST

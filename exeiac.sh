@@ -43,11 +43,9 @@ done
 ########################
 source "$exeiac_lib_path/general_functions.sh"
 source "$exeiac_lib_path/develop_functions.sh"
-source "$exeiac_lib_path/brick_referencer_functions.sh"
-source "$exeiac_lib_path/actions_functions.sh"
-source "$exeiac_lib_path/execute_plan_functions.sh"
+source "$exeiac_lib_path/bricks_functions.sh"
 source "$exeiac_lib_path/dependencies_functions.sh"
-source "$exeiac_lib_path/exeiac_functions.sh"
+source "$exeiac_lib_path/single_called_functions.sh"
 
 #######################################
 # CHECK CONFIGURATION FILES ARGUMENTS #
@@ -78,23 +76,19 @@ if grep -q " $1 " <<<"$actions_list" || grep -q " $2 " <<<"$actions_list"; then
     if [ -e "$2" ] ; then
         action="$1"
         brick_path="$(get_absolute_path "$2")"
-        brick_name="$(get_brick_name "$brick_path")"
         shift 2
         OPTS=("$@")
     elif [ -e "$1" ] ; then
         action="$2"
         brick_path="$(get_absolute_path "$1")"
-        brick_name="$(get_brick_name "$brick_path")"
         shift 2
         OPTS=("$@")
     elif brick_path="$(get_brick_path "$1")"; then
         action="$2"
-        brick_name="$1"
         shift 2
         OPTS=("$@")
     elif brick_path="$(get_brick_path "$2")"; then
         action="$1"
-        brick_name="$2"
         shift 2
         OPTS=("$@")
     elif grep -q " $1 " <<<"$actions_list"; then
@@ -125,6 +119,7 @@ else
     execute_plan="$selected_bricks"
 fi
 
+cmd_debug
 ################
 # EXECUTE PLAN #
 ################
@@ -145,7 +140,7 @@ else
         return_code=$?
         ;;
     *)
-        soft_exit 1 "ERROR:exeiac:unrecognized_action:$action"
+        soft_exit 1 "ERROR:exeiac:unrecognized_action_for_null_plan:$action"
         ;;
     esac
 fi

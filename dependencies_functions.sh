@@ -44,7 +44,6 @@ function get_dependents_recursively { #< brick_path [-dependencies-tree]
     if ! dependencies_tree="$(get_arg --string=dependencies-tree "$@")"; then
         dependencies_tree="$(get_dependencies_tree "$brick_path")"
     fi
-    dispdebug "get_dependents_recursively:lbl1:$(wc -l <<<"$dependencies_tree")"
     while read line ; do
         studied_brick="$(cut -d: -f1 <<<"$line")"
         studied_bricks_dependencies="$(cut -d: -f2- <<<"$line")"

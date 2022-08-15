@@ -4,18 +4,20 @@ function dispdebug { #< string_to_display_on_error_output #>2
     echo "debug: $1" >&2
 }
 
-function cmd_debug { #< -disbale-debug-classic-output -unit-testing-function
+function cmd_debug { #< -disbale-debug-classic-output -debug-command
     #> ? ~
     if ! get_arg --boolean=disbale-debug-classic-output "$@" ; then
         echo "### DEBUG ###"
-        echo "  arg_case: \"$arg_case\", action: \"$action\""
+        echo "  action: $action"
+        echo "  selected_bricks: \"$selected_bricks\""
+        echo "  execute_plan: \"$execute_plan\""
         echo "  brick_path: $brick_path"
         echo "  brick_name: $brick_name"
         echo "  OPTS: ${OPTS[@]}"
         echo "#############"
     fi
-    if cmd="$(get_arg --string=unit-testing-function "$@")"; then
-        $cmd
+    if cmd="$(get_arg --string=debug-command "$@")"; then
+        eval "$cmd"
         echo "return code: $?"
     fi
 }

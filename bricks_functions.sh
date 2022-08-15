@@ -82,7 +82,6 @@ function convert_to_elementary_bricks_path { #< bricks_paths_list
     #> elementary_bricks_paths_list
     bricks_list="$1"
     return_code=0
-    dispdebug "ctebp:LBL1: $bricks_list LBL1:ctebp"
     for brick in $bricks_list; do
         brick_type="$(get_brick_type "$brick")"
         if [ "$?" != 0 ]; then

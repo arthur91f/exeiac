@@ -29,7 +29,7 @@ function get_selected_bricks { #< -brick-path -bricks-paths-list -bricks-names-l
             "$(get_arg --string=bricks-names-list "$@")")"
     fi
 
-    selected_bricks="$(convert_to_elementary_bricks_path "$selected_bricks")"
+    convert_to_elementary_bricks_path "$selected_bricks"
     if [ "$?" != 0 ]; then
         return_code=1
     fi
@@ -93,7 +93,7 @@ function get_specified_bricks { #< -selected-bricks -bricks-specifier
 function execute_bricks_list { #< -action -bricks-list
     #> ? ~
     action="$(get_arg --string=action "$@")"
-    bricks_list="$(get_arg --string="execute-plan")"
+    bricks_list="$(get_arg --string=bricks-list "$@")"
     return_code=0
 
     function write_sum_up { #< string
@@ -102,7 +102,7 @@ function execute_bricks_list { #< -action -bricks-list
     }
 
     case "$action" in
-    init|validate|fmt|pass|help) # run all even if it fails
+    init|output|validate|fmt|pass|help) # run all even if it fails
             for brick in $bricks_list ; do
                 brick_name="$(get_brick_name "$brick")"
                 if brick_type=$(get_brick_type "$brick") ; then
@@ -119,26 +119,6 @@ function execute_bricks_list { #< -action -bricks-list
                     echo "## ---------------- ##"
                 fi
             done
-        ;;
-    output) # run all even if it fails without exec_sum_up
-            echo "{"
-            for brick in $bricks_list ; do
-                brick_name="$(get_brick_name "$brick")"
-                if brick_type=$(get_brick_type "$brick") ; then
-                    echo "  \"$brick_name\": {"
-                    execute_brick -brick-path="$brick" -action=output \
-                        -brick-type="$brick_type" "$@" | sed 's|^\(.*\)$|    \1|g'
-                    if [ "$?" !=0 ]; then
-                        return_code=1
-                        echo "ERROR:$brick_name:output" >&2
-                        echo "    \"error\": \"don't manage to output brick\""
-                    fi
-                    echo "  }"
-                else
-                    return_code=1
-                fi
-            done
-            echo "}"
         ;;
     plan)
             for brick in $bricks_list ; do
@@ -171,44 +151,28 @@ function execute_bricks_list { #< -action -bricks-list
                 echo "## ---------------- ##"
             done
         ;;
-    apply) # run all until it fails
-            for brick in $bricks_list ; do
-                brick_name="$(get_brick_name "$brick")"
-                if brick_type=$(get_brick_type "$brick") ; then
-                    if [ "$return_code" == 0 ]; then
-                        echo "## EXEC BRICK: $brick_name"
-                        execute_brick -brick-path="$brick" -action="$action" \
-                            -brick-type="$brick_type" "$@"
-                        if [ "$?" != 0 ]; then
-                            echo "ERROR: $action fail on $(get_brick_name "$arg_brick")" >&2
-                            write_sum_up "$action:ERROR:$brick_name"
-                            break
-                        fi
-                        echo "## ---------------- ##"
-                    else
-                        write_sum_up "$action:CANCEL:$brick_name"
+    apply|destroy)
+        if [ "$action" == 'destroy' ]; then
+            bricks_list="$(sort -r <<<"$destroy")"
+        fi
+        for brick in $bricks_list ; do
+            brick_name="$(get_brick_name "$brick")"
+            if brick_type=$(get_brick_type "$brick") ; then
+                if [ "$return_code" == 0 ]; then
+                    echo "## EXEC BRICK: $brick_name"
+                    execute_brick -brick-path="$brick" -action="$action" \
+                        -brick-type="$brick_type" "$@"
+                    if [ "$?" != 0 ]; then
+                        echo "ERROR: $action fail on $brick_name" >&2
+                        write_sum_up "$action:ERROR:$brick_name"
+                        break
                     fi
+                    echo "## ---------------- ##"
+                else
+                    write_sum_up "$action:CANCEL:$brick_name"
                 fi
-            done
-        ;;
-    destroy) # run all in reverse until it fails
-            for brick in $(tac <<<"$bricks_list") ; do
-                brick_name="$(get_brick_name "$brick")"
-                if brick_type=$(get_brick_type "$brick") ; then
-                    if [ "$return_code" == 0 ]; then
-                        echo "## EXEC BRICK: $brick_name"
-                        execute_brick -brick-path="$brick" -action="$action" \
-                            -brick-type="$brick_type" "$@"
-                        if [ "$?" != 0 ]; then
-                            echo "ERROR: $action fail on $brick_name" >&2
-                            write_sum_up "$action:ERROR:$brick_name"
-                        fi
-                        echo "## ---------------- ##"
-                    else
-                        write_sum_up "$action:CANCEL:$brick_name"
-                    fi
-                fi
-            done
+            fi
+        done
         ;;
     show_dependencies)
         bricks_list="$(get_list_dependencies "$bricks_list")"

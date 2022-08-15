@@ -103,3 +103,17 @@ function import_module_functions { #< module_path
     source "$modules_path/default.sh"
 }
 
+function ask_confirmation { #< nothing, interactive
+    #> ?
+    if get_arg --boolean=non-interactive "${OPTS[@]}"; then
+        return 0
+    else
+        read answer
+        if grep -qi "^yes$" <<<"$answer" ; then
+            return 0
+        else
+            return 1
+        fi
+    fi
+}
+
