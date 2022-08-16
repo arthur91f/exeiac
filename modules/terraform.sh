@@ -79,31 +79,35 @@ function get_env {
     fi
 }
 
-function get_vars_file {
+function get_vars_file_content {
+    ## variable environment ##
     env="$(get_env)"
     init_brick_path="$(get_brick_path "infra-grounds/1-init")"
     vars_file_cyphered="$init_brick_path/${env}_state.cyphered"
     cat "$vars_file_cyphered"
+    
+    ## variable state_tag ##
+    state_tag="$(get_brick_sanitized_name "$(get_brick_name "$(pwd)")")"
+    echo "state_tag = \"$state_tag\""
+
+    ## variable rooms_paths_list ##
+    echo "rooms_paths_list = {"
+    echo $room_paths_list | sed 's|^\(.*/\([^/]*\)\)$|  \2 = "\1"|g'
+    echo "}"
 }
 
 function plan {
     state_tag="$(get_brick_sanitized_name "$(get_brick_name "$(pwd)")")"
-    terraform plan -detailed-exitcode \
-        -var-file=<(get_vars_file) \
-        -var="state_tag=$state_tag"
+    terraform plan -detailed-exitcode -var-file=<(get_vars_file_content)
     return $?
 }
 
 function apply {
     state_tag="$(get_brick_sanitized_name "$(get_brick_name "$(pwd)")")"
     if get_arg --boolean=non-interactive "${OPTS[@]}"; then
-        terraform apply -auto-approve \
-            -var-file=<(get_vars_file) \
-            -var="state_tag=$state_tag"
+        terraform apply -auto-approve -var-file=<(get_vars_file_content)
     else
-        terraform apply \
-            -var-file=<(get_vars_file) \
-            -var="state_tag=$state_tag"
+        terraform apply -var-file=<(get_vars_file_content)
     fi
 }
 
@@ -114,13 +118,9 @@ function output {
 function destroy {
     state_tag="$(get_brick_sanitized_name "$(get_brick_name "$(pwd)")")"
     if get_arg --boolean=non-interactive "${OPTS[@]}"; then
-        terraform destroy -auto-approve \
-            -var-file=<(get_vars_file) \
-            -var=state_tag="$state_tag"
+        terraform destroy -auto-approve -var-file=<(get_vars_file_content)
     else
-        terraform destroy \
-            -var-file=<(get_vars_file) \
-            -var=state_tag="$state_tag"
+        terraform destroy -var-file=<(get_vars_file_content)
     fi
 }
 
