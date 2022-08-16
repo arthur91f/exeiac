@@ -72,8 +72,11 @@ function display_line_before_match { #< multiline_text_of_uniq_line regex
 function get_absolute_path { #< relative_path_or_absolute_path
     #> absolute_path
     path="$1"
-    if [ -e "$path" ]; then
+    
+    if [ -f "$path" ]; then
         echo "$(cd "$(dirname "$path")"; pwd)/$(basename "$path")"
+    elif [ -d "$path" ]; then
+        echo "$(cd "$path"; pwd)"
     else
         echo "ERROR:get_absolute_path:path doesn't exist: $path"
         return 1
