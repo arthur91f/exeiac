@@ -1,0 +1,15 @@
+"created":
+  "internal_domain_name": "production.myp.tech"
+  "private_domain_name": "production.private"
+  "public_domain_name": "myproduct.com"
+  "state_tag": "infra-grounds--envs--production--network"
+"needs":
+  "provider_credentials": |
+    -----BEGIN PRIVATE KEY-----
+    productionfjh6qnrS4z3qPOrOthu9hVJiM9sXPISuIMWCQUVDhA7cKwuZ3ErN3Mue2GBt
+    KYuINui3SbsyfuAJlF/3FcUVfbwbioRWMKEs4rTPeU9Nz06Ipj2wZnRUpQ0njgptzxyrzH
+    NblRVU1Skj9xNTzNbj02bWoOYSOgq3YIF+901gbQuZdE8JPxcKZMUXSxTvhgq5zA5bpKrj
+    Zm3Gja0rYjNM6NEFCRfVW4Fg==
+    -----END PRIVATE KEY-----
+  "provider_project": "prod-120822"
+  "provider_username": "ci-user"

@@ -1,0 +1,15 @@
+"created":
+  "nat_ip": "34.188.55.13"
+  "network_id": "prod-120822/network/84821389-f872-f4d1-09b4-2190632d9804"
+  "network_ip": "10.2.0.0/20"
+  "tag": "infra-grounds--envs--production--network"
+"needs":
+  "provider_credentials": |
+    -----BEGIN PRIVATE KEY-----
+    productionfjh6qnrS4z3qPOrOthu9hVJiM9sXPISuIMWCQUVDhA7cKwuZ3ErN3Mue2GBt
+    KYuINui3SbsyfuAJlF/3FcUVfbwbioRWMKEs4rTPeU9Nz06Ipj2wZnRUpQ0njgptzxyrzH
+    NblRVU1Skj9xNTzNbj02bWoOYSOgq3YIF+901gbQuZdE8JPxcKZMUXSxTvhgq5zA5bpKrj
+    Zm3Gja0rYjNM6NEFCRfVW4Fg==
+    -----END PRIVATE KEY-----
+  "provider_project": "prod-120822"
+  "provider_username": "ci-user"

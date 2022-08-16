@@ -1,0 +1,14 @@
+environment = {
+  "name"         = "production"
+  "project_name" = "prod-120822",
+  "username"     = "ci-user",
+  "credentials"  = <<EOT
+-----BEGIN PRIVATE KEY-----
+productionfjh6qnrS4z3qPOrOthu9hVJiM9sXPISuIMWCQUVDhA7cKwuZ3ErN3Mue2GBt
+KYuINui3SbsyfuAJlF/3FcUVfbwbioRWMKEs4rTPeU9Nz06Ipj2wZnRUpQ0njgptzxyrzH
+NblRVU1Skj9xNTzNbj02bWoOYSOgq3YIF+901gbQuZdE8JPxcKZMUXSxTvhgq5zA5bpKrj
+Zm3Gja0rYjNM6NEFCRfVW4Fg==
+-----END PRIVATE KEY-----
+EOT
+}
+

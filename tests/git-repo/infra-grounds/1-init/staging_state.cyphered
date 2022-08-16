@@ -1,0 +1,22 @@
+environment = {
+  name          = "staging"
+  project_name  = "staging-120822",
+  username      =  "ci-user",
+  credentials   = <<EOT
+-----BEGIN PRIVATE KEY-----
+cExj5mM4Eshfx1yhdLmK2NC7GRoTjOXW7UXr5w1bMHlWPUhAeCzVCwmto9SAnJhxq2QWc0
+DX3P7vmccxC8AIHg5TnhMLLFe/xodN1C5BZ3xoqFJnUR3aB72HqvDrGqMsp5AD28WMeL7t
+q49SkzrmKUiOEQTwHWiJxl89g8uWehweB0Q+lze8d7pR2BL1iNgzFRhpmMHkdbaEZF8uLn
+S46W3NiHDdWCO1Lz3mMiwAfi==
+-----END PRIVATE KEY-----
+EOT
+}
+
+old = {
+  name                 = "staging"
+  public_domain_name   = "staging.public"
+  internal_domain_name = "staging.myp.tech"
+  private_domain_name  = "staging.private"
+  network              = "10.3.0.0/16"
+}
+
