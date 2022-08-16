@@ -22,7 +22,7 @@ function get_dependents { #< brick_path
     brick_paths="$1"
     return_code=0
     bricks_to_check="$( display_line_after_match \
-        "$(get_all_bricks_path)" "$brick_path")"
+        "$(get_all_bricks_paths)" "$brick_path")"
     
     for brick in $bricks_to_check ; do
         dependencies_list="$(get_dependencies "$brick")"
@@ -156,7 +156,7 @@ function get_list_dependencies { #< bricks_paths_list
     for brick in $bricks_list ; do
         if brick_type=$(get_brick_type "$brick") ; then
             dependencies_list="$(merge_string_on_new_line \
-                "$dependencies_list" \ 
+                "$dependencies_list"\
                 "$(get_dependencies "$brick" -brick-type="$brick_type")")"
             if [ "$?" != 0 ]; then
                 echo "ERROR:get_dependencies_list:fail on $brick" >&2
@@ -164,7 +164,7 @@ function get_list_dependencies { #< bricks_paths_list
             fi
         else
             echo "ERROR:get_dependencies_list:$brick" >&2
-                return_code=1
+            return_code=1
         fi
     done
     sort -u <<<"$dependencies_list"

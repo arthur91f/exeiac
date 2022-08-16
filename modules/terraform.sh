@@ -12,7 +12,21 @@ function is_brick_using_this_module {
 }
 
 function install {
-    terraform -v
+    return_code=0
+    if which terraform >/dev/null ; then
+        echo "terraform installed: ok"
+    else
+        echo "ERROR:terraform is not installed"
+        return_code=1
+    fi
+
+    if which jq >/dev/null ; then
+        echo "jq installed: ok"
+    else
+        echo "ERROR:jq is not installed"
+        return_code=1
+    fi
+    return $return_code
     # os_type="linux_amd64"
     # install_path=/usr/local/bin
     # version="$(curl -s https://releases.hashicorp.com/terraform/ |
@@ -30,53 +44,98 @@ function install {
 }
 
 function init {
-    terraform init $MODULE_OPTS
+    # CHECK INSTALL
+    if which terraform >/dev/null ; then
+        echo "terraform installed: ok"
+    else
+        echo "ERROR:terraform is not installed"
+        return 1
+    fi
+
+    if which jq >/dev/null ; then
+        echo "jq installed: ok"
+    else
+        echo "ERROR:jq is not installed"
+        return 1
+    fi
+
+    # INIT
+    terraform init
+    return $?
+}
+
+function get_env {
+    envs_list='(production|staging|monitoring)'
+    brick_name="$(get_brick_name "$(pwd)")"
+    if brick_name="$(get_brick_name "$(pwd)")"; then
+        if env_dir="$(egrep -o "/[0-9]-$envs_list/" <<<"$brick_name")"; then
+            sed -e 's|^/[0-9]-||g' -e 's|/$||g' <<<"$env_dir"
+            return 0
+        else
+            return 1 
+        fi
+    else
+        return 1
+    fi
+}
+
+function get_vars_file {
+    env="$(get_env)"
+    init_brick_path="$(get_brick_path "infra-grounds/1-init")"
+    vars_file_cyphered="$init_brick_path/${env}_state.cyphered"
+    cat "$vars_file_cyphered"
 }
 
 function plan {
-    terraform plan -detailed-exitcode $MODULE_OPTS
+    state_tag="$(get_brick_sanitized_name "$(get_brick_name "$(pwd)")")"
+    terraform plan -detailed-exitcode \
+        -var-file=<(get_vars_file) \
+        -var="state_tag=$state_tag"
+    return $?
 }
 
 function apply {
-    if grep -q "non-interactive" <<<"$EXEIAC_OPTS"; then
-        terraform apply -auto-approve $MODULE_OPTS
+    state_tag="$(get_brick_sanitized_name "$(get_brick_name "$(pwd)")")"
+    if get_arg --boolean=non-interactive "${OPTS[@]}"; then
+        terraform apply -auto-approve \
+            -var-file=<(get_vars_file) \
+            -var="state_tag=$state_tag"
     else
-        terraform apply $MODULE_OPTS
+        terraform apply \
+            -var-file=<(get_vars_file) \
+            -var="state_tag=$state_tag"
     fi
 }
 
 function output {
-    if grep -q "dry-terraform-output" <<<"$EXEIAC_OPTS"; then
-        terraform output $MODULE_OPTS
-    else
-        jq_filter=".\"$MODULE_OPTS\""
-        output="$(terraform output -json | jq 'map_values(.value)' | jq
-            "$jq_filter")"
-        if grep -q '^".*"$'<<<"$output" ; then
-            echo "$output" | sed -e 's/^"//g' -e 's/"$//g'
-        else
-            echo "$output"
-        fi
-    fi
+    terraform output -json | jq 'map_values(.value)'
 }
 
 function destroy {
-    if grep -q "non-interactive" <<<"$EXEIAC_OPTS"; then
-        terraform destroy -auto-approve $MODULE_OPTS
+    state_tag="$(get_brick_sanitized_name "$(get_brick_name "$(pwd)")")"
+    if get_arg --boolean=non-interactive "${OPTS[@]}"; then
+        terraform destroy -auto-approve \
+            -var-file=<(get_vars_file) \
+            -var=state_tag="$state_tag"
     else
-        terraform destroy $MODULE_OPTS
+        terraform destroy \
+            -var-file=<(get_vars_file) \
+            -var=state_tag="$state_tag"
     fi
 }
 
 function validate {
-    terraform validate $MODULE_OPTS
+    terraform validate
 }
 
 function fmt {
-    terraform fmt $MODULE_OPTS
+    terraform fmt
 }
 
 function show_dependencies {
+    if env="$(get_env)"; then
+        provider_dependencies="infra-grounds/1-init/1-$(get_env).sh"
+    fi
     comment_dependencies="$(default_show_dependencies)"
     gcs_backend_dependencies="$(cat "$brick_path"/*.tf |
         sed -n '/^data "terraform_remote_state" ".*" {/,/^}/ p' |
@@ -84,7 +143,8 @@ function show_dependencies {
         grep "prefix *=" | 
         sed 's|^ *prefix *= *"\(.*\)".*$|\1|g')"
 
-    echo "$(echo "$comment_dependencies" ;
+    echo "$(echo "$provider_dependencies" ;
+        echo "$comment_dependencies" ;
         echo "$gcs_backend_dependencies")" |
         sed '/^$/d' | sort | uniq
 }
@@ -93,10 +153,9 @@ function help {
     echo "The help of this brick haven't been overloaded so it runs the normal way."
     echo "execiac BRICK_PATH ACTION [OPTIONS]"
     echo "init: run terraform init"
-    echo "plan: run terraform plan -detailed-exitcode"
+    echo "plan: run terraform plan -detailed-exitcode -var-file=infra-grounds/1-init/"
     echo "apply: run terraform apply"
-    echo "output [OUTPUT_FIELD] [--exeiac-opts=dry-terraform-output]: terraform output
-    in json"
+    echo "output: run terraform output -json"
     echo "destroy: run terraform destroy"
     echo "validate: run terraform validate"
     echo "fmt: rewrite file to pass linter"
@@ -104,8 +163,6 @@ function help {
     echo "install: install terraform in /usr/local/bin"
     echo ""
     echo "special options:"
-    echo "--exeiac-opts=dry-terraform-output: permit to only run terraform output
-    althought use json output"
-    echo "--exeiac-opts=non-interactive: add -auto-approve opts to terraform apply, note that it isn't necessary to put --exeiac-opts= before it's just for other modules compatibilities"
+    echo "--non-interactive: add -auto-approve opts to terraform apply"
 }
 

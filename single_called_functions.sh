@@ -107,7 +107,7 @@ function execute_bricks_list { #< -action -bricks-list
                 brick_name="$(get_brick_name "$brick")"
                 if brick_type=$(get_brick_type "$brick") ; then
                     echo "## EXEC BRICK: $brick_name"
-                    execute_brick -brick-path="$brick" -action=output \
+                    execute_brick -brick-path="$brick" -action="$action" \
                         -brick-type="$brick_type" "$@"
                     if [ "$?" == 0 ]; then
                         write_sum_up "$action:OK:$brick_name"
@@ -127,13 +127,14 @@ function execute_bricks_list { #< -action -bricks-list
                     echo "## EXEC BRICK: $brick_name"
                     execute_brick -brick-path="$brick" -action="$action" \
                         -brick-type="$brick_type" "$@"
-                    if [ "$?" == 0 ]; then
+                    return_code=$? # if not set here the if test will change $?
+                    if [ "$return_code" == 0 ]; then
                         write_sum_up "plan:OK:$brick_name"
-                    elif [ "$?" == 1 ]; then
+                    elif [ "$return_code" == 1 ]; then
                         echo "ERROR:execute_bricks_list:plan:$brick_name" >&2
                         write_sum_up "plan:ERROR:$brick_name"
                         return_code=1
-                    elif [ "$?" == 2 ]; then
+                    elif [ "$return_code" == 2 ]; then
                         write_sum_up "plan:DRIFT:$brick_name"
                         if [ "$return_code" == 0 ]; then # to keep worst return_code
                             return_code=2
@@ -178,7 +179,7 @@ function execute_bricks_list { #< -action -bricks-list
         bricks_list="$(get_list_dependencies "$bricks_list")"
         return_code="$?"
         get_bricks_names_list "$(display_bricks_in_right_order "$bricks_list")"
-        if [ "$?" !=0 ]; then
+        if [ "$?" != 0 ]; then
             return_code=1
         fi
         ;;
@@ -186,7 +187,7 @@ function execute_bricks_list { #< -action -bricks-list
         bricks_list="$(get_list_dependents "$bricks_list")"
         return_code="$?"
         get_bricks_names_list "$(display_bricks_in_right_order "$bricks_list")"
-        if [ "$?" !=0 ]; then
+        if [ "$?" != 0 ]; then
             return_code=1
         fi
         ;;
@@ -194,7 +195,7 @@ function execute_bricks_list { #< -action -bricks-list
         bricks_list="$(get_list_dependencies_recursively "$bricks_list")"
         return_code="$?"
         get_bricks_names_list "$(display_bricks_in_right_order "$bricks_list")"
-        if [ "$?" !=0 ]; then
+        if [ "$?" != 0 ]; then
             return_code=1
         fi
         ;;
@@ -202,7 +203,7 @@ function execute_bricks_list { #< -action -bricks-list
         bricks_list="$(get_list_dependents_recursively "$bricks_list")"
         return_code="$?"
         get_bricks_names_list "$(display_bricks_in_right_order "$bricks_list")"
-        if [ "$?" !=0 ]; then
+        if [ "$?" != 0 ]; then
             return_code=1
         fi
         ;;

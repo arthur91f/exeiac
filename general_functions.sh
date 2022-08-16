@@ -82,12 +82,9 @@ function get_absolute_path { #< relative_path_or_absolute_path
 
 function merge_string_on_new_line { #< string1 string2 # can be empty or multiline
     #> empty_or_multiline_string
-	if [ -n "$1" ]; then
-		echo "$1"
-	fi
-	if [ -n "$2" ]; then
-		echo "$2"
-	fi
+    for arg in "$@"; do
+        echo "$arg"
+    done | sed '/^$/d'
 }
 
 function soft_exit { #< return_code error_message

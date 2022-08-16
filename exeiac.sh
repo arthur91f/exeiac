@@ -4,10 +4,10 @@
 #######################
 # DECLARE GLOBAL VARS #
 #######################
-actions_list=" init validate fmt
- plan apply output destroy
- show_dependencies show_dependents list_bricks
- show_dependencies_recursively show_dependents_recursively
+actions_list=" init validate fmt 
+ plan apply output destroy 
+ show_dependencies show_dependents list_bricks 
+ show_dependencies_recursively show_dependents_recursively 
  help -h --help debug "
 configuration_files_list="/usr/lib/exeiac/exeiac.conf
 /usr/local/exeiac/exeiac.conf
@@ -119,7 +119,6 @@ else
     execute_plan="$selected_bricks"
 fi
 
-cmd_debug
 ################
 # EXECUTE PLAN #
 ################

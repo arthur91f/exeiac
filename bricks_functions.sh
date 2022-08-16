@@ -108,10 +108,12 @@ function get_child_bricks { #< super_brick_path
 
 function get_all_bricks_paths { #< nothing but read global ROOMS_LIST
     #> all_rooms_elementary_bricks_paths_ordered_list
-    bricks_path_list="$(for room_path in $ROOMS_LIST ; do
-        cd "$room_path"
-        find . | grep "/[0-9]\+-[^/]*$" | grep -v '/[^0-9]' |
-        sed "s|^\./|$room_path/|g" ; done)"
+    bricks_path_list="$(
+        for room_path in $ROOMS_LIST ; do
+            cd "$room_path"
+            find . | grep "/[0-9]\+-[^/]*$" | grep -v '/[^0-9]' |
+                sed "s|^\./|$room_path/|g" 
+        done)"
     for brick_path in $bricks_path_list ; do
         if [ "$(get_brick_type "$brick_path")" != "super_brick" ]; then
             echo "$brick_path"
@@ -129,8 +131,8 @@ function get_all_bricks_names { #< nothing
 function display_bricks_in_right_order { #< brick_paths_list_to_display
     #> bricks_paths_ordered_list
     bricks_to_display="$1"
-    get_all_bricks_path | while read brick ; do
-        grep "^$brick$" <<<"$brick_to_display"
+    for brick in $(get_all_bricks_paths); do
+        grep "^$brick$" <<<"$bricks_to_display"
     done
     return 0
 }

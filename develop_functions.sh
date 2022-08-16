@@ -1,7 +1,27 @@
 #!/bin/bash
 # Here are function for debug and unit testing
-function dispdebug { #< string_to_display_on_error_output #>2
-    echo "debug: $1" >&2
+function dispdebug { #< string_to_display_on_error_output [tag] #>2
+    return_code=$? # to be transparent and don't change return code
+    if [ -n "$2" ]; then
+        tag="$2"
+    else
+        tag="debug:"
+    fi
+    number_line="$(wc -l <<<"$1")"
+    case "$number_line" in
+    0)
+        echo "$tag <nothing to display>" >&2
+        ;;
+    1)
+        echo "$tag $1" >&2
+        ;;
+    *)
+        while read line ; do
+            echo "$tag $line" >&2
+        done <<<"$1"
+        ;;
+    esac
+    return $return_code
 }
 
 function cmd_debug { #< -disbale-debug-classic-output -debug-command
