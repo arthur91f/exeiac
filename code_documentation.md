@@ -1,6 +1,41 @@
-# Code convention
+# Code documentation
 
-## FUNCTIONS WRITING
+## CODE ORGANISATION
+
+### Files aims
+- **exeiac.sh:** It's the entry point. It launch functions contained in others files. all others files are just functions library.
+  - sources all other files
+  - identify arguments
+  - get the execution plan (all bricks on which execute actions)
+  - execute the action
+- **single_called_functions.sh:** Functions called only one time and called only by exeiac.sh. The aim is to divided *exeiac.sh* file.
+- **bricks_functions.sh:** Functions related to bricks as get_brick_type or execute_brick
+- **dependencies_functions.sh:** Functions related to dependencies and dependents. It could be in bricks_functions but it permit to divided that big files.
+- **develop_functions.sh:** Functions used to develop and debug exeIaC.
+- **general_functions.sh:** Functions that aren't sticky to exeIaC as get_absolute_path. Can  be seen as bash toolbox.
+- **default_module.sh:** The default functions sourced by modules. Of course lot of thoose functions have to be overloaded. Take a look to few tools functions that can help to create your own module: *copy_function*, *import_module_functions*, and *ask_confirmation*
+- **help.txt:** The help displayed by the command *exeiac help*
+
+### execute_brick function algorythm
+
+**INPUT:** elementary_brick_path and action
+
+1. Get brick type
+2. If brick type is elementary_directory_brick, search the module.
+  - source each module in *$modules_path* and launch *is_brick_using_this_module* just sourced function.
+3. If the module is found and sourced, execute the proper action.
+
+### exeiac.sh algorythm
+
+- Declare global variables
+- Source configuration files and functions files
+- Check configuration files arguments
+- Set variables from arguments
+- Guess all bricks on which execute action
+- execute the actions
+
+
+## FUNCTIONS WRITING CONVENTION
 
 We use only that notation `function my_func { cmd; }` not this one `my_func() { cmd; }`
 On the declaration function line we put commentary that specify arguments

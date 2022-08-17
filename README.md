@@ -139,12 +139,25 @@ exeiac ACTION BRICK [OPTIONS]
   - fmt: a linter for the brick code
   - show_dependencies: get brick name whom output is needed or that have to be applied before
   - show_dependents: get all brick name that call the brick's output
+  - show_dependencies_recursively
+  - show_dependents_recursively
+  - list_bricks: list all elementary brick of the super brick or all elementary bricks
 
 - **OPTIONS**:
-  - plan-dependencies-before: check everything is applied before execute the brick action
-  - apply-dependents-after-recursively: apply all bricks that depends of the brick given in parameter
+  - bricks-list BRICKS_LIST: we can also pass a bricks list instead of an only brick
+  - bricks-specifier=SPECIFIER: we can use specifiers to not execute the action on the brick provided in argument but on it's dependencies or dependents according to the specifier provided.
   - non-interactive: the brick action will be executed without waiting answer from user
   - ... (use exeiac help to get more options)
+
+- **SPECIFIER**: they can be combined with + as *"dependencies+dependents"*
+  - all
+  - dependencies
+  - recursive_dependencies
+  - dependents
+  - recursive_dependents
+  - dependents_dependencies
+  - recursive_dependents_dependencies
+  - selected(default)
 
 ---
 
@@ -210,7 +223,7 @@ Don't hesitate to display warning messages or asking confirmation when you imple
 
 ### Why bash
 
-For the first version, the aim is to execute bash instrcution write in console so use bash should be the more simple way to do that to conserve coloration output of tools etc.
+For the first version, the aim is to execute bash instruction write in console so use bash should be the more simple way to do that to conserve coloration output of tools etc.
 Moreover, even if bash isn't the easiest language to develop, it's not a such big deal for me, and it will be more simple to debug module for others as you just have to copy paste code on terminal.
 Modules can call bash exeiac functions if needed. But better try to call them with exeiac. 
 
@@ -220,5 +233,5 @@ Modules can call bash exeiac functions if needed. But better try to call them wi
 - exeIaC runtime to execute one bricks should be instant and very cheap on resources
 - exeIaC runtime to plan its execute plan should be less than 3 seconds
 - exeIaC should not open to much bash in the same time without parallelism
-- enable parallelism
+- enable a parallelism mode in future.
 

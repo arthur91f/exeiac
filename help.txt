@@ -33,7 +33,7 @@ OPTIONS:
 -bricks-paths-list BRICKS_LIST 
 -bricks-names-list BRICKS_LIST
 
-SPECIFIER: they can be combined with + "as dependencies+dependents"
+SPECIFIER: they can be combined with + as "dependencies+dependents"
 all
 dependencies
 recursive_dependencies
