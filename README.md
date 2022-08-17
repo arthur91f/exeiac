@@ -4,11 +4,11 @@ Execute infra code according to a bricks dependencies metaphor
 
 ---
 
-## METAPHORE EXPLANATION
+## METAPHOR EXPLANATION
 
 ### Brief explanation
 
-We understand IaC as a construction composed with set of bricks. A brick is a step for building the IaC, it can be a terraform directory, an ansible playbook, a kubernetes yaml file...
+We understand IaC as a construction composed with set of bricks. A brick is a step for building the IaC: it can be a terraform directory, an ansible playbook, a kubernetes yaml file...
 Most of those bricks depends of others. Actually you can't put bricks of the second floor before building the first floor. And same, you can't add a user to a database before popping the database instance on the cloud provider.
 
 
@@ -68,7 +68,7 @@ brick name sanitized: if you use brick name as tag on your cloud resources you m
 
 ### Install
 
-As it is written in bash you just need to get code and precise where all part are can be found. here an example :
+As it is written in bash you just need to get code and precise where all part can be found. here an example :
 
 - git clone repository `git clone git@github.com:arthur91f/exeiac.git`
 - add an alias to your .bashrc `alias exeiac="$HOME/git/exeiac/exeiac.sh"`
@@ -86,9 +86,9 @@ function sanitize_function {
 
 What are all those variables:
 
-- exeiac_lib_path: exeiac script have been cut in multiple files containing bash functions. They are sourced at the start of execution.
-- room_paths_lits: list of your infra code repository
-- modules_path: it's a set of function developed by you that you used to apply you different infra code brick. See below for best practice and what function you have to implement but basically you will have one module by technology you use (terraform, ansible) and you will specify how to do a "terraform plan,apply,output...", an "ansible plan,apply,output...", ...
+- exeiac_lib_path: exeiac script have been cut in multiple files containing bash functions. They are sourced at the start of the execution.
+- room_paths_lits: list of your infra code repository (they need to contain directly access to superbrick)
+- modules_path: it's a set of functions developed by you that you will use to apply your different infra code brick. See below for best practice and what function you have to implement ; but, basically you will have one module by technology you use (terraform, ansible) and you will specify how to do a "terraform plan,apply,output...", an "ansible plan,apply,output...", ... Only put modules in that directory as exeiac will try to source each file in that directory.
 - sanitize_function: used to sanitized brick name if necessary.
 
 ### Create your modules
@@ -120,6 +120,68 @@ Here, a list of useful functions you can use:
 - merge_string_on_new_line
 
 Then ... I think all have been said. Check our *Best Practice* chapter and *Short Introduction to Bash* if needed.
+
+### Create your exeiac rooms
+
+A room is a directory that contains bricks. exeiac will recognize files or directorys as bricks if their names begins by a number and a dash. ExeIaC will ignore bricks that aren't directly in the room's directory or directly inside a (super)brick directory.
+
+The priority order of execution will correspond to the alphabetical order of path from your room.
+
+**EXAMPLE:**
+In *italic* directory that won't be executed
+room-directory/
+  1-init/
+    1-monitoring.sh
+    1-production.sh
+    1-staging.sh
+  2-envs/
+    *README.md*
+    1-production/
+      1-network/
+      2-ssh_server/
+      2-cluster_k8s/
+      3-prometheus/
+      4-app/
+        1-database/
+          *how_to/*
+            *1-dump_db*
+            *2-restore_dump*
+        2-k8s_deployment/
+    1-staging/
+      1-network/
+      2-ssh_server/
+      2-cluster_k8s/
+      3-prometheus/
+      *sav/*
+        *4-app/*
+          *1-database/*
+            *how_to/*
+              *1-dump_db*
+              *2-restore_dump*
+          *2-k8s_deployment/*
+          *3-dns/*
+          *4-access/*
+    2-monitoring/
+      1-network/
+      2-ssh_server/
+      3-prometheus_federated/
+      4-grafana/
+  *documentation/*
+    *1-install_terraform*
+    *2-on-call_duty_calendar*
+
+Here the priority order for applying will be:
+1-init/1-monitoring.sh
+1-init/1-production.sh
+1-init/1-staging.sh
+2-envs/1-production/1-network/
+2-envs/1-production/2-cluster_k8s/
+2-envs/1-production/2-ssh_server/
+2-envs/1-production/3-prometheus/
+2-envs/1-production/4-app/1-database/
+2-envs/1-production/4-app/2-k8s_deployment/
+2-envs/1-staging/1-network/
+...
 
 
 ### Now lets use exeiac command line
