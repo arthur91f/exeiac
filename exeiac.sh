@@ -4,7 +4,8 @@
 #######################
 # DECLARE GLOBAL VARS #
 #######################
-actions_list=" init validate fmt 
+actions_list=" pass init validate fmt 
+ public_domain_name   = local.public_domain_name
  plan apply output destroy 
  show_dependencies show_dependents list_bricks 
  show_dependencies_recursively show_dependents_recursively 
@@ -103,15 +104,20 @@ else
 fi
 
 if [ -n "$brick_path" ]; then
-    selected_bricks="$(get_selected_bricks -brick-path="$brick_path" "${OPTS[@]}")"
-    if [ "$?" != 0 ]; then
+    if ! selected_bricks="$(get_selected_bricks \
+        -brick-path="$brick_path" "${OPTS[@]}")"; then
+        soft_exit 1 "ERROR:exeiac:get_selected_bricks"
+    fi
+else
+    if ! selected_bricks="$(get_selected_bricks "${OPTS[@]}")" ; then
         soft_exit 1 "ERROR:exeiac:get_selected_bricks"
     fi
 fi
-if specifiers_list="$(get_arg --string=bricks-specifier "$@")"; then
+
+if specifiers_list="$(get_arg --string=bricks-specifiers "$@")"; then
     execute_plan="$(get_specified_bricks \
         -selected-bricks "$selected_bricks" \
-        -bricks-specifier "$specifier_list")"
+        -bricks-specifiers "$specifiers_list")"
     if [ "$?" != 0 ]; then
         soft_exit 1 "ERROR:exeiac:get_specified_bricks"
     fi
@@ -126,6 +132,10 @@ if [ -n "$execute_plan" ]; then
     execute_bricks_list -action=$action -bricks-list "$execute_plan"
 else
     case "$action" in
+    pass)
+        true
+        return_code=0
+        ;;
     help|--help|-h)
         display_help
         return_code=$?
@@ -142,12 +152,6 @@ else
         soft_exit 1 "ERROR:exeiac:unrecognized_action_for_null_plan:$action"
         ;;
     esac
-fi
-if [ -f "$EXECUTE_SUM_UP_FILE" ]; then
-    content="$(cat "$EXECUTE_SUM_UP_FILE")"
-    if [ -n "$content" ]; then
-        echo "$content"   
-    fi
 fi
 soft_exit $return_code
 

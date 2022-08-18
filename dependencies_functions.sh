@@ -19,7 +19,7 @@ function get_dependencies_tree { #< [brick_path]
 
 function get_dependents { #< brick_path
     #> bricks_paths_ordered_list
-    brick_paths="$1"
+    brick_path="$1"
     return_code=0
     bricks_to_check="$( display_line_after_match \
         "$(get_all_bricks_paths)" "$brick_path")"
@@ -63,7 +63,7 @@ function get_list_dependents { #< bricks_paths_list
     return_code=0
     dependents_list=""
     for brick in $bricks_list ; do
-        get_dependents "$bricks"
+        get_dependents "$brick"
         if [ "$?" != 0 ]; then
             echo "ERROR:get_list_dependents:$brick"
             return_code=1

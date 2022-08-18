@@ -49,7 +49,7 @@ function display_line_after_match { #< multiline_text_of_uniq_line regex
     #> ? #> truncated_multiline_text_beginning_with_match
     text="$1"
     regex="$2"
-    match_line="$(echo "$text" | grep -n "$regex" | cut -d: -f1)"
+    match_line="$(echo "$text" | grep -n "$regex" | cut -d: -f1 | head -n1)"
     if [ -z "$match_line" ]; then
         return 1
     else
@@ -61,7 +61,7 @@ function display_line_before_match { #< multiline_text_of_uniq_line regex
     #> ? #> truncated_multiline_text_ending_with_match
     text="$1"
     regex="$2"
-    match_line="$(echo "$text" | grep -n "$regex" | cut -d: -f1)"
+    match_line="$(echo "$text" | grep -n "$regex" | cut -d: -f1 | head -n1)"
     if [ -z "$match_line" ]; then
         return 1
     else
@@ -83,6 +83,18 @@ function get_absolute_path { #< relative_path_or_absolute_path
     fi
 }
 
+function get_absolute_paths_list { #< relative_paths_or_absolute_paths_list
+    #> absolute_paths_list
+    paths_list="$1"
+    return_code=0
+    for path in $paths_list ; do
+        get_absolute_path "$path"
+        if [ "$?" != 0 ]; then
+            return_code=1
+        fi
+    done
+}
+
 function merge_string_on_new_line { #< string1 string2 # can be empty or multiline
     #> empty_or_multiline_string
     for arg in "$@"; do
@@ -94,6 +106,9 @@ function soft_exit { #< return_code error_message
     #> ? #>2 error_message # simply exit
     return_code="$1"
     cd "$INITIAL_CURRENT_PATH"
+    if [ -s "$EXECUTE_SUM_UP_FILE" ]; then # if the sump_up_file is not empty
+        cat "$EXECUTE_SUM_UP_FILE"
+    fi
     if [ -n "$2" ]; then
         echo "$2" >&2
     fi
