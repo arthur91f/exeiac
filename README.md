@@ -4,40 +4,41 @@ Execute infra code according to a bricks dependencies metaphor
 
 ---
 
-## METAPHOR EXPLANATION
+## PHILOSOPHY
 
-### Brief explanation
+### Brief metaphore explanation
 
 We understand IaC as a construction composed with set of bricks. A brick is a step for building the IaC: it can be a terraform directory, an ansible playbook, a kubernetes yaml file...
-Most of those bricks depends of others. Actually you can't put bricks of the second floor before building the first floor. And same, you can't add a user to a database before popping the database instance on the cloud provider.
+Most of those bricks depends of others. Actually, as for a construction, you can't put bricks of the second floor before building the first floor. And same, you can't add a user to a database before popping the database instance on the cloud provider.
 
 
-### Lot of infra codes problem
+### Common infra codes problem
 
-In a lot of company, the infra code division in bricks and the right to apply these bricks were often hardly linked to technology and the dependencies between bricks are not clear.
-In a bit complexe infra code it brings :
-- mistakes of infra team when applying a change (because they don't understand dependencies) and they often guess how it should be applied.
-- a big documentation not always up-to-date for each detail specificities (as the dependency tree is not clear)
-- shortcuts where you copy paste a generated value from an other brick (because convention exchange info between bricks doesn't exist)
-- some infra code omission because it can't be done (or it's to complicated) by terraform
+In a lot of company, the infra code division in bricks and the right to apply these bricks were often strongly linked to technologies and the dependencies between bricks are not clear.
+In a complexe infra code it leads to :
+- mistakes from infra team when applying a change (because they don't understand dependencies) and they often guess how it should be applied.
+- a big documentation not always up-to-date for each detail and specificity (as the dependency tree is not clear)
+- shortcuts where you copy paste a generated value from an other brick (because conventions about informations exchanges between bricks don't exist)
+- some infra code omissions because it can't be done (or it's to complicated) by terraform
 - interrogations without answer when you discover an instance on your webUI cloud provider and you don't know where it has been coded.
-- to avoid drift and CD complexity, all infra is reapplied regularly. It makes development less fluent and sometimes the CD failed due to a teammate modification that you have to correct before seeing your change applied on your brick (a bit annoying when you try to fix a production incident)
+- reapply regurlarly all the infra to avoid drift and CD complexity. It makes development less fluent. Moreover, sometimes, the CD failed due to a teammate modification that you have to correct before seeing your change applied on your brick (a bit annoying when you try to fix a production incident)
 
-ExeIaC tries to answer to those problems.
+ExeIaC tries to address those problems.
 
 
 ### ExeIaC philosophy
 
-The main philosophy of exeIaC is to decouple the brick technology complexity to the way bricks interact with each other. It tries to respond to the dependency inversion principle of SOLID.
-How to decouple? More than a script that manage your infra code, exeIaC is a convention and each brick has to respect this convention. In fact, the brick contract is to be able to be applied, display output and display dependencies bricks... (look forward to seeing the exact convention)
+The main philosophy of exeIaC is to dissociate the brick technology complexity from the way bricks interact with each other. It tries to respond to the *dependency inversion principle* of SOLID.
 
-What brings this decoupling? Each brick can be applied in a different way with different technologies. We don't recommend that you use too many different way to apply your bricks  (ExeIaC implement modules to factorize application code for brick of the same type), but it permits you some eventual shortcuts.
+How to dissociate? More than a script that manage your infra code, exeIaC is a convention and each brick has to respect this convention. In fact, the brick contract is to be able to be applied, to display output and to display dependencies bricks... (exact convention presented further).
 
-For example, if you need to open an ssh tunnel or switch to another vpn before running your terraform you can do that easily and you won't need to document that tricky specificity because it will be written clearly in the code.
+What brings this dessociation? Each brick can be applied in a different way with different technologies. However, we don't recommend that you use too many different way to apply your bricks (ExeIaC implement modules to factorize application code for brick of the same type), but it permits you some eventual shortcuts.
 
-In the same way, if you have to do something by hand, you can write it in your brick instead of executing a terraform apply. So it will get information from other bricks, display some instructions to do by hand and then display outputs to the dependencies. That type of shortcut has to be considered ugly. But they're still better than write nothing. It won't be invisibilize, it won't break any dependencies, it will warn anyone trying to apply the brick. Moreover, in most case it can be scripted and you won't need to display instruction to do by hand.
+For example, if you need to open an ssh tunnel or switch to another vpn before running your terraform you can do it easily and you won't need to document that tricky specificity because it will be written clearly in the code.
 
-This decoupling will permit to reduce the documentation size and apply the rule "no details or specificities written in the documentation".
+In the same way, if you have to do something by hand, you can write it in your brick instead of executing a terraform apply. So, brick will get information from other bricks, displays some instructions to do by hand and then displays outputs to the dependencies. That type of shortcuts have to be considered ugly. However they're still better than write nothing, because it won't be invisibilized, it won't break any dependencies, it will warn anyone trying to apply the brick. Moreover, in most case it can be scripted and you won't need to display instruction to do by hand.
+
+This dissociation will permit to reduce the documentation size and apply the rule of "no details or specificities written in the documentation".
 Why this rule? Because documentation is hard to maintain up-to-date and exhaustive. And a short general up-to-date documentation will always be better than an attempt of exhaustivity where you don't know how to search something, where you're not sure that it exists and where you're not sure that it is still up-to-date or if it exist.
 How this decoupling will allow to reduce documentation? Because you will document your brick inside your brick directory (where the code is written). The detail documentation will be easy to find as your tree structure should be intuitive. And when update the brick it is to update a README.md file if needed and to block the PR until it has been done. Moreover, when you debug, the documentation will be in the same directory!
 
@@ -129,6 +130,7 @@ The priority order of execution will correspond to the alphabetical order of pat
 
 **EXAMPLE:**
 In *italic* directory that won't be executed
+```
 room-directory/
   1-init/
     1-monitoring.sh
@@ -169,8 +171,10 @@ room-directory/
   *documentation/*
     *1-install_terraform*
     *2-on-call_duty_calendar*
+```
 
 Here the priority order for applying will be:
+```
 1-init/1-monitoring.sh
 1-init/1-production.sh
 1-init/1-staging.sh
@@ -182,7 +186,7 @@ Here the priority order for applying will be:
 2-envs/1-production/4-app/2-k8s_deployment/
 2-envs/1-staging/1-network/
 ...
-
+```
 
 ### Now lets use exeiac command line
 
