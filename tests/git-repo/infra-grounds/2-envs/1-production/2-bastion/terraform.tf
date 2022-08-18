@@ -36,16 +36,16 @@ variable "state_tag" {
 data "terraform_remote_state" "this_network" {
   backend = "local"
   config = {
-    path = "${var.rooms_paths_list.infra-grounds}/2-envs/1-production/1-network/terraform.tfstate"
+    path = "${var.rooms_paths_list.infra-grounds}/2-envs/1-${var.environment.name}/1-network/terraform.tfstate"
   }
 }
 
 output "bastion" {
   sensitive = true
   value = {
-    instance_id = local.instance_id
-    private_ip  = local.private_ip
-    public_ip   = local.public_ip
+    instance_id          = local.instance_id
+    private_ip           = local.private_ip
+    public_ip            = local.public_ip
     private_domain_name  = local.private_domain_name
     internal_domain_name = local.internal_domain_name
   }

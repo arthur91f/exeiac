@@ -1,0 +1,15 @@
+"created":
+  "internal_domain_name": "staging.myp.tech"
+  "private_domain_name": "staging.private"
+  "public_domain_name": "staging.public"
+  "state_tag": "infra-grounds--envs--staging--network"
+"needs":
+  "provider_credentials": |
+    -----BEGIN PRIVATE KEY-----
+    cExj5mM4Eshfx1yhdLmK2NC7GRoTjOXW7UXr5w1bMHlWPUhAeCzVCwmto9SAnJhxq2QWc0
+    DX3P7vmccxC8AIHg5TnhMLLFe/xodN1C5BZ3xoqFJnUR3aB72HqvDrGqMsp5AD28WMeL7t
+    q49SkzrmKUiOEQTwHWiJxl89g8uWehweB0Q+lze8d7pR2BL1iNgzFRhpmMHkdbaEZF8uLn
+    S46W3NiHDdWCO1Lz3mMiwAfi==
+    -----END PRIVATE KEY-----
+  "provider_project": "staging-120822"
+  "provider_username": "ci-user"

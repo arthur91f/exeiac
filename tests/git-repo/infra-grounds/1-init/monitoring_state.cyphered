@@ -12,11 +12,3 @@ Zm3Gja0rYjNM6NEFCRfVW4Fg==
 EOT
 }
 
-old = {
-  name                 = "monitoring"
-  public_domain_name   = null # not used
-  internal_domain_name = "monitoring.myp.tech"
-  private_domain_name  = "monitoring.private"
-  network              = "10.1.0.0/16"
-}
-

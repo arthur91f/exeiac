@@ -1,0 +1,15 @@
+"created":
+  "nat_ip": "34.219.18.216"
+  "network_id": "staging-120822/network/1000dfab-7b32-6615-5d13-57969fb74546"
+  "network_ip": "10.3.0.0/20"
+  "tag": "infra-grounds--envs--staging--network"
+"needs":
+  "provider_credentials": |
+    -----BEGIN PRIVATE KEY-----
+    cExj5mM4Eshfx1yhdLmK2NC7GRoTjOXW7UXr5w1bMHlWPUhAeCzVCwmto9SAnJhxq2QWc0
+    DX3P7vmccxC8AIHg5TnhMLLFe/xodN1C5BZ3xoqFJnUR3aB72HqvDrGqMsp5AD28WMeL7t
+    q49SkzrmKUiOEQTwHWiJxl89g8uWehweB0Q+lze8d7pR2BL1iNgzFRhpmMHkdbaEZF8uLn
+    S46W3NiHDdWCO1Lz3mMiwAfi==
+    -----END PRIVATE KEY-----
+  "provider_project": "staging-120822"
+  "provider_username": "ci-user"

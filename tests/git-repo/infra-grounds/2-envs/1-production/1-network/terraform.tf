@@ -51,10 +51,3 @@ output "network" {
   }
 }
 
-# data "terraform_remote_state" "" {
-#   backend = "local"
-#   config = {
-#     path = ""
-#   }
-# }
-

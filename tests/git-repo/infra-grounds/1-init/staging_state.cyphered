@@ -12,11 +12,3 @@ S46W3NiHDdWCO1Lz3mMiwAfi==
 EOT
 }
 
-old = {
-  name                 = "staging"
-  public_domain_name   = "staging.public"
-  internal_domain_name = "staging.myp.tech"
-  private_domain_name  = "staging.private"
-  network              = "10.3.0.0/16"
-}
-

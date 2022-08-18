@@ -1,0 +1,14 @@
+"created":
+  "internal_domain_name": "monitoring.myp.tech"
+  "private_domain_name": "monitoring.private"
+  "state_tag": "infra-grounds--envs--monitoring--network"
+"needs":
+  "provider_credentials": |
+    -----BEGIN PRIVATE KEY-----
+    monitoringfjh6qnrS4z3qPOrOthu9hVJiM9sXPISuIMWCQUVDhA7cKwuZ3ErN3Mue2GBt
+    KYuINui3SbsyfuAJlF/3FcUVfbwbioRWMKEs4rTPeU9Nz06Ipj2wZnRUpQ0njgptzxyrzH
+    NblRVU1Skj9xNTzNbj02bWoOYSOgq3YIF+901gbQuZdE8JPxcKZMUXSxTvhgq5zA5bpKrj
+    Zm3Gja0rYjNM6NEFCRfVW4Fg==
+    -----END PRIVATE KEY-----
+  "provider_project": "monitoring-120822"
+  "provider_username": "ci-user"

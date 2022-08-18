@@ -19,7 +19,7 @@ locals {
 
 resource "local_file" "dns" {
   file_permission = "0444"
-  content              = yamlencode(local.dns_template)
-  filename             = "${path.root}/CREATED_dns.yml"
+  content         = yamlencode(local.dns_template)
+  filename        = "${path.root}/CREATED_dns.yml"
 }
 

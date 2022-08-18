@@ -136,15 +136,20 @@ function show_dependencies {
     if env="$(get_env)"; then
         provider_dependencies="infra-grounds/1-init/1-$(get_env).sh"
     fi
+    
     comment_dependencies="$(default_show_dependencies)"
-    gcs_backend_dependencies="$(cat "$brick_path"/*.tf |
+    
+    terraform_remote_state_config="$(cat "$brick_path"/*.tf |
         sed -n '/^data "terraform_remote_state" ".*" {/,/^}/ p' |
-        sed -n '/  config = {/,/  }/ p' |
-        grep "prefix *=" | 
-        sed 's|^ *prefix *= *"\(.*\)".*$|\1|g')"
-
+        sed -n '/  config = {/,/  }/ p')"
+    local_backend_dependencies="$(echo "$terraform_remote_state_config" |
+        grep "^ *path *=" | sed 's|^ *path *= *"\(.*\)".*$|\1|g')"
+    gcs_backend_dependencies="$(echo "$terraform_remote_state_config" |
+        grep "^ *prefix *=" | sed 's|^ *prefix *= *"\(.*\)".*$|\1|g')"
+    
     echo "$(echo "$provider_dependencies" ;
         echo "$comment_dependencies" ;
+        echo "$local_backend_dependencies" ;
         echo "$gcs_backend_dependencies")" |
         sed '/^$/d' | sort | uniq
 }
