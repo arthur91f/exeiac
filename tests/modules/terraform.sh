@@ -143,7 +143,8 @@ function show_dependencies {
         sed -n '/^data "terraform_remote_state" ".*" {/,/^}/ p' |
         sed -n '/  config = {/,/  }/ p')"
     local_backend_dependencies="$(echo "$terraform_remote_state_config" |
-        grep "^ *path *=" | sed 's|^ *path *= *"\(.*\)".*$|\1|g')"
+        grep "^ *path *=" | sed 's|^ *path *= *"\(.*\)".*$|\1|g' |
+        sed 's|/terraform.tfstate$||g')"
     gcs_backend_dependencies="$(echo "$terraform_remote_state_config" |
         grep "^ *prefix *=" | sed 's|^ *prefix *= *"\(.*\)".*$|\1|g')"
     
@@ -151,7 +152,9 @@ function show_dependencies {
         echo "$comment_dependencies" ;
         echo "$local_backend_dependencies" ;
         echo "$gcs_backend_dependencies")" |
-        sed '/^$/d' | sort | uniq
+        sed 's|${var.rooms_paths_list.\([^}]*\)}|\1|g' | 
+        sed "s|\${var.environment.name}|$(get_env)|g" | 
+        sed '/^$/d' | sort | uniq # remove empty line and doublon
 }
 
 function help {
