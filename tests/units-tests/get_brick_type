@@ -1,0 +1,56 @@
+args_list="$rooms_path/infra-grounds/1-init/1-production.sh
+$rooms_path/infra-grounds/2-envs/1-production/1-network
+$rooms_path/infra-grounds/2-envs/1-production
+$rooms_path/non-existing-path/1-non_existing_dir
+$rooms_path
+$rooms_path/infra-grounds/2-envs/1-production/9-no_modules_dir"
+
+while read line ; do
+    echo "____________"
+    echo ""
+    sed "s|$rooms_path|#> |g" <<<"$line"
+    exeiac debug -debug-command="get_brick_type $line"
+    echo "\$?:$?"
+done <<<"$args_list"
+
+######################
+## COMMANDS RESULTS ##
+____________
+
+#> /infra-grounds/1-init/1-production.sh
+elementary_script_brick
+return code: 0
+$?:0
+____________
+
+#> /infra-grounds/2-envs/1-production/1-network
+elementary_directory_brick
+return code: 0
+$?:0
+____________
+
+#> /infra-grounds/2-envs/1-production
+super_brick
+return code: 0
+$?:0
+____________
+
+#> /non-existing-path/1-non_existing_dir
+not_a_brick
+WARNING:get_brick_type:As it begins by a number this path should be considered 
+    as a brick but is not : /home/arthur/git/exeiac/tests/git-repo/non-existing-path/1-non_existing_dir
+return code: 1
+$?:0
+____________
+
+#> 
+not_a_brick
+return code: 1
+$?:0
+____________
+
+#> /infra-grounds/2-envs/1-production/9-no_modules_dir
+elementary_directory_brick
+return code: 0
+$?:0
+
