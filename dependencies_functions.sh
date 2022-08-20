@@ -7,8 +7,7 @@ function get_dependencies_tree { #< [brick_path]
         bricks_paths_list="$( display_line_after_match \
             "$(get_all_bricks_paths)" "$brick_path")"
     else
-        bricks_paths_list="$( get_bricks_paths_list \
-            "$(get_all_bricks_paths)")"
+        bricks_paths_list="$(get_all_bricks_paths)"
     fi
     
     for brick_path in $bricks_paths_list ; do

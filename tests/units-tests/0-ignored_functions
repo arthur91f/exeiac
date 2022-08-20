@@ -1,0 +1,54 @@
+scripts_files="bricks_functions.sh dependencies_functions.sh develop_functions.sh general_functions.sh single_called_functions.sh"
+test_files="$(ls -1 "$tests_dir" | sed 's/^[0-9]-//g')"
+
+for fx in $(cat $scripts_files | grep "^function" | 
+    sed -e 's/^function *\([a-zA-Z0-9_]\+\) *.*$/\1/g'); do
+    if ! grep -q "^$fx$" <<<"$test_files"; then
+        echo "$fx"
+    fi
+done
+
+## indicatives functions occurence ##
+## grep -rc fx : nb time called in other functions : fx_name prefixed by dps_nb
+    ## deps_nb is defined as follow : 1 function don't call any other function
+    ## 2 function call only 1 function
+    ## 3 function call 2 functions ...
+# 11:16:1-get_brick_type
+# 8:11:2-get_all_bricks_paths
+# 3:10:1-get_bricks_paths_list
+# 20:10:1-get_arg
+# 17:10:2-execute_brick
+# 16:09:3-get_dependencies
+# 3:06:display_line_after_match
+# 5:04:4-get_dependents
+# 8:04:3-display_bricks_in_right_order
+# 6:04:1-merge_string_on_new_line
+# 3:03:4-get_dependencies_tree
+# 9:02:5-get_list_dependents
+# 2:02:5-get_dependents_recursively
+# 9:02:4-get_list_dependencies
+# 2:02:4-get_dependencies_recursively
+# 3:02:3-get_child_bricks
+# 5:02:1-get_brick_name
+# 5:02:1-get_absolute_path
+# 4:01:soft_exit
+# 1:01:get_brick_sanitized_name
+# 1:01:display_line_before_match
+# 4:01:6-get_list_dependents_recursively
+# 4:01:5-get_list_dependencies_recursively
+# 4:01:4-convert_to_elementary_bricks_path
+# 1:01:3-get_all_bricks_names
+# 2:01:2-get_absolute_paths_list
+# 6:01:1-get_bricks_names_list
+# 1:01:1-get_brick_path
+
+## COMMANDS RESULTS ##
+get_brick_sanitized_name
+display_line_after_match
+display_line_before_match
+soft_exit
+dispdebug
+cmd_debug
+get_functions
+display_help
+

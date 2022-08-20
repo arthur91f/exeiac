@@ -37,6 +37,7 @@ for file in $PATHS_TO_TESTS; do
     diff --color <(echo "$results_expected") <(echo "$results")
     if [ "$?" != 0 ]; then
         echo "## ERROR:test outputs are different from expected: $file"
+        echo "$results" | cat -n
         return_code=1
     else
         echo "  test passed !"

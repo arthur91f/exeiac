@@ -1,0 +1,17 @@
+
+exeiac debug -debug-command="get_all_bricks_paths"
+
+######################
+## COMMANDS RESULTS ##
+${ROOMS_PATH}/infra-grounds/1-init/1-monitoring.sh
+${ROOMS_PATH}/infra-grounds/1-init/1-production.sh
+${ROOMS_PATH}/infra-grounds/1-init/1-staging.sh
+${ROOMS_PATH}/infra-grounds/2-envs/2-monitoring/1-network
+${ROOMS_PATH}/infra-grounds/2-envs/2-monitoring/2-bastion
+${ROOMS_PATH}/infra-grounds/2-envs/1-production/1-network
+${ROOMS_PATH}/infra-grounds/2-envs/1-production/2-bastion
+${ROOMS_PATH}/infra-grounds/2-envs/1-production/9-no_modules_dir
+${ROOMS_PATH}/infra-grounds/2-envs/1-staging/1-network
+${ROOMS_PATH}/infra-grounds/2-envs/1-staging/2-bastion
+return code: 0
+

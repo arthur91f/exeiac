@@ -1,0 +1,54 @@
+args_list="$rooms_path/infra-grounds/1-init/1-production.sh
+$rooms_path/infra-grounds/2-envs/1-production/1-network
+$rooms_path/infra-grounds/2-envs/1-production
+$rooms_path/non-existing-path/1-non_existing_dir
+$rooms_path
+$rooms_path/infra-grounds/2-envs/1-production/9-no_modules_dir"
+
+while read line ; do
+    echo "____________"
+    echo ""
+    sed "s|$rooms_path|#> |g" <<<"$line"
+    exeiac debug -debug-command="execute_brick -brick-path='$line' -action=pass"
+    echo "\$?:$?"
+done <<<"$args_list"
+
+######################
+## COMMANDS RESULTS ##
+____________
+
+#> /infra-grounds/1-init/1-production.sh
+return code: 0
+$?:0
+____________
+
+#> /infra-grounds/2-envs/1-production/1-network
+return code: 0
+$?:0
+____________
+
+#> /infra-grounds/2-envs/1-production
+ERROR:execute_brick:bad_brick_type:super_brick:/home/arthur/git/exeiac/tests/git-repo/infra-grounds/2-envs/1-production
+return code: 1
+$?:0
+____________
+
+#> /non-existing-path/1-non_existing_dir
+WARNING:get_brick_type:As it begins by a number this path should be considered 
+    as a brick but is not : ${ROOMS_PATH}/non-existing-path/1-non_existing_dir
+ERROR:execute_brick: not a brick: ${ROOMS_PATH}/non-existing-path/1-non_existing_dir
+return code: 3
+$?:0
+____________
+
+#> 
+ERROR:execute_brick: not a brick: ${ROOMS_PATH}
+return code: 3
+$?:0
+____________
+
+#> /infra-grounds/2-envs/1-production/9-no_modules_dir
+ERROR:execute_brick: no known modules can execute that brick: ${ROOMS_PATH}/infra-grounds/2-envs/1-production/9-no_modules_dir
+return code: 5
+$?:0
+
