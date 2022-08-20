@@ -32,17 +32,17 @@ The main philosophy of exeIaC is to dissociate the brick technology complexity f
 
 How to dissociate? More than a script that manage your infra code, exeIaC is a convention and each brick has to respect this convention. In fact, the brick contract is to be able to be applied, to display output and to display dependencies bricks... (exact convention presented further).
 
-What brings this dessociation? Each brick can be applied in a different way with different technologies. However, we don't recommend that you use too many different way to apply your bricks (ExeIaC implement modules to factorize application code for brick of the same type), but it permits you some eventual shortcuts.
+What brings this dissociation? Each brick can be applied in a different way with different technologies. However, we don't recommend that you use too many different way to apply your bricks (ExeIaC implement modules to factorize application code for brick of the same type). So above all you can mix different applying technologies and it also permits eventual shortcuts!
 
 For example, if you need to open an ssh tunnel or switch to another vpn before running your terraform you can do it easily and you won't need to document that tricky specificity because it will be written clearly in the code.
 
 In the same way, if you have to do something by hand, you can write it in your brick instead of executing a terraform apply. So, brick will get information from other bricks, displays some instructions to do by hand and then displays outputs to the dependencies. That type of shortcuts have to be considered ugly. However they're still better than write nothing, because it won't be invisibilized, it won't break any dependencies, it will warn anyone trying to apply the brick. Moreover, in most case it can be scripted and you won't need to display instruction to do by hand.
 
+As everything is coded (thanks to the enabling of easy shortcut) and the dependencies between bricks is clear the mistakes by applying something wrong are reduce and the impact of a fail is well known.
+
 This dissociation will permit to reduce the documentation size and apply the rule of "no details or specificities written in the documentation".
 Why this rule? Because documentation is hard to maintain up-to-date and exhaustive. And a short general up-to-date documentation will always be better than an attempt of exhaustivity where you don't know how to search something, where you're not sure that it exists and where you're not sure that it is still up-to-date or if it exist.
 How this decoupling will allow to reduce documentation? Because you will document your brick inside your brick directory (where the code is written). The detail documentation will be easy to find as your tree structure should be intuitive. And when update the brick it is to update a README.md file if needed and to block the PR until it has been done. Moreover, when you debug, the documentation will be in the same directory!
-
-As everything is coded (thanks for allowing easy shortcut) and the dependencies between bricks is clear the mistakes by applying something are reduce and the impact of a fail is well known.
 
 You can also avoid to discover cloud provider resources that you can't link to a code by following a best practice: the path of your brick has to be tagged on the resources. 
 
