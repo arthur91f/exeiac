@@ -38,7 +38,7 @@ ____________
 #> /non-existing-path/1-non_existing_dir
 not_a_brick
 WARNING:get_brick_type:As it begins by a number this path should be considered 
-    as a brick but is not : /home/arthur/git/exeiac/tests/git-repo/non-existing-path/1-non_existing_dir
+    as a brick but is not : ${ROOMS_PATH}/non-existing-path/1-non_existing_dir
 return code: 1
 $?:0
 ____________

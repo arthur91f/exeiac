@@ -28,7 +28,7 @@ $?:0
 ____________
 
 #> /infra-grounds/2-envs/1-production
-ERROR:execute_brick:bad_brick_type:super_brick:/home/arthur/git/exeiac/tests/git-repo/infra-grounds/2-envs/1-production
+ERROR:execute_brick:bad_brick_type:super_brick:${ROOMS_PATH}/infra-grounds/2-envs/1-production
 return code: 1
 $?:0
 ____________
