@@ -6,7 +6,7 @@ for fx in $(cat $scripts_files | grep "^function" |
     if ! grep -q "^$fx$" <<<"$test_files"; then
         echo "$fx"
     fi
-done
+done | sort
 
 ## indicatives functions occurence ##
 ## grep -rc fx : nb time called in other functions : fx_name prefixed by dps_nb
@@ -42,13 +42,14 @@ done
 # 6:01:1-get_bricks_names_list
 # 1:01:1-get_brick_path
 
+######################
 ## COMMANDS RESULTS ##
-get_brick_sanitized_name
+cmd_debug
+dispdebug
+display_help
 display_line_after_match
 display_line_before_match
-soft_exit
-dispdebug
-cmd_debug
+get_brick_sanitized_name
 get_functions
-display_help
+soft_exit
 
