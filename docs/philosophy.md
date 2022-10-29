@@ -7,6 +7,21 @@
 
 ## Common infra code problems we try to solve with exeIaC
 
+- You found an ip adress or some cred that have pop from nowhere in your infra 
+  code and don't know if it's still usefull. How it happens ? Because you have 
+  copy paste a terraform output to your ansible groups var one year before.
+- You deploy a new feature by applying a terraform state and forget to reapply
+  an other directory else where. How it happens ? You haven't write it in the
+  documentation or you forget to read the docs.
+- You have a very big documentation full of exception, that is not 100% up to
+  date.
+- You reapply regularly all the infra to avoid drift.
+- You take some shortcut and do few things by hand because it is complicated
+  to write it on code for some edge case.
+- As a new comers on the team, you found the code but you don't know how to
+  deploy it (what creds, what inventory, what env vars to use, what tools
+  version) 
+
 ## Define the brick concept
 
 ### What we will try to do with the brick concept
