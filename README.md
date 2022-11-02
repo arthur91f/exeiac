@@ -41,7 +41,8 @@ For using exeiac you will have to:
 - create a conf file in /etc/exeiac.conf or $HOME/.exeiac.conf
   ```yaml
   modules_path:
-    - "$HOME/git-repos/exeiac-modules"
+    terraform: $HOME/git-repos/exeiac-modules/terraform
+    ansible: $HOME/git-repos/exeiac-modules/terraform
   room_paths_list:
     - $HOME/git-repos/infra-ground
     - $HOME/git-repos/applications
