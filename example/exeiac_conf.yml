@@ -1,0 +1,8 @@
+modules:
+  tests: /home/me/repos/modules/module_test.sh
+rooms:
+  - /home/me/repos/infra-ground
+  - /home/me/repos/app-backend
+  - /home/me/repos/app-frontend
+  - /home/me/repos/users
+
