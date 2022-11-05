@@ -8,6 +8,7 @@ type Arguments struct {
     Action string
     Bricks_paths []string
     Bricks_specifiers []string
+    Conf_file string
     Interactive bool
     Output_specifier string
     Other_options []string
@@ -48,16 +49,50 @@ func remove_item(index int, list []string) []string {
     return new_list
 }
 
+func consume_option_and_value(opt string, args *[]string) (string, bool) {
+    var index int
+    var found bool
+    var value string
+    
+    index, found = get_index(long, os_args)
+    if found && (len(args) > index+1) {
+        value = args[index]
+        *args = remove_item(index, remove_item(index, *args))
+        return value, found
+    } else if found && len(args) < index+2 {
+        fmt.Println("Error: ", opt, " should be followed by a value")
+        fmt.Println("  assuming value is \"\"")
+        *args = remove_item(index, *args)
+        return "", found, args
+    } else {
+        return "", found, args
+    }
+}
+
+func consume_option(opt string, args *[]string) (bool) {
+    var index int
+    var found bool
+    index, found = get_index(long, os_args)
+    if found {
+        *args = remove_item(index, *args)
+    }
+    return found
+}
+
 func Get_arguments() (Arguments, bool) {
     args := Arguments{
         Action: "",
         Bricks_paths: []string{},
         Bricks_specifiers: []string{"selected"},
+        Conf_file: "",
         Interactive: true,
         Output_specifier: "",
         Other_options: []string{},
         }
     os_args := remove_item(0, os.Args)
+    pos_args := &os_args
+    var value string
+    var found bool
 
     // set action and remove it
     if len(os_args) < 1 {
@@ -82,7 +117,24 @@ func Get_arguments() (Arguments, bool) {
         args.Bricks_paths = []string{os_args[0]}
         os_args = remove_item(0, os_args)
     }
-    
+
+    // set interactive
+    if consume_option("--non-interactive", &os_args) {
+        args.Interactive = false
+    } else if consume_option("-I", &os_args) {
+        args.Interactive = false
+    }
+
+    // set overload conf file
+    value, found = consume_option_and_value("--conf-file", &os_args)
+    if found {
+        args.Conf_file = value 
+    } else {
+        args.Conf_file, _ = consume_option_and_value("-c", &os_args)
+    }
+
+    // set output specifier
+
     // return
     args.Other_options = os_args
     return args, true
