@@ -2,30 +2,29 @@ package arguments
 import (
   "fmt"
   "os"
-  "strings"
 )
 
 type Arguments struct {
-    action string
-    bricks_paths []string
-    bricks_specifiers []string
-    interactive bool
-    output_specifier string
-    other_options []string
+    Action string
+    Bricks_paths []string
+    Bricks_specifiers []string
+    Interactive bool
+    Output_specifier string
+    Other_options []string
 }
 
-actions_list = [
+var actions_list = []string{
     "plan", "lay", "remove", "output", "init", "validate_code", "help",
     "show_input", "list_elementary_bricks", "cd",
-    "get_brick_path", "get_brick_name"
-]
+    "get_brick_path", "get_brick_name"}
+
 func is_string_in_list(str string, list []string) bool {
     for _, value := range list {
         if value == str {
-            return true, index
+            return true
         }
     }
-    return false, -1
+    return false
 }
 
 func get_index(str string, list []string) (int, bool) {
@@ -50,41 +49,46 @@ func remove_item(index int, list []string) []string {
 }
 
 func Get_arguments() (Arguments, bool) {
-    var args := Arguments{
-        action: "",
-        bricks_paths: [],
-        bricks_specifiers: ["selected"]
-        interactive: true
-        output_specifier: ""
-        other_options: []
-    }
-    var os_args := remove_item(0, os.Args)
+    args := Arguments{
+        Action: "",
+        Bricks_paths: []string{},
+        Bricks_specifiers: []string{"selected"},
+        Interactive: true,
+        Output_specifier: "",
+        Other_options: []string{},
+        }
+    os_args := remove_item(0, os.Args)
 
     // set action and remove it
-    if is_string_in_list(os_args[0], actions_list) {
-        args.action = os_args[0]
-        os_args = remove_item(0, os.Args)
+    if len(os_args) < 1 {
+        fmt.Println("You need to specify at least an action")
+        return args, false
+    } else if is_string_in_list(os_args[0], actions_list) {
+        args.Action = os_args[0]
+        os_args = remove_item(0, os_args)
+    } else if len(os_args) < 2 {
+        fmt.Println("You need to specify at least an action in first or second arg")
+        return args, false
     } else if is_string_in_list(os_args[1], actions_list){
-        args.action = os_args[1]
-        os_args = remove_item(1, os.Args)
+        args.Action = os_args[1]
+        os_args = remove_item(1, os_args)
     } else {
         fmt.Println("You need to specify an action: \"exeiac help\"")
         return args, false
     }
     
     // set bricks_paths
-    if is_path(os_args[0]) {
-        args.bricks_paths = [get_full_path(os_args[0])]
-    } else {
-        fmt.Println("Sorry for the moment the only brick outputs is: \"exeiac help\"")
-        return args, false
+    if len(os_args) > 0  {
+        args.Bricks_paths = []string{os_args[0]}
+        os_args = remove_item(0, os_args)
     }
-
+    
     // return
-    args.other_options = os_args
+    args.Other_options = os_args
     return args, true
 }
 
+/*
 func get_arg_type(arg string) string {
     // return
     // - action
@@ -109,4 +113,4 @@ func get_action(args []string) string {
 func get_selected_brick(args []string) []string {
 
 }
-
+*/
