@@ -18,7 +18,7 @@ func get_conf_paths(file_path string) ([]string) {
         "/etc/exeiac.yaml",
     }
     home, err := os.UserHomeDir()
-    if err != nil {
+    if err == nil {
         possible_conf_paths = append(possible_conf_paths,
             home + "/.exeiac.conf",
             home + "/.exeiac.yml",
@@ -141,9 +141,13 @@ func set_args_with_conf_files(file_path string) (Arguments, error) {
     args.RoomsList = conf.RoomsList
     args.ModulesList = conf.ModulesList
     args.Interactive = !conf.DefaultArgs.NonInteractive
-    args.BricksSpecifiers = strings.Split(conf.DefaultArgs.BricksSpecifiers, "+")
-    args.OtherOptions = strings.Split(conf.DefaultArgs.OtherOptions, " ")
-
+    if conf.DefaultArgs.BricksSpecifiers != "" {
+        args.BricksSpecifiers = strings.Split(conf.DefaultArgs.BricksSpecifiers,
+            "+")
+    }
+    if conf.DefaultArgs.OtherOptions != "" {
+        args.OtherOptions = strings.Split(conf.DefaultArgs.OtherOptions, " ")
+    }
     return args, nil
 }
 

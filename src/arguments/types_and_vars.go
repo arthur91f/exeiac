@@ -33,7 +33,7 @@ func getDefaultArguments() Arguments {
     return Arguments{
         Action: "",
         BricksPaths: []string{},
-        BricksSpecifiers: []string{},
+        BricksSpecifiers: []string{"selected"},
         Interactive: true,
         ModulesList: []NamePathMapping{},
         OutputSpecifier: ".",
@@ -46,9 +46,9 @@ type exeiacConf struct {
     RoomsList []NamePathMapping `yaml:"rooms_list"`
     ModulesList []NamePathMapping `yaml:"modules_list"`
     DefaultArgs struct {
-        NonInteractive bool
-        BricksSpecifiers string
-        OtherOptions string
+        NonInteractive bool `yaml:"non_interactive"`
+        BricksSpecifiers string `yaml:"bricks_specifiers"`
+        OtherOptions string `yaml:"other_options"`
     } `yaml:"default_arguments"`
 }
 

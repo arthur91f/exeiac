@@ -28,7 +28,7 @@ func action_display_args(args exeiacArgs.Arguments) {
         }
     }
 
-    fmt.Printf("  interactive: %t", args.Interactive)
+    fmt.Printf("  interactive: %t\n", args.Interactive)
 
     if len(args.ModulesList) == 0 {
         fmt.Println("  modules_list: []")
