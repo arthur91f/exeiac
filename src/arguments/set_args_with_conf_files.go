@@ -10,6 +10,7 @@ import (
 
 func get_conf_paths(file_path string) ([]string) {
     // create all possible conf file path and return a list of existing conf file
+    err_msg := ":arguments/get_conf_paths:"
     existing_conf_paths := []string{}
     possible_conf_paths := []string{
         "/etc/exeiac.conf",
@@ -28,8 +29,17 @@ func get_conf_paths(file_path string) ([]string) {
     }
 
     for _, path := range possible_conf_paths {
-        if info, err := os.Stat(path) ; err != nil && !info.IsDir() {
-            existing_conf_paths = append(existing_conf_paths, path)
+        info, err := os.Stat(path)
+        if err == nil {
+            if !info.IsDir() {
+                existing_conf_paths = append(existing_conf_paths, path)    
+            } else {
+                fmt.Fprintf(os.Stderr, "! Warning636a4d5e%s %s is a directory",
+                err_msg, path)
+            }
+        } else if !os.IsNotExist(err) {
+            fmt.Fprintf(os.Stderr, "! Error00000000:%v\n" +
+                "> Warning636a4e1c%s os.Stat(%s)", err, err_msg, path)
         }
     }
 
@@ -37,28 +47,31 @@ func get_conf_paths(file_path string) ([]string) {
 }
 
 func get_conf(path string) (exeiacConf, error) {
+    err_msg := ":arguments/get_conf:"
     var conf exeiacConf
     
     info, err := os.Stat(path)
     
-    if err == nil {
-        return conf, fmt.Errorf("Error:arguments/get_conf: %w\n", err)
+    if err != nil {
+        return conf, fmt.Errorf("! Error00000000:%w\n" + 
+            "> Error636a51e1%s os.Stat(%s)", err, err_msg, path)
     
     } else if info.IsDir() {
-        return conf, fmt.Errorf("Error:arguments/get_conf:" + 
-            " %s is a directory\n", path)
+        return conf, fmt.Errorf("! Error636a5259%s" + 
+            " path is a directoryi: %s", err_msg, path)
 
     } else {    
         file, err := ioutil.ReadFile(path)
         if err != nil {
-            return conf, fmt.Errorf("Error:arguments/get_conf:" +     
-                " %s can't be read: %w\n", path, err)
+            return conf, fmt.Errorf("! Error00000000:%w\n" + 
+                "> Error636a52e9%s file can't be read %s", err, err_msg, path)
         }
 
         err = yaml.Unmarshal(file, &conf)
         if err != nil {
-            return conf, fmt.Errorf("Error:arguments/get_conf:" +      
-                " %s can't be interpret by yaml: %w\n", path, err)
+            return conf, fmt.Errorf("! Error00000000:%w\n" +
+                "> Error636a5387%s file can't be interpret by yaml: %s",
+                err, err_msg, path)
         }
         
         return conf, nil
@@ -108,22 +121,20 @@ func overload_conf(base exeiacConf, overload exeiacConf) exeiacConf {
 
 func set_args_with_conf_files(file_path string) (Arguments, error) {
     var conf exeiacConf
+    err_msg := ":arguments/set_args_with_conf_files:"
     args := getDefaultArguments()
     conf_paths_list := get_conf_paths(file_path)
 
     if len(conf_paths_list) < 1 {
-        return args, fmt.Errorf("Error:arguments/set_args_with_conf_files:" +
-            " no conf file found\n")
+        return args, fmt.Errorf("! Error636a540f%s no conf file found", err_msg)
     }
 
     for _, conf_file := range conf_paths_list {
-        if content, err := get_conf(conf_file); err != nil {
-            overload_conf(conf, content)
+        if content, err := get_conf(conf_file); err == nil {
+            conf = overload_conf(conf, content)
         } else {
-            return args, fmt.Errorf("Error:arguments/set_args_with_conf_files:" +
-                " conf file unexploitable: %s\n" +
-                "Error:arguments/get_conf: %w",
-                conf_file, err)
+            return args, fmt.Errorf("%w\n> Error636a54c7%s " +
+                " conf file unexploitable: %s", err, err_msg, conf_file)
         }
     }
 

@@ -65,7 +65,8 @@ func action_display_args(args exeiacArgs.Arguments) {
 func main() {
     args, err := exeiacArgs.GetArguments()
     if err != nil {
-        fmt.Printf("Error:exeiac: %w\n", err)
+        fmt.Printf("%v\n> Error636a4c9e:main/main: unable to get arguments\n", 
+            err)
         os.Exit(1)
     }
     action_display_args(args)

@@ -1,6 +1,9 @@
 package arguments
 
-import "fmt"
+import (
+    "fmt"
+    "os"
+)
 
 func is_string_in_list(str string, list []string) bool {
     for _, value := range list {
@@ -33,6 +36,7 @@ func remove_item(index int, list []string) []string {
 }
 
 func consume_opt_and_val(short string, long string, args *[]string) (string, bool) {
+    err_msg := ":arguments/consume_opt_and_val:"
     var index int
     var found bool
     var value string
@@ -48,8 +52,10 @@ func consume_opt_and_val(short string, long string, args *[]string) (string, boo
         *args = remove_item(index, remove_item(index, *args))
         return value, found
     } else if found && len(*args) < index+2 {
-        fmt.Println("Warning: ", long, " should be followed by a value")
-        fmt.Println("  ignoring option")
+        fmt.Fprintf(os.Stderr, "! Warning636a575d%s " + 
+            "option should be followed by a value: %s\n" +
+            "> Warning636a57eb%s option ignored: %s\n",
+            err_msg, long, err_msg, long)
         *args = remove_item(index, *args)
         return "", false
     }
@@ -60,8 +66,10 @@ func consume_opt_and_val(short string, long string, args *[]string) (string, boo
         *args = remove_item(index, remove_item(index, *args))
         return value, found
     } else if found && len(*args) < index+2 {
-        fmt.Println("Warning: ", short, " should be followed by a value")
-        fmt.Println("  ignoring option")
+        fmt.Fprintf(os.Stderr, "! Warning636a58b2%s " + 
+            "option should be followed by a value: %s\n" + 
+            "> Warning636a58cd%s option ignored: %s\n",
+            err_msg, short, err_msg, short)
         *args = remove_item(index, *args)
         return "", false
     }
