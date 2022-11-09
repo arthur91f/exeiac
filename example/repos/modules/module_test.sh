@@ -39,7 +39,7 @@ function plan {
         echo "execute $ACTION: the $ACTION have failed"
         echo "remove the ending \"fail\" of the brick name" >&2
         return $(( $RANDOM % 255 + 2 ))
-    elif grep -q "--non-interactive" <<<"$ALL_ARGS"; then
+    elif grep -q ".*--non-interactive" <<<"$ALL_ARGS"; then
         echo "execute $ACTION: ok no drift"
         return 0
     elif grep -q "interactive" <<<"$BRICK_PATH"; then
@@ -68,7 +68,7 @@ function lay {
         echo "execute $ACTION: the $ACTION have failed"
         echo "remove the ending \"fail\" of the brick name" >&2
         return $(( $RANDOM % 255 + 2 ))
-    elif grep -q "--non-interactive" <<<"$ALL_ARGS"; then
+    elif grep -q ".* --non-interactive" <<<"$ALL_ARGS"; then
         echo "execute $ACTION: ok no drift"
         return 0
     elif grep -q "interactive" <<<"$BRICK_PATH"; then
