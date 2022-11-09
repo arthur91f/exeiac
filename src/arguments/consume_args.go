@@ -35,7 +35,7 @@ func remove_item(index int, list []string) []string {
 	return new_list
 }
 
-func consume_opt_and_val(short string, long string, args *[]string) (string, bool) {
+func consume_opt_and_val(long string, short string, args *[]string) (string, bool) {
 	err_msg := ":arguments/consume_opt_and_val:"
 	var index int
 	var found bool
@@ -48,7 +48,7 @@ func consume_opt_and_val(short string, long string, args *[]string) (string, boo
 
 	// search long
 	if index, found = get_index(long, *args); found && (len(*args) > index+1) {
-		value = (*args)[index]
+		value = (*args)[index+1]
 		*args = remove_item(index, remove_item(index, *args))
 		return value, found
 	} else if found && len(*args) < index+2 {
@@ -62,7 +62,7 @@ func consume_opt_and_val(short string, long string, args *[]string) (string, boo
 
 	// search short
 	if index, found = get_index(short, *args); found && (len(*args) > index+1) {
-		value = (*args)[index]
+		value = (*args)[index+1]
 		*args = remove_item(index, remove_item(index, *args))
 		return value, found
 	} else if found && len(*args) < index+2 {
