@@ -1,0 +1,28 @@
+name: check code
+on: [push]
+jobs:
+  gofmt:
+    name: gofmt
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Setup go
+        uses: actions/setup-go@v3
+        with:
+          go-version: '=1.19.2'
+      - name: Go fmt
+        run: |
+          failed_files="$(gofmt -l src/)"
+          if [ -z "$failed_files" ]; then
+            echo "formatting ok"
+            exit 0
+          else
+            echo "formatting test failed:"
+            echo "$failed_files"
+            exit 1
+          fi
+
