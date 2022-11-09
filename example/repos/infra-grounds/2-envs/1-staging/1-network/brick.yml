@@ -1,0 +1,15 @@
+version: 0.0.1
+module: test
+input:
+  - type: env_file
+    path: .env
+    data:
+      - name: env_name
+        from: infra-ground/1-init:.staging.name
+      - name: env_project_name
+        from: infra-ground/1-init:.staging.project
+      - name: env_user_name
+        from: infra-ground/1-init:.staging.credentials.user
+      - name: env_credentials
+        from: infra-ground/1-init:.staging.credentials.key
+    
