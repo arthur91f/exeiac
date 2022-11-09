@@ -1,0 +1,22 @@
+version: 0.0.1
+module: test
+input:
+  - type: env_file
+    path: .env
+    data:
+      - name: env_name
+        from: infra-ground/1-init:.staging.name
+      - name: env_project_name
+        from: infra-ground/1-init:.staging.project
+      - name: env_user_name
+        from: infra-ground/1-init:.staging.credentials.user
+      - name: env_credentials
+        from: infra-ground/1-init:.staging.credentials.key
+      - name: network_ip_range
+        from: infra-ground/2-envs/1-staging/1-network:.network.ip_range
+      - name: network_id
+        from: infra-ground/2-envs/1-staging/1-network:.network.network_id
+      - name: internal_domain
+        from: infra-ground/2-envs/1-staging/1-network:.domain_name.internal
+      - name: private_domain
+        from: infra-ground/2-envs/1-staging/1-network:.domain_name.private
