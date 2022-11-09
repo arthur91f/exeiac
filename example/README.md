@@ -14,3 +14,32 @@ you.
 - a directory that contains all your modules
 - an exeiac conf file
 
+├── exeiac.yml
+├── README.md
+└── repos
+    ├── app-backend
+    ├── app-frontend
+    ├── infra-grounds
+    │   ├── 1-init
+    │   │   └── brick.yml
+    │   └── 2-envs
+    │       ├── 1-production
+    │       │   ├── 1-network
+    │       │   │   └── brick.yml
+    │       │   └── 2-bastion
+    │       │       └── brick.yml
+    │       ├── 1-staging
+    │       │   ├── 1-network
+    │       │   │   └── brick.yml
+    │       │   └── 2-bastion
+    │       │       └── brick.yml
+    │       └── 2-monitoring
+    │           ├── 1-network
+    │           │   └── brick.yml
+    │           └── 2-bastion
+    │               └── brick.yml
+    ├── modules
+    │   ├── module_test.sh
+    │   └── terraform.sh
+    └── users
+
