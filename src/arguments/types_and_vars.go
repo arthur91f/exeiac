@@ -1,32 +1,16 @@
 package arguments
 
-type NamePathMapping struct {
-	Name string `yaml:"name"`
-	Path string `yaml:"path"`
-}
-
-func are_NamePathMappings_equal(m1 NamePathMapping, m2 NamePathMapping) (bool, bool) {
-	are_names_equals := false
-	are_path_equals := false
-
-	if m1.Name == m2.Name {
-		are_names_equals = true
-	}
-	if m1.Path == m2.Path {
-		are_path_equals = true
-	}
-	return are_names_equals, are_path_equals
-}
+import extools "src/exeiac/tools"
 
 type Arguments struct {
 	Action           string
 	BricksPaths      []string
 	BricksSpecifiers []string
 	Interactive      bool
-	ModulesList      []NamePathMapping
+	ModulesList      []extools.NamePathBinding
 	OutputSpecifier  string
 	OtherOptions     []string
-	RoomsList        []NamePathMapping
+	RoomsList        []extools.NamePathBinding
 }
 
 func getDefaultArguments() Arguments {
@@ -35,16 +19,16 @@ func getDefaultArguments() Arguments {
 		BricksPaths:      []string{},
 		BricksSpecifiers: []string{"selected"},
 		Interactive:      true,
-		ModulesList:      []NamePathMapping{},
+		ModulesList:      []extools.NamePathBinding{},
 		OutputSpecifier:  ".",
 		OtherOptions:     []string{},
-		RoomsList:        []NamePathMapping{},
+		RoomsList:        []extools.NamePathBinding{},
 	}
 }
 
 type exeiacConf struct {
-	RoomsList   []NamePathMapping `yaml:"rooms_list"`
-	ModulesList []NamePathMapping `yaml:"modules_list"`
+	RoomsList   []extools.NamePathBinding `yaml:"rooms_list"`
+	ModulesList []extools.NamePathBinding `yaml:"modules_list"`
 	DefaultArgs struct {
 		NonInteractive   bool   `yaml:"non_interactive"`
 		BricksSpecifiers string `yaml:"bricks_specifiers"`
