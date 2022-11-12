@@ -87,16 +87,18 @@ func overload_conf(base exeiacConf, overload exeiacConf) exeiacConf {
 
 	// overload ModulesList by adding new item
 	for _, mo := range overload.ModulesList {
+		alreadyExist := false
 		for i, mb := range base.ModulesList {
 			// search same name module to overload or append
 			name_test, path_test := extools.AreNamePathBindingEqual(mb, mo)
 			if name_test && !path_test {
 				base.ModulesList[i].Path = mo.Path
-				break
-			} else if !name_test {
-				base.ModulesList = append(base.ModulesList, mo)
+				alreadyExist = true
 				break
 			}
+		}
+		if !alreadyExist {
+			base.ModulesList = append(base.ModulesList, mo)
 		}
 	}
 
