@@ -33,7 +33,7 @@ function internal_interactive {
 function plan {
     # for the test the result will depends of the presence of word in path
     if grep -q "drift$" <<<"$BRICK_PATH"; then
-        echo "execute $ACTION: some diff have been found, need to be layed"  
+        echo "execute $ACTION: some diff have been found, need to be layed"
         return 1
     elif grep -q "fail$" <<<"$BRICK_PATH"; then
         echo "execute $ACTION: the $ACTION have failed"
@@ -77,7 +77,7 @@ function lay {
     else
         echo echo "execute plan: ok no drift"
         return 0
-    fi    
+    fi
 }
 
 function  remove {
@@ -100,4 +100,3 @@ if [ "$?" != 0 ]; then
 fi
 
 exit "$EXIT_CODE"
-
