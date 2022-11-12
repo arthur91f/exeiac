@@ -5,6 +5,7 @@ import (
 	"gopkg.in/yaml.v2"
 	"io/ioutil"
 	"os"
+	extools "src/exeiac/tools"
 	"strings"
 )
 
@@ -88,7 +89,7 @@ func overload_conf(base exeiacConf, overload exeiacConf) exeiacConf {
 	for _, mo := range overload.ModulesList {
 		for i, mb := range base.ModulesList {
 			// search same name module to overload or append
-			name_test, path_test := are_NamePathMappings_equal(mb, mo)
+			name_test, path_test := extools.AreNamePathBindingEqual(mb, mo)
 			if name_test && !path_test {
 				base.ModulesList[i].Path = mo.Path
 				break
