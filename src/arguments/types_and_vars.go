@@ -27,8 +27,8 @@ func getDefaultArguments() Arguments {
 }
 
 type exeiacConf struct {
-	RoomsList   []extools.NamePathBinding `yaml:"rooms_list"`
-	ModulesList []extools.NamePathBinding `yaml:"modules_list"`
+	RoomsList   []extools.NamePathBinding `yaml:"rooms"`
+	ModulesList []extools.NamePathBinding `yaml:"modules"`
 	DefaultArgs struct {
 		NonInteractive   bool   `yaml:"non_interactive"`
 		BricksSpecifiers string `yaml:"bricks_specifiers"`
