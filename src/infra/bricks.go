@@ -67,13 +67,9 @@ func GetBricksAndContent(room tools.NamePathBinding) ([]Brick, error) {
 				parentPath := filepath.Dir(path)
 
 				// Do not duplicate entries
-				if len(brickFiles) == 0 || brickFiles[len(brickFiles)-1].Name != name {
-					brickFiles = append(brickFiles, Brick{
-						Name:                  name,
-						Path:                  parentPath,
-						ConfigurationFilePath: path,
-						IsElementary:          true,
-					})
+				if brickFiles[len(brickFiles)-1].Name == name {
+                    brickFiles[len(brickFiles)-1].IsElementary = true
+                    brickFiles[len(brickFiles)-1].ConfigurationFilePath = path
 				}
 			}
 
