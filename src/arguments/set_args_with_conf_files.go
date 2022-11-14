@@ -2,11 +2,12 @@ package arguments
 
 import (
 	"fmt"
-	"gopkg.in/yaml.v2"
 	"io/ioutil"
 	"os"
 	extools "src/exeiac/tools"
 	"strings"
+
+	"gopkg.in/yaml.v2"
 )
 
 func get_conf_paths(file_path string) []string {
