@@ -5,20 +5,8 @@ import (
 	"log"
 	"path/filepath"
 	"regexp"
-	tools "src/exeiac/tools"
+	tools "src/exeiac/tools"	
 )
-
-type Brick struct {
-	// The brick's name. Usually the name of the parent directory
-	Name string
-	// The absolute path of the brick's directory
-	Path string
-	// The absolute path of the `brick.yml` file
-	ConfigurationFilePath string
-	// Wheither or not the brick contains a `brick.yml` file.
-	// Meaning it does not contain any other brick.
-	IsElementary bool
-}
 
 var hasDigitPrefixRegexp = regexp.MustCompile(`.*/\d+-\w+$`)
 var prefixRegexp = regexp.MustCompile(`\d+-`)
@@ -33,7 +21,7 @@ func sanitizeBrickName(name string) string {
 
 // Walks the file system from the provided root, gathers all folders containing a `brick.html` file, and build a Brick struct from it.
 // Returns a pointer to a slice of Bricks.
-func GetBricksAndContent(room tools.NamePathBinding) ([]Brick, error) {
+func getRoomsBricks(room tools.NamePathBinding) ([]Brick, error) {
 	brickFiles := []Brick{}
 
 	err := filepath.WalkDir(
@@ -64,7 +52,6 @@ func GetBricksAndContent(room tools.NamePathBinding) ([]Brick, error) {
 			if d.Type().IsRegular() && d.Name() == "brick.yml" {
 				brickName := filepath.Join(room.Name, filepath.Dir(brickRelPath))
 				name := sanitizeBrickName(brickName)
-				parentPath := filepath.Dir(path)
 
 				// Do not duplicate entries
 				if brickFiles[len(brickFiles)-1].Name == name {
@@ -78,3 +65,4 @@ func GetBricksAndContent(room tools.NamePathBinding) ([]Brick, error) {
 
 	return brickFiles, err
 }
+
