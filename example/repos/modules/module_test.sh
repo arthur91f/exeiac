@@ -46,7 +46,7 @@ function plan {
         internal_interactive
         return $?
     else
-        echo echo "execute plan: ok no drift"
+        echo "execute plan: ok no drift"
         return 0
     fi
 }
@@ -75,7 +75,7 @@ function lay {
         internal_interactive
         return $?
     else
-        echo echo "execute plan: ok no drift"
+        echo "execute plan: ok no drift"
         return 0
     fi
 }
@@ -90,7 +90,23 @@ if [ "$?" != 0 ]; then
     exit 3
 fi
 
-$ACTION
+case "$ACTION" in
+    init)
+        init
+        ;;
+    plan)
+        plan
+        ;;
+    lay)
+        lay
+        ;;
+    remove)
+        remove
+        ;;
+    *)
+        echo "Specified actions doesn't exist"
+        ;;
+esac
 EXIT_CODE="$?"
 
 cd "$CURRENT_PATH"
