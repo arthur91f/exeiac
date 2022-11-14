@@ -11,4 +11,3 @@ type Brick struct {
 	// Meaning it does not contain any other brick.
 	IsElementary bool
 }
-

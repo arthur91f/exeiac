@@ -5,7 +5,7 @@ import (
 	"log"
 	"path/filepath"
 	"regexp"
-	tools "src/exeiac/tools"	
+	tools "src/exeiac/tools"
 )
 
 var hasDigitPrefixRegexp = regexp.MustCompile(`.*/\d+-\w+$`)
@@ -55,8 +55,8 @@ func getRoomsBricks(room tools.NamePathBinding) ([]Brick, error) {
 
 				// Do not duplicate entries
 				if brickFiles[len(brickFiles)-1].Name == name {
-                    brickFiles[len(brickFiles)-1].IsElementary = true
-                    brickFiles[len(brickFiles)-1].ConfigurationFilePath = path
+					brickFiles[len(brickFiles)-1].IsElementary = true
+					brickFiles[len(brickFiles)-1].ConfigurationFilePath = path
 				}
 			}
 
@@ -65,4 +65,3 @@ func getRoomsBricks(room tools.NamePathBinding) ([]Brick, error) {
 
 	return brickFiles, err
 }
-
