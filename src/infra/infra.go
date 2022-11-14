@@ -122,6 +122,7 @@ func (infra Infra) Display() {
 	for _, module := range infra.Modules {
 		fmt.Println("  - name: " + module.Name)
 		fmt.Println("    path: " + module.Path)
+		fmt.Printf("    actions: %v\n", module.Actions)
 	}
 
 	fmt.Println("  Bricks:")
