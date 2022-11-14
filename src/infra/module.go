@@ -31,7 +31,7 @@ func (module *Module) LoadAvailableActions() Module {
 		// NOTE(half-shell): We have to manually add something as a first element in args
 		// because Cmd **seems** to poorly overwrite it, making any first argument provided disappear
 		// e.g. Args:   []string{ACTION_SHOW_AVAILABLE_ACTIONS} won't work
-		Args:   []string{path, ACTION_SHOW_AVAILABLE_ACTIONS},
+		Args: []string{path, ACTION_SHOW_AVAILABLE_ACTIONS},
 	}
 
 	output, err := cmd.Output()
