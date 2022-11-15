@@ -98,7 +98,7 @@ func appendBricks(room extools.NamePathBinding, bricks *[]Brick) error {
 			// An elementary brick has prefixed folder name, and a brick.yml file.
 			// TODO(half-shell): Make the configuration filename more flexible.
 			if d.Type().IsRegular() && d.Name() == "brick.yml" {
-				lastBrick := (*bricks)[len(*bricks)-1]
+				lastBrick := &((*bricks)[len(*bricks)-1])
 				brickName := filepath.Join(room.Name, filepath.Dir(brickRelPath))
 				name := sanitizeBrickName(brickName)
 
