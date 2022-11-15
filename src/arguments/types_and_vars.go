@@ -7,10 +7,10 @@ type Arguments struct {
 	BricksPaths      []string
 	BricksSpecifiers []string
 	Interactive      bool
-	ModulesList      []extools.NamePathBinding
+	Modules          []extools.NamePathBinding
 	OutputSpecifier  string
 	OtherOptions     []string
-	RoomsList        []extools.NamePathBinding
+	Rooms        []extools.NamePathBinding
 }
 
 func getDefaultArguments() Arguments {
@@ -19,16 +19,16 @@ func getDefaultArguments() Arguments {
 		BricksPaths:      []string{},
 		BricksSpecifiers: []string{"selected"},
 		Interactive:      true,
-		ModulesList:      []extools.NamePathBinding{},
+		Modules:          []extools.NamePathBinding{},
 		OutputSpecifier:  ".",
 		OtherOptions:     []string{},
-		RoomsList:        []extools.NamePathBinding{},
+		Rooms:        []extools.NamePathBinding{},
 	}
 }
 
 type exeiacConf struct {
-	RoomsList   []extools.NamePathBinding `yaml:"rooms"`
-	ModulesList []extools.NamePathBinding `yaml:"modules"`
+	Rooms   []extools.NamePathBinding `yaml:"rooms"`
+	Modules []extools.NamePathBinding `yaml:"modules"`
 	DefaultArgs struct {
 		NonInteractive   bool   `yaml:"non_interactive"`
 		BricksSpecifiers string `yaml:"bricks_specifiers"`

@@ -19,7 +19,7 @@ func main() {
 	exactions.ShowArgs(args)
 
 	// build infra representation
-	infra, err := exinfra.Infra{}.New(args.RoomsList, args.ModulesList)
+	infra, err := exinfra.Infra{}.New(args.Rooms, args.Modules)
 	if err != nil {
 		fmt.Printf("%v\n> Error636f6894:main/main: "+
 			"unable to get an infra representation\n", err)

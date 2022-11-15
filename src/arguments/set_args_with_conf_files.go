@@ -81,25 +81,25 @@ func get_conf(path string) (exeiacConf, error) {
 }
 
 func overload_conf(base exeiacConf, overload exeiacConf) exeiacConf {
-	// overload RoomsList by replacing
-	if len(overload.RoomsList) > 0 {
-		base.RoomsList = overload.RoomsList
+	// overload Rooms by replacing
+	if len(overload.Rooms) > 0 {
+		base.Rooms = overload.Rooms
 	}
 
-	// overload ModulesList by adding new item
-	for _, mo := range overload.ModulesList {
+	// overload Modules by adding new item
+	for _, mo := range overload.Modules {
 		alreadyExist := false
-		for i, mb := range base.ModulesList {
+		for i, mb := range base.Modules {
 			// search same name module to overload or append
 			name_test, path_test := extools.AreNamePathBindingEqual(mb, mo)
 			if name_test && !path_test {
-				base.ModulesList[i].Path = mo.Path
+				base.Modules[i].Path = mo.Path
 				alreadyExist = true
 				break
 			}
 		}
 		if !alreadyExist {
-			base.ModulesList = append(base.ModulesList, mo)
+			base.Modules = append(base.Modules, mo)
 		}
 	}
 
@@ -142,8 +142,8 @@ func set_args_with_conf_files(file_path string) (Arguments, error) {
 		}
 	}
 
-	args.RoomsList = conf.RoomsList
-	args.ModulesList = conf.ModulesList
+	args.Rooms = conf.Rooms
+	args.Modules = conf.Modules
 	args.Interactive = !conf.DefaultArgs.NonInteractive
 	if conf.DefaultArgs.BricksSpecifiers != "" {
 		args.BricksSpecifiers = strings.Split(conf.DefaultArgs.BricksSpecifiers,
