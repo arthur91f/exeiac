@@ -1,16 +1,21 @@
 package arguments
 
-import extools "src/exeiac/tools"
+import (
+	"fmt"
+	extools "src/exeiac/tools"
+)
 
 type Arguments struct {
 	Action           string
+	Brick            string
 	BricksPaths      []string
+	BricksNames      []string
 	BricksSpecifiers []string
 	Interactive      bool
 	Modules          []extools.NamePathBinding
 	OutputSpecifier  string
 	OtherOptions     []string
-	Rooms        []extools.NamePathBinding
+	Rooms            []extools.NamePathBinding
 }
 
 func getDefaultArguments() Arguments {
@@ -22,13 +27,26 @@ func getDefaultArguments() Arguments {
 		Modules:          []extools.NamePathBinding{},
 		OutputSpecifier:  ".",
 		OtherOptions:     []string{},
-		Rooms:        []extools.NamePathBinding{},
+		Rooms:            []extools.NamePathBinding{},
+	}
+}
+
+type ErrBadArg struct {
+	Reason string
+	Value  string
+}
+
+func (e ErrBadArg) Error() string {
+	if e.Value == "" {
+		return fmt.Sprintf("! Bad argument: %s", e.Reason)
+	} else {
+		return fmt.Sprintf("! Bad argument: %s: %s", e.Reason, e.Value)
 	}
 }
 
 type exeiacConf struct {
-	Rooms   []extools.NamePathBinding `yaml:"rooms"`
-	Modules []extools.NamePathBinding `yaml:"modules"`
+	Rooms       []extools.NamePathBinding `yaml:"rooms"`
+	Modules     []extools.NamePathBinding `yaml:"modules"`
 	DefaultArgs struct {
 		NonInteractive   bool   `yaml:"non_interactive"`
 		BricksSpecifiers string `yaml:"bricks_specifiers"`

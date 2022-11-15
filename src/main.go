@@ -5,6 +5,7 @@ import (
 	"os"
 	exactions "src/exeiac/actions"
 	exargs "src/exeiac/arguments"
+	exexec "src/exeiac/executionFlow"
 	exinfra "src/exeiac/infra"
 )
 
@@ -25,6 +26,14 @@ func main() {
 			"unable to get an infra representation\n", err)
 		os.Exit(1)
 	}
-
 	infra.Display()
+
+	// build executionPlan
+	executionPlan, err := exexec.ExecutionPlan{}.New(&infra, &args)
+	if err != nil {
+		fmt.Printf("%v\n> Error6373c57e:main/main: "+
+			"unable to get the executionPlan\n", err)
+		os.Exit(1)
+	}
+	executionPlan.PrintPlan()
 }

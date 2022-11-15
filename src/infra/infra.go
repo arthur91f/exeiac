@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 	"regexp"
 	extools "src/exeiac/tools"
+	"strings"
 )
 
 type Infra struct {
@@ -24,6 +25,14 @@ type RoomError struct {
 func (e RoomError) Error() string {
 	return fmt.Sprintf("! Error%s:room: %s: %s\n< %s", e.id,
 		e.reason, e.path, e.trace.Error())
+}
+
+type ErrBrickNotFound struct {
+	brick string
+}
+
+func (e ErrBrickNotFound) Error() string {
+	return fmt.Sprintf("Brick not found: %s", e.brick)
 }
 
 func (i Infra) New(
@@ -132,4 +141,37 @@ func (infra Infra) Display() {
 		fmt.Printf("    isElementary: %t\n", brick.IsElementary)
 		fmt.Println("    confFile: " + brick.ConfigurationFilePath)
 	}
+}
+
+func (i Infra) GetBrickIndexWithPath(brickPath string) (int, error) {
+	for index, b := range i.Bricks {
+		if b.Path == brickPath {
+			return index, nil
+		}
+	}
+	return -1, ErrBrickNotFound{brick: brickPath}
+}
+
+func (i Infra) GetBrickIndexWithName(brickName string) (int, error) {
+	for index, b := range i.Bricks {
+		if b.Name == brickName {
+			return index, nil
+		}
+	}
+	return -1, ErrBrickNotFound{brick: brickName}
+}
+
+func (i Infra) GetSubBricksIndexes(brickIndex int) (indexes []int) {
+	// the infra.Bricks is sorted with super bricks
+	// directly before their subbricks
+	superBrickPath := i.Bricks[brickIndex].Path
+	for index := brickIndex + 1; index < len(i.Bricks); index++ {
+		if strings.HasPrefix(i.Bricks[index].Path, superBrickPath) {
+			indexes = append(indexes, index)
+		} else {
+			return
+		}
+	}
+	return // should not reach this point if brickIndex correspond to a superBrick
+	// but at least it's not false the subBrick of an elemenatry brick is nil
 }

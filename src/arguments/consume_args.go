@@ -24,15 +24,7 @@ func get_index(str string, list []string) (int, bool) {
 }
 
 func remove_item(index int, list []string) []string {
-	new_list := make([]string, (len(list) - 1))
-	n := 0
-	for i := 0; i < (len(list)); i++ {
-		if i != index {
-			new_list[n] = list[i]
-			n++
-		}
-	}
-	return new_list
+	return append(list[:index], list[index+1:]...)
 }
 
 func consume_opt_and_val(long string, short string, args *[]string) (string, bool) {
