@@ -52,7 +52,7 @@ func (i Infra) New(
 		// get all room's bricks
 		err := appendBricks(r, &i.Bricks)
 		if err != nil {
-			fmt.Println("%v\n> Warning63724ff3:infra/CreateInfra:"+
+			fmt.Printf("%v\n> Warning63724ff3:infra/CreateInfra:"+
 				"can't add bricks of this room: %s", err, r.Path)
 		}
 	}
