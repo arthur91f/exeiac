@@ -81,12 +81,12 @@ func appendBricks(room extools.NamePathBinding, bricks *[]Brick) error {
 				log.Fatal(err)
 			}
 
-			lastBrick := func() Brick {
+			lastBrick := func() *Brick {
 				if len(*bricks) > 0 {
-					return (*bricks)[len(*bricks)-1]
+					return &(*bricks)[len(*bricks)-1]
 				}
 
-				return Brick{}
+				return &Brick{}
 			}()
 
 			// A brick can just be described as a sub-path of a room, containing a prefixed folder name with digits, and split with a hypen ("-")
@@ -107,7 +107,6 @@ func appendBricks(room extools.NamePathBinding, bricks *[]Brick) error {
 			// An elementary brick has prefixed folder name, and a brick.yml file.
 			// TODO(half-shell): Make the configuration filename more flexible.
 			if d.Type().IsRegular() && d.Name() == "brick.yml" {
-				lastBrick := &((*bricks)[len(*bricks)-1])
 				brickName := filepath.Join(room.Name, filepath.Dir(brickRelPath))
 				name := sanitizeBrickName(brickName)
 
