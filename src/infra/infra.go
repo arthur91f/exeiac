@@ -110,10 +110,11 @@ func appendBricks(room extools.NamePathBinding, bricks *[]Brick) error {
 				brickName := filepath.Join(room.Name, filepath.Dir(brickRelPath))
 				name := sanitizeBrickName(brickName)
 
-				// Do not duplicate entries
+				// Set the last brick as elementary if names match
+				// This happens because it means that the parent brick is not a "super-brick"
+				// but an elementary brick
 				if lastBrick.Name == name {
-					lastBrick.IsElementary = true
-					lastBrick.ConfigurationFilePath = path
+					lastBrick.SetElementary(path)
 				}
 			}
 

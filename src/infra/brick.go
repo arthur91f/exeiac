@@ -10,4 +10,11 @@ type Brick struct {
 	// Wheither or not the brick contains a `brick.yml` file.
 	// Meaning it does not contain any other brick.
 	IsElementary bool
+func (brick *Brick) SetElementary(cfp string) *Brick {
+	brick.IsElementary = true
+	brick.ConfigurationFilePath = cfp
+
+	return brick
+}
+
 }
