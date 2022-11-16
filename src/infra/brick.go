@@ -7,6 +7,8 @@ import (
 	"os"
 	"strings"
 
+	"github.com/PaesslerAG/gval"
+	"github.com/PaesslerAG/jsonpath"
 	"gopkg.in/yaml.v2"
 )
 
@@ -16,7 +18,7 @@ type Dependency struct {
 	// The name the variable is supposed to take
 	VarName string
 	// The JSON path to access the variable
-	JsonPath string
+	JsonPath gval.Evaluable
 }
 
 type Brick struct {
@@ -125,10 +127,18 @@ func (bcy BrickConfYaml) getDependencies(infra *Infra) ([]Dependency, error) {
 
 	for _, i := range bcy.Input {
 		for _, d := range i.Data {
-			brickName, jsonPath := parseFromField(d.From)
+			brickName, keyPath := parseFromField(d.From)
 			// NOTE(half-shell): We sanitize the brick name here in case they turn
 			// out to be brick paths
-			brick, _ := GetBrick(sanitizeBrickName(brickName), &infra.Bricks)
+			brick, err := GetBrick(sanitizeBrickName(brickName), &infra.Bricks)
+			if err != nil {
+				return dependencies, err
+			}
+
+			jsonPath, err := jsonpath.New(keyPath)
+			if err != nil {
+				return dependencies, err
+			}
 
 			dependencies = append(dependencies, Dependency{
 				Brick:    brick,
