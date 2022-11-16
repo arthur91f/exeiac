@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"os"
 	exactions "src/exeiac/actions"
 	exargs "src/exeiac/arguments"
@@ -35,5 +36,18 @@ func main() {
 			"unable to get the executionPlan\n", err)
 		os.Exit(1)
 	}
+
+	for _, ep := range executionPlan {
+		if ep.Brick.IsElementary {
+			conf, err := exinfra.BrickConfYaml{}.New(ep.Brick.ConfigurationFilePath)
+			if err != nil {
+				log.Fatal("An issue happened while reading bricks' configurations\n", err)
+			}
+
+			ep.Brick.Enrich(conf, infra)
+			ep.Brick.Module.LoadAvailableActions()
+		}
+	}
+
 	executionPlan.PrintPlan()
 }
