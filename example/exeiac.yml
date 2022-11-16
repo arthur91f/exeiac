@@ -1,5 +1,5 @@
 modules:
-  - name: module_test
+  - name: test
     path: /home/ME/git-repos/exeiac-modules/module_test.sh
   - name: terraform
     path: /home/ME/git-repos/exeiac-modules/terraform
