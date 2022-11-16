@@ -135,6 +135,7 @@ func (bcy BrickConfYaml) getDependencies(infra *Infra) ([]Dependency, error) {
 				return dependencies, err
 			}
 
+			// NOTE(half-shell): We make sure the jsonPath's form is valid
 			jsonPath, err := jsonpath.New(keyPath)
 			if err != nil {
 				return dependencies, err
