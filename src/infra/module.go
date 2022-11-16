@@ -49,7 +49,9 @@ func (module *Module) LoadAvailableActions() (*Module, error) {
 	}
 
 	for _, action := range bytes.Split(output, []byte("\n")) {
-		module.Actions = append(module.Actions, string(action))
+		if len(action) > 0 {
+			module.Actions = append(module.Actions, string(action))
+		}
 	}
 
 	return module, nil
