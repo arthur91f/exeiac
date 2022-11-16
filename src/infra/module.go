@@ -20,10 +20,19 @@ type Module struct {
 	Actions []string
 }
 
-func (module *Module) LoadAvailableActions() Module {
+// Executes the ACTION_SHOW_AVAILABLE_ACTIONS command on a module to get
+// the available actions from the module. Then parses and saves them in the
+// *Actions* slice.
+// If the *Actions* slice is not empty, bypass the call the the command.
+// NOTE(half-shell): Do we have a use to force the call to be triggered again here?
+func (module *Module) LoadAvailableActions() (*Module, error) {
+	if len(module.Actions) > 0 {
+		return module, nil
+	}
+
 	path, err := exec.LookPath(module.Path)
 	if err != nil {
-		log.Fatal(err)
+		return module, err
 	}
 
 	cmd := exec.Cmd{
@@ -43,5 +52,5 @@ func (module *Module) LoadAvailableActions() Module {
 		module.Actions = append(module.Actions, string(action))
 	}
 
-	return *module
+	return module, nil
 }

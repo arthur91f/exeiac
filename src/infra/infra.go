@@ -1,6 +1,7 @@
 package infra
 
 import (
+	"errors"
 	"fmt"
 	"io/fs"
 	"log"
@@ -37,7 +38,7 @@ func (e ErrBrickNotFound) Error() string {
 
 func (i Infra) New(
 	rooms []extools.NamePathBinding,
-	modules []extools.NamePathBinding) (Infra, error) {
+	modules []extools.NamePathBinding) (*Infra, error) {
 
 	// create Modules
 	for _, m := range modules {
@@ -57,7 +58,7 @@ func (i Infra) New(
 		}
 	}
 
-	return i, nil
+	return &i, nil
 }
 
 var hasDigitPrefixRegexp = regexp.MustCompile(`.*/\d+-\w+$`)
@@ -174,4 +175,26 @@ func (i Infra) GetSubBricksIndexes(brickIndex int) (indexes []int) {
 	}
 	return // should not reach this point if brickIndex correspond to a superBrick
 	// but at least it's not false the subBrick of an elemenatry brick is nil
+}
+
+// TODO(half-shell): Can use a generic argument and be merged with
+// `GetBrick`
+func GetModule(name string, modules *[]Module) (*Module, error) {
+	for i, m := range *modules {
+		if m.Name == name {
+			return &(*modules)[i], nil
+		}
+	}
+
+	return nil, errors.New("No matching module name")
+}
+
+func GetBrick(name string, bricks *[]Brick) (*Brick, error) {
+	for i, b := range *bricks {
+		if b.Name == name {
+			return &(*bricks)[i], nil
+		}
+	}
+
+	return nil, errors.New("No matching module name")
 }

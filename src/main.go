@@ -29,7 +29,7 @@ func main() {
 	infra.Display()
 
 	// build executionPlan
-	executionPlan, err := exexec.ExecutionPlan{}.New(&infra, &args)
+	executionPlan, err := exexec.ExecutionPlan{}.New(infra, &args)
 	if err != nil {
 		fmt.Printf("%v\n> Error6373c57e:main/main: "+
 			"unable to get the executionPlan\n", err)
