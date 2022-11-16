@@ -1,6 +1,7 @@
 package infra
 
 import (
+	"errors"
 	"fmt"
 	"io/fs"
 	"log"
@@ -37,7 +38,7 @@ func (e ErrBrickNotFound) Error() string {
 
 func (i Infra) New(
 	rooms []extools.NamePathBinding,
-	modules []extools.NamePathBinding) (Infra, error) {
+	modules []extools.NamePathBinding) (*Infra, error) {
 
 	// create Modules
 	for _, m := range modules {
@@ -52,12 +53,12 @@ func (i Infra) New(
 		// get all room's bricks
 		err := appendBricks(r, &i.Bricks)
 		if err != nil {
-			fmt.Println("%v\n> Warning63724ff3:infra/CreateInfra:"+
+			fmt.Printf("%v\n> Warning63724ff3:infra/CreateInfra:"+
 				"can't add bricks of this room: %s", err, r.Path)
 		}
 	}
 
-	return i, nil
+	return &i, nil
 }
 
 var hasDigitPrefixRegexp = regexp.MustCompile(`.*/\d+-\w+$`)
@@ -81,12 +82,12 @@ func appendBricks(room extools.NamePathBinding, bricks *[]Brick) error {
 				log.Fatal(err)
 			}
 
-			lastBrick := func() Brick {
+			lastBrick := func() *Brick {
 				if len(*bricks) > 0 {
-					return (*bricks)[len(*bricks)-1]
+					return &(*bricks)[len(*bricks)-1]
 				}
 
-				return Brick{}
+				return &Brick{}
 			}()
 
 			// A brick can just be described as a sub-path of a room, containing a prefixed folder name with digits, and split with a hypen ("-")
@@ -107,14 +108,14 @@ func appendBricks(room extools.NamePathBinding, bricks *[]Brick) error {
 			// An elementary brick has prefixed folder name, and a brick.yml file.
 			// TODO(half-shell): Make the configuration filename more flexible.
 			if d.Type().IsRegular() && d.Name() == "brick.yml" {
-				lastBrick := &((*bricks)[len(*bricks)-1])
 				brickName := filepath.Join(room.Name, filepath.Dir(brickRelPath))
 				name := sanitizeBrickName(brickName)
 
-				// Do not duplicate entries
+				// Set the last brick as elementary if names match
+				// This happens because it means that the parent brick is not a "super-brick"
+				// but an elementary brick
 				if lastBrick.Name == name {
-					lastBrick.IsElementary = true
-					lastBrick.ConfigurationFilePath = path
+					lastBrick.SetElementary(path)
 				}
 			}
 
@@ -174,4 +175,26 @@ func (i Infra) GetSubBricksIndexes(brickIndex int) (indexes []int) {
 	}
 	return // should not reach this point if brickIndex correspond to a superBrick
 	// but at least it's not false the subBrick of an elemenatry brick is nil
+}
+
+// TODO(half-shell): Can use a generic argument and be merged with
+// `GetBrick`
+func GetModule(name string, modules *[]Module) (*Module, error) {
+	for i, m := range *modules {
+		if m.Name == name {
+			return &(*modules)[i], nil
+		}
+	}
+
+	return nil, errors.New("No matching module name")
+}
+
+func GetBrick(name string, bricks *[]Brick) (*Brick, error) {
+	for i, b := range *bricks {
+		if b.Name == name {
+			return &(*bricks)[i], nil
+		}
+	}
+
+	return nil, errors.New("No matching module name")
 }

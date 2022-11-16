@@ -5,11 +5,11 @@ input:
     path: .env
     data:
       - name: env_name
-        from: infra-ground/1-init:.staging.name
+        from: infra-ground/1-init:$.staging.name
       - name: env_project_name
-        from: infra-ground/1-init:.staging.project
+        from: infra-ground/1-init:$.staging.project
       - name: env_user_name
-        from: infra-ground/1-init:.staging.credentials.user
+        from: infra-ground/1-init:$.staging.credentials.user
       - name: env_credentials
-        from: infra-ground/1-init:.staging.credentials.key
+        from: infra-ground/1-init:$.staging.credentials.key
     
