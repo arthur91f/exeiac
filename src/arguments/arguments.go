@@ -19,7 +19,8 @@ func get_brick_full_path(path string) (string, error) {
 			"path is not a directory: path=%s", err_msg, path)
 	}
 
-	if _, err1 := os.Stat(path + "/brick.yml"); err1 == nil {
+	return filepath.Abs(path)
+	/*if _, err1 := os.Stat(path + "/brick.yml"); err1 == nil {
 		return filepath.Abs(path)
 	} else if _, err2 := os.Stat(path + "/brick.yaml"); err2 == nil {
 		return filepath.Abs(path)
@@ -33,7 +34,7 @@ func get_brick_full_path(path string) (string, error) {
 		return "", fmt.Errorf("! Error00000000:%w\n"+"& Error00000000:%w\n"+
 			"> Error636a4711%s os.Stat(%s/brick.yml) && Os.Stat(%s/brick.yaml)",
 			err1, err2, err_msg, path, path)
-	}
+	}*/
 }
 
 func GetArguments() (Arguments, error) {
@@ -70,7 +71,8 @@ func GetArguments() (Arguments, error) {
 
 	// set bricks_paths
 	// TODO: supports --bricks-names|-n
-	if value, found = consume_opt_and_val("--bricks-paths", "-p", &os_args); found {
+	value, found = consume_opt_and_val("--bricks-paths", "-p", &os_args)
+	if found {
 		args.BricksPaths = strings.Split(value, ",")
 		for i, p := range args.BricksPaths {
 			args.BricksPaths[i], err = get_brick_full_path(p)
@@ -79,13 +81,14 @@ func GetArguments() (Arguments, error) {
 					"%s is not valid brick", err, err_msg, p)
 			}
 		}
-	} else if _, found = consume_opt_and_val("--bricks-names", "-n", &os_args); found {
-		return args, fmt.Errorf("! SorryError636a4c00%s for the moment "+
-			"exeiac do not support options --bricks-names|-n", err_msg)
-	} else {
-		// TODO: check if it's a brick_name or a brick_path
-		if len(os_args) > 0 {
-			args.BricksPaths = []string{os_args[0]}
+	}
+	value, found = consume_opt_and_val("--bricks-names", "-n", &os_args)
+	if found {
+		args.BricksNames = strings.Split(value, ",")
+	}
+	if len(os_args) > 0 {
+		if !strings.HasPrefix(os_args[0], "-") {
+			args.Brick = os_args[0]
 			os_args = remove_item(0, os_args)
 		}
 	}

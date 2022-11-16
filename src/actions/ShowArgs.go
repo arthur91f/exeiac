@@ -29,11 +29,11 @@ func ShowArgs(args exargs.Arguments) {
 
 	fmt.Printf("  interactive: %t\n", args.Interactive)
 
-	if len(args.ModulesList) == 0 {
+	if len(args.Modules) == 0 {
 		fmt.Println("  modules_list: []")
 	} else {
 		fmt.Println("  modules_list:")
-		for _, module := range args.ModulesList {
+		for _, module := range args.Modules {
 			fmt.Println("  - name:" + module.Name)
 			fmt.Println("    path:" + module.Path)
 		}
@@ -50,11 +50,11 @@ func ShowArgs(args exargs.Arguments) {
 		}
 	}
 
-	if len(args.RoomsList) == 0 {
+	if len(args.Rooms) == 0 {
 		fmt.Println("  rooms_list: []")
 	} else {
 		fmt.Println("  rooms_list:")
-		for _, room := range args.RoomsList {
+		for _, room := range args.Rooms {
 			fmt.Println("  - name:" + room.Name)
 			fmt.Println("    path:" + room.Path)
 		}
