@@ -5,18 +5,18 @@ input:
     path: .env
     data:
       - name: env_name
-        from: infra-ground/1-init:.monitoring.name
+        from: infra-ground/1-init:$.monitoring.name
       - name: env_project_name
-        from: infra-ground/1-init:.monitoring.project
+        from: infra-ground/1-init:$.monitoring.project
       - name: env_user_name
-        from: infra-ground/1-init:.monitoring.credentials.user
+        from: infra-ground/1-init:$.monitoring.credentials.user
       - name: env_credentials
-        from: infra-ground/1-init:.monitoring.credentials.key
+        from: infra-ground/1-init:$.monitoring.credentials.key
       - name: network_ip_range
-        from: infra-ground/2-envs/2-monitoring/1-network:.network.ip_range
+        from: infra-ground/2-envs/2-monitoring/1-network:$.network.ip_range
       - name: network_id
-        from: infra-ground/2-envs/2-monitoring/1-network:.network.network_id
+        from: infra-ground/2-envs/2-monitoring/1-network:$.network.network_id
       - name: internal_domain
-        from: infra-ground/2-envs/2-monitoring/1-network:.domain_name.internal
+        from: infra-ground/2-envs/2-monitoring/1-network:$.domain_name.internal
       - name: private_domain
-        from: infra-ground/2-envs/2-monitoring/1-network:.domain_name.private
+        from: infra-ground/2-envs/2-monitoring/1-network:$.domain_name.private

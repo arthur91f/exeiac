@@ -5,11 +5,11 @@ input:
     path: .env
     data:
       - name: env_name
-        from: infra-ground/1-init:.monitoring.name
+        from: infra-ground/1-init:$.monitoring.name
       - name: env_project_name
-        from: infra-ground/1-init:.monitoring.project
+        from: infra-ground/1-init:$.monitoring.project
       - name: env_user_name
-        from: infra-ground/1-init:.monitoring.credentials.user
+        from: infra-ground/1-init:$.monitoring.credentials.user
       - name: env_credentials
-        from: infra-ground/1-init:.monitoring.credentials.key
+        from: infra-ground/1-init:$.monitoring.credentials.key
     
