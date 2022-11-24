@@ -4,8 +4,42 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	extools "src/exeiac/tools"
 	"strings"
 )
+
+func (a Arguments) String() string {
+	var modulesString string
+	var roomsString string
+
+	if len(a.Modules) > 0 {
+		for _, m := range a.Modules {
+			modulesString = fmt.Sprintf("%s%s", modulesString,
+				extools.IndentForListItem(m.String()))
+		}
+		modulesString = fmt.Sprintf("modules:\n%s", modulesString)
+	} else {
+		modulesString = "modules: []\n"
+	}
+
+	if len(a.Rooms) > 0 {
+		for _, r := range a.Rooms {
+			roomsString = fmt.Sprintf("%s%s", roomsString,
+				extools.IndentForListItem(r.String()))
+		}
+		roomsString = fmt.Sprintf("rooms:\n%s", roomsString)
+	} else {
+		roomsString = "rooms: []\n"
+	}
+
+	return fmt.Sprintf("Arguments:\n%s", extools.Indent(
+		"bricksNames:"+extools.StringListOfString(a.BricksNames)+"\n"+
+			"bricksSpecifiers:"+extools.StringListOfString(a.BricksSpecifiers)+
+			"\n"+fmt.Sprintf("interactive: %t", a.Interactive)+"\n"+
+			fmt.Sprintf("outputSpecifier: %s", a.OutputSpecifier)+"\n"+
+			"otherOptions:"+extools.StringListOfString(a.OtherOptions)+"\n"+
+			modulesString+roomsString))
+}
 
 func get_brick_full_path(path string) (string, error) {
 	err_msg := ":arguments/get_brick_full_path:"
