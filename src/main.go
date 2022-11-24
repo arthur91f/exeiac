@@ -27,7 +27,7 @@ func main() {
 			"unable to get an infra representation\n", err)
 		os.Exit(1)
 	}
-	infra.Display()
+	fmt.Println(infra)
 
 	// build executionPlan
 	executionPlan, err := exexec.ExecutionPlan{}.New(infra, &args)

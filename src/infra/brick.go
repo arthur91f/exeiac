@@ -79,13 +79,9 @@ func (bcy BrickConfYaml) New(path string) (BrickConfYaml, error) {
 	return bcy, nil
 }
 
-func (brick Brick) String() string {
-	return fmt.Sprintf("Name: %s, Path: %s, ConfigurationFilePath: %s, IsElementary: %t, Module: %v",
-		brick.Name,
-		brick.Path,
-		brick.ConfigurationFilePath,
-		brick.IsElementary,
-		brick.Module)
+func (b Brick) String() string {
+	return fmt.Sprintf("name: %s\npath: %s\nisElementary: %t\nconfFile: %s",
+		b.Name, b.Path, b.IsElementary, b.ConfigurationFilePath)
 }
 
 func (brick *Brick) SetElementary(cfp string) *Brick {

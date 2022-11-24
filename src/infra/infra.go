@@ -125,23 +125,34 @@ func appendBricks(room extools.NamePathBinding, bricks *[]Brick) error {
 	return err
 }
 
-func (infra Infra) Display() {
-	fmt.Println("Infra:")
+func (infra Infra) String() string {
+	var modulesString string
+	var bricksString string
 
-	fmt.Println("  Modules:")
-	for _, module := range infra.Modules {
-		fmt.Println("  - name: " + module.Name)
-		fmt.Println("    path: " + module.Path)
-		fmt.Printf("    actions: %v\n", module.Actions)
+	if len(infra.Modules) > 0 {
+		for _, m := range infra.Modules {
+			modulesString = fmt.Sprintf("%s%s", modulesString,
+				extools.IndentForListItem(m.String()))
+		}
+		modulesString = fmt.Sprintf("modules:\n%s", modulesString)
+	} else {
+		modulesString = "modules: []\n"
 	}
 
-	fmt.Println("  Bricks:")
-	for _, brick := range infra.Bricks {
-		fmt.Println("  - name: " + brick.Name)
-		fmt.Println("    path: " + brick.Path)
-		fmt.Printf("    isElementary: %t\n", brick.IsElementary)
-		fmt.Println("    confFile: " + brick.ConfigurationFilePath)
+	if len(infra.Bricks) > 0 {
+		for _, b := range infra.Bricks {
+			bricksString = fmt.Sprintf("%s%s", bricksString,
+				extools.IndentForListItem(b.String()))
+		}
+		bricksString = fmt.Sprintf("bricks:\n%s", bricksString)
+	} else {
+		bricksString = "bricks: []\n"
 	}
+
+	return fmt.Sprintf("infra:\n%s%s",
+		extools.Indent(modulesString),
+		extools.Indent(bricksString),
+	)
 }
 
 func (i Infra) GetBrickIndexWithPath(brickPath string) (int, error) {

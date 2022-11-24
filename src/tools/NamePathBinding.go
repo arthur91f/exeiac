@@ -5,6 +5,10 @@ type NamePathBinding struct {
 	Path string `yaml:"path"`
 }
 
+func (b NamePathBinding) String() string {
+	return "name: " + b.Name + "\npath: " + b.Path
+}
+
 func AreNamePathBindingEqual(b1 NamePathBinding, b2 NamePathBinding) (bool, bool) {
 	areNamesEquals := false
 	arePathEquals := false
