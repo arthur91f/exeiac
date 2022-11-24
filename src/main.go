@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"log"
 	"os"
-	exactions "src/exeiac/actions"
+	//exactions "src/exeiac/actions"
 	exargs "src/exeiac/arguments"
 	exexec "src/exeiac/executionFlow"
 	exinfra "src/exeiac/infra"
@@ -18,7 +18,7 @@ func main() {
 			err)
 		os.Exit(1)
 	}
-	exactions.ShowArgs(args)
+	//exactions.ShowArgs(args)
 
 	// build infra representation
 	infra, err := exinfra.Infra{}.New(args.Rooms, args.Modules)
@@ -27,7 +27,7 @@ func main() {
 			"unable to get an infra representation\n", err)
 		os.Exit(1)
 	}
-	infra.Display()
+	fmt.Println(infra.String())
 
 	// build executionPlan
 	executionPlan, err := exexec.ExecutionPlan{}.New(infra, &args)

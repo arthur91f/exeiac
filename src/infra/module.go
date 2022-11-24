@@ -2,6 +2,7 @@ package infra
 
 import (
 	"bytes"
+	"fmt"
 	"log"
 	"os/exec"
 )
@@ -18,6 +19,16 @@ type Module struct {
 	Name    string
 	Path    string
 	Actions []string
+}
+
+func (m Module) String() string {
+	if len(m.Actions) > 0 {
+		return fmt.Sprintf("name: %s\npath: %s\nactions: %v\n",
+			m.Name, m.Path, m.Actions)
+	} else {
+		return fmt.Sprintf("name: %s\npath: %s\nactions: []",
+			m.Name, m.Path)
+	}
 }
 
 // Executes the ACTION_SHOW_AVAILABLE_ACTIONS command on a module to get
