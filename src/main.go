@@ -50,8 +50,9 @@ func main() {
 			log.Fatalf("Unable to enrich brick: %s", err)
 		}
 
-			infra.Bricks[ep.BrickName].Enrich(conf, infra)
-			infra.Bricks[ep.BrickName].Module.LoadAvailableActions()
+		err = step.Brick.Module.LoadAvailableActions()
+		if err != nil {
+			log.Fatalf("Unable to load action for module %s: %s", step.Brick, err)
 		}
 	}
 

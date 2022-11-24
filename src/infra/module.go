@@ -3,7 +3,6 @@ package infra
 import (
 	"bytes"
 	"fmt"
-	"log"
 	"os/exec"
 )
 
@@ -36,14 +35,15 @@ func (m Module) String() string {
 // *Actions* slice.
 // If the *Actions* slice is not empty, bypass the call the the command.
 // NOTE(half-shell): Do we have a use to force the call to be triggered again here?
-func (module *Module) LoadAvailableActions() (*Module, error) {
+func (module *Module) LoadAvailableActions() error {
+	// Actions are already loaded; no need to reprocess it
 	if len(module.Actions) > 0 {
-		return module, nil
+		return nil
 	}
 
 	path, err := exec.LookPath(module.Path)
 	if err != nil {
-		return module, err
+		return err
 	}
 
 	cmd := exec.Cmd{
@@ -56,7 +56,7 @@ func (module *Module) LoadAvailableActions() (*Module, error) {
 
 	output, err := cmd.Output()
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
 
 	for _, action := range bytes.Split(output, []byte("\n")) {
@@ -65,5 +65,5 @@ func (module *Module) LoadAvailableActions() (*Module, error) {
 		}
 	}
 
-	return module, nil
+	return nil
 }
