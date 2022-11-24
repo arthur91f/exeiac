@@ -11,9 +11,27 @@ import (
 	"strings"
 )
 
+// A slice of several Brick.
+type Bricks []*Brick
+
+// Allows for sorting over Bricks
+func (slice Bricks) Len() int {
+	return len(slice)
+}
+
+// Allows for sorting over Bricks
+func (slice Bricks) Less(i, j int) bool {
+	return slice[i].Index > slice[j].Index
+}
+
+// Allows for sorting over Bricks
+func (slice Bricks) Swap(i, j int) {
+	slice[i], slice[j] = slice[j], slice[i]
+}
+
 type Infra struct {
 	Modules []Module
-	Bricks  []Brick
+	Bricks  map[string]*Brick
 }
 
 type RoomError struct {
@@ -38,7 +56,11 @@ func (e ErrBrickNotFound) Error() string {
 
 func (i Infra) New(
 	rooms []extools.NamePathBinding,
-	modules []extools.NamePathBinding) (*Infra, error) {
+	modules []extools.NamePathBinding) (Infra, error) {
+	i := Infra{
+		Bricks:  make(map[string]*Brick),
+		Modules: make([]Module, len(modules)),
+	}
 
 	// create Modules
 	for _, m := range modules {
@@ -48,17 +70,29 @@ func (i Infra) New(
 		})
 	}
 
-	// create Bricks
+	// Temporary brick storage to have consistent indexing across rooms
+	// i.e. having an overall ordering as the index
+	bricks := []Brick{}
 	for _, r := range rooms {
-		// get all room's bricks
-		err := appendBricks(r, &i.Bricks)
+		b, err := GetBricks(r)
 		if err != nil {
 			fmt.Printf("%v\n> Warning63724ff3:infra/CreateInfra:"+
 				"can't add bricks of this room: %s", err, r.Path)
 		}
+
+		bricks = append(bricks, b...)
 	}
 
-	return &i, nil
+	for idx := range bricks {
+		// We do not want to access &b because it uses the same pointer to copy the new element in
+		// meaning we'd reference the same entity over and over
+		// c.f. https://stackoverflow.com/questions/20185511/range-references-instead-values
+		b := bricks[idx]
+		b.Index = idx
+		i.Bricks[b.Name] = &b
+	}
+
+	return i, nil
 }
 
 var hasDigitPrefixRegexp = regexp.MustCompile(`.*/\d+-\w+$`)
@@ -68,13 +102,16 @@ func validateDirName(path string) bool {
 	return hasDigitPrefixRegexp.MatchString(path)
 }
 
-func sanitizeBrickName(name string) string {
+func SanitizeBrickName(name string) string {
 	return prefixRegexp.ReplaceAllString(name, "")
 }
 
 // Walks the file system from the provided root, gathers all folders containing a `brick.html` file, and build a Brick struct from it.
-func appendBricks(room extools.NamePathBinding, bricks *[]Brick) error {
-	err := filepath.WalkDir(
+func GetBricks(room extools.NamePathBinding) ([]Brick, error) {
+	var bricks []Brick
+	var err error
+
+	err = filepath.WalkDir(
 		room.Path,
 		func(path string, d fs.DirEntry, err error) error {
 			brickRelPath, err := filepath.Rel(room.Path, path)
@@ -83,8 +120,8 @@ func appendBricks(room extools.NamePathBinding, bricks *[]Brick) error {
 			}
 
 			lastBrick := func() *Brick {
-				if len(*bricks) > 0 {
-					return &(*bricks)[len(*bricks)-1]
+				if len(bricks) > 0 {
+					return &(bricks)[len(bricks)-1]
 				}
 
 				return &Brick{}
@@ -93,11 +130,11 @@ func appendBricks(room extools.NamePathBinding, bricks *[]Brick) error {
 			// A brick can just be described as a sub-path of a room, containing a prefixed folder name with digits, and split with a hypen ("-")
 			if d.Type().IsDir() && validateDirName(path) {
 				brickName := filepath.Join(room.Name, brickRelPath)
-				name := sanitizeBrickName(brickName)
+				name := SanitizeBrickName(brickName)
 
 				// Do not duplicate entries
-				if len(*bricks) == 0 || lastBrick.Name != name {
-					*bricks = append(*bricks, Brick{
+				if len(bricks) == 0 || lastBrick.Name != name {
+					bricks = append(bricks, Brick{
 						Name:         name,
 						Path:         path,
 						IsElementary: false,
@@ -109,7 +146,7 @@ func appendBricks(room extools.NamePathBinding, bricks *[]Brick) error {
 			// TODO(half-shell): Make the configuration filename more flexible.
 			if d.Type().IsRegular() && d.Name() == "brick.yml" {
 				brickName := filepath.Join(room.Name, filepath.Dir(brickRelPath))
-				name := sanitizeBrickName(brickName)
+				name := SanitizeBrickName(brickName)
 
 				// Set the last brick as elementary if names match
 				// This happens because it means that the parent brick is not a "super-brick"
@@ -122,7 +159,7 @@ func appendBricks(room extools.NamePathBinding, bricks *[]Brick) error {
 			return err
 		})
 
-	return err
+	return bricks, err
 }
 
 func (infra Infra) String() string {
@@ -155,37 +192,54 @@ func (infra Infra) String() string {
 	)
 }
 
+func ConvertToName(path string) string {
+	return ""
+}
+
 func (i Infra) GetBrickIndexWithPath(brickPath string) (int, error) {
-	for index, b := range i.Bricks {
-		if b.Path == brickPath {
-			return index, nil
-		}
+	if brick, ok := i.Bricks[ConvertToName(brickPath)]; ok {
+		return brick.Index, nil
 	}
+
 	return -1, ErrBrickNotFound{brick: brickPath}
 }
 
 func (i Infra) GetBrickIndexWithName(brickName string) (int, error) {
-	for index, b := range i.Bricks {
-		if b.Name == brickName {
-			return index, nil
-		}
+	if brick, ok := i.Bricks[brickName]; ok {
+		return brick.Index, nil
 	}
+
 	return -1, ErrBrickNotFound{brick: brickName}
 }
 
-func (i Infra) GetSubBricksIndexes(brickIndex int) (indexes []int) {
+func (i Infra) GetSubBricksIndexes(brickName string) (bricks []Brick) {
 	// the infra.Bricks is sorted with super bricks
 	// directly before their subbricks
-	superBrickPath := i.Bricks[brickIndex].Path
-	for index := brickIndex + 1; index < len(i.Bricks); index++ {
-		if strings.HasPrefix(i.Bricks[index].Path, superBrickPath) {
-			indexes = append(indexes, index)
-		} else {
-			return
+	superBrickPath := i.Bricks[brickName].Path
+	for n, b := range i.Bricks {
+		if strings.HasPrefix(i.Bricks[n].Path, superBrickPath) {
+			bricks = append(bricks, *b)
 		}
 	}
-	return // should not reach this point if brickIndex correspond to a superBrick
-	// but at least it's not false the subBrick of an elemenatry brick is nil
+
+	return bricks
+}
+
+func (i *Infra) GetSubBricks(brick *Brick) []*Brick {
+	subBricks := []*Brick{}
+
+	// the infra.Bricks is sorted with super bricks
+	// directly before their subbricks
+	superBrickPath := i.Bricks[brick.Name].Path
+	for _, b := range i.Bricks {
+		brickPath := b.Path
+		// We ignore the sub-brick if they're the same; strings.HasPrefix returns true in that case
+		if brickPath != superBrickPath && strings.HasPrefix(brickPath, superBrickPath) {
+			subBricks = append(subBricks, b)
+		}
+	}
+
+	return subBricks
 }
 
 // TODO(half-shell): Can use a generic argument and be merged with
