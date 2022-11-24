@@ -54,9 +54,7 @@ func (e ErrBrickNotFound) Error() string {
 	return fmt.Sprintf("Brick not found: %s", e.brick)
 }
 
-func (i Infra) New(
-	rooms []extools.NamePathBinding,
-	modules []extools.NamePathBinding) (Infra, error) {
+func CreateInfra(rooms []extools.NamePathBinding, modules []extools.NamePathBinding) (Infra, error) {
 	i := Infra{
 		Bricks:  make(map[string]*Brick),
 		Modules: make([]Module, len(modules)),
