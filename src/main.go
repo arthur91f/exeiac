@@ -21,7 +21,7 @@ func main() {
 	exactions.ShowArgs(args)
 
 	// build infra representation
-	infra, err := exinfra.Infra{}.New(args.Rooms, args.Modules)
+	infra, err := exinfra.CreateInfra(args.Rooms, args.Modules)
 	if err != nil {
 		fmt.Printf("%v\n> Error636f6894:main/main: "+
 			"unable to get an infra representation\n", err)
@@ -30,22 +30,29 @@ func main() {
 	fmt.Println(infra)
 
 	// build executionPlan
-	executionPlan, err := exexec.ExecutionPlan{}.New(infra, &args)
+	// TODO: Replace the last arguments to contain a list of brick names
+	// executionPlan, err := exexec.ExecutionPlan{}.New(infra, args.Action, args.brickNames)
+	executionPlan, err := exexec.CreateExecutionPlan(&infra, args.Action, args.BricksNames)
 	if err != nil {
 		fmt.Printf("%v\n> Error6373c57e:main/main: "+
 			"unable to get the executionPlan\n", err)
 		os.Exit(1)
 	}
 
-	for _, ep := range executionPlan {
-		if ep.Brick.IsElementary {
-			conf, err := exinfra.BrickConfYaml{}.New(ep.Brick.ConfigurationFilePath)
-			if err != nil {
-				log.Fatal("An issue happened while reading bricks' configurations\n", err)
-			}
+	for _, step := range executionPlan {
+		conf, err := exinfra.BrickConfYaml{}.New(step.Brick.ConfigurationFilePath)
+		if err != nil {
+			log.Fatalf("Unable to load brick's configuration file: %s", err)
+		}
 
-			ep.Brick.Enrich(conf, infra)
-			ep.Brick.Module.LoadAvailableActions()
+		err = step.Brick.Enrich(conf, &infra)
+		if err != nil {
+			log.Fatalf("Unable to enrich brick: %s", err)
+		}
+
+		err = step.Brick.Module.LoadAvailableActions()
+		if err != nil {
+			log.Fatalf("Unable to load action for module %s: %s", step.Brick, err)
 		}
 	}
 

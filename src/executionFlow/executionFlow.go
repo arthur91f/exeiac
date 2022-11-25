@@ -6,7 +6,6 @@ import (
 	"sort"
 	exargs "src/exeiac/arguments"
 	exinfra "src/exeiac/infra"
-	extools "src/exeiac/tools"
 )
 
 type executionStep struct {
@@ -26,71 +25,41 @@ func (e ExecutionPlan) PrintPlan() {
 	}
 }
 
-func (e ExecutionPlan) New(i *exinfra.Infra, args *exargs.Arguments) (ExecutionPlan, error) {
-
-	action := args.Action
-	var bricksIndexes []int
+func CreateExecutionPlan(i *exinfra.Infra, action string, brickNames []string) (ExecutionPlan, error) {
+	var inputBricks exinfra.Bricks
+	var bricks exinfra.Bricks
 	var executionPlan ExecutionPlan
 
-	// arg.Brick
-	if args.Brick != "" {
-		if ibrick, err := i.GetBrickIndexWithName(args.Brick); err == nil {
-			bricksIndexes = append(bricksIndexes, ibrick)
-		} else if ibrick, err := i.GetBrickIndexWithPath(args.Brick); err == nil {
-			bricksIndexes = append(bricksIndexes, ibrick)
+	for _, n := range brickNames {
+		if b, ok := i.Bricks[n]; ok {
+			inputBricks = append(inputBricks, b)
 		} else {
 			return executionPlan, exargs.ErrBadArg{
-				Reason: "brick not recognized: ", Value: args.Brick}
-		}
-	}
-
-	// arg.BricksPaths
-	if len(args.BricksPaths) != 0 {
-		for _, brickPath := range args.BricksPaths {
-			ibrick, err := i.GetBrickIndexWithPath(brickPath)
-			if err != nil {
-				return executionPlan, exargs.ErrBadArg{
-					Reason: "brick not recognized: ", Value: brickPath}
-			}
-			bricksIndexes = append(bricksIndexes, ibrick)
-		}
-	}
-
-	// arg.BricksNames
-	if len(args.BricksNames) != 0 {
-		for _, brickName := range args.BricksNames {
-			ibrick, err := i.GetBrickIndexWithName(brickName)
-			if err != nil {
-				return executionPlan, exargs.ErrBadArg{
-					Reason: "brick not recognized: ", Value: brickName}
-			}
-			bricksIndexes = append(bricksIndexes, ibrick)
+				Reason: "brick not recognized: ", Value: n}
 		}
 	}
 
 	// TODO: modify bricks with specifiers
 
-	// GetElementaryBricks
-	var tempIndexes []int
-	for _, index := range bricksIndexes {
-		if i.Bricks[index].IsElementary {
-			tempIndexes = append(tempIndexes, index)
+	// We break super-bricks down to elementary bricks
+	for _, b := range inputBricks {
+		if i.Bricks[b.Name].IsElementary {
+			bricks = append(bricks, b)
 		} else {
-			tempIndexes = append(tempIndexes, i.GetSubBricksIndexes(index)...)
+			subBricks := i.GetSubBricks(b)
+			bricks = append(bricks, subBricks...)
 		}
 	}
-	bricksIndexes = tempIndexes
 
-	// Remove duplicates and sort the list
-	bricksIndexes = extools.GetIntSliceWithoutDuplicates(bricksIndexes)
-	sort.Ints(bricksIndexes)
+	sort.Sort(bricks)
 
 	// create step
-	for _, brickIndex := range bricksIndexes {
+	for _, b := range bricks {
 		executionPlan = append(executionPlan, executionStep{
 			Action: action,
-			Brick:  &(i.Bricks[brickIndex]),
+			Brick:  b,
 		})
 	}
+
 	return executionPlan, nil
 }

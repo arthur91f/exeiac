@@ -14,7 +14,7 @@ import (
 
 type Dependency struct {
 	// A reference to the related brick
-	Brick *Brick
+	BrickName string
 	// The name the variable is supposed to take
 	VarName string
 	// The JSON path to access the variable
@@ -22,6 +22,8 @@ type Dependency struct {
 }
 
 type Brick struct {
+	// The brick's index. It represents the absolute brick ordering
+	Index int
 	// The brick's name. Usually the name of the parent directory
 	Name string
 	// The absolute path of the brick's directory
@@ -93,14 +95,14 @@ func (brick *Brick) SetElementary(cfp string) *Brick {
 
 // Processes the relevant parts of a brick's configuration and updates the brick itself
 // with it.
-func (brick *Brick) Enrich(bcy BrickConfYaml, infra *Infra) (*Brick, error) {
+func (brick *Brick) Enrich(bcy BrickConfYaml, infra *Infra) error {
 	if !brick.IsElementary {
-		return brick, errors.New("Cannot enrich a non-elementary brick")
+		return errors.New("Cannot enrich a non-elementary brick")
 	}
 
 	module, err := GetModule(bcy.Module, &infra.Modules)
 	if err != nil {
-		return brick, err
+		return err
 	}
 
 	brick.Module = module
@@ -110,7 +112,7 @@ func (brick *Brick) Enrich(bcy BrickConfYaml, infra *Infra) (*Brick, error) {
 	}
 	brick.Dependencies = dependencies
 
-	return brick, nil
+	return nil
 }
 
 func (bcy BrickConfYaml) getDependencies(infra *Infra) ([]Dependency, error) {
@@ -126,9 +128,10 @@ func (bcy BrickConfYaml) getDependencies(infra *Infra) ([]Dependency, error) {
 			brickName, keyPath := parseFromField(d.From)
 			// NOTE(half-shell): We sanitize the brick name here in case they turn
 			// out to be brick paths
-			brick, err := GetBrick(sanitizeBrickName(brickName), &infra.Bricks)
-			if err != nil {
-				return dependencies, err
+			brick, ok := infra.Bricks[SanitizeBrickName(brickName)]
+
+			if !ok {
+				return dependencies, errors.New(fmt.Sprintf("No brick names %s", brickName))
 			}
 
 			// NOTE(half-shell): We make sure the jsonPath's form is valid
@@ -138,9 +141,9 @@ func (bcy BrickConfYaml) getDependencies(infra *Infra) ([]Dependency, error) {
 			}
 
 			dependencies = append(dependencies, Dependency{
-				Brick:    brick,
-				VarName:  d.Name,
-				JsonPath: jsonPath,
+				BrickName: brick.Name,
+				VarName:   d.Name,
+				JsonPath:  jsonPath,
 			})
 		}
 	}

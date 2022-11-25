@@ -7,8 +7,6 @@ import (
 
 type Arguments struct {
 	Action           string
-	Brick            string
-	BricksPaths      []string
 	BricksNames      []string
 	BricksSpecifiers []string
 	Interactive      bool
@@ -21,7 +19,6 @@ type Arguments struct {
 func getDefaultArguments() Arguments {
 	return Arguments{
 		Action:           "",
-		BricksPaths:      []string{},
 		BricksSpecifiers: []string{"selected"},
 		Interactive:      true,
 		Modules:          []extools.NamePathBinding{},
