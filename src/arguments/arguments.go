@@ -40,35 +40,86 @@ func (a Arguments) String() string {
 			"otherOptions:"+extools.StringListOfString(a.OtherOptions)+"\n"+
 			modulesString+roomsString))
 }
-
-func get_brick_full_path(path string) (string, error) {
-	err_msg := ":arguments/get_brick_full_path:"
-	info, err := os.Stat(path)
-	if err != nil {
-		return "", fmt.Errorf("! Error00000000:%w\n"+
-			"> Error636a3f09%s os.Stat(%s)",
-			err, err_msg, path)
-	} else if !info.IsDir() {
-		return "", fmt.Errorf("! Error636a40ea%s "+
-			"path is not a directory: path=%s", err_msg, path)
+func splitBricksPathsAndNames(bricks []string) (
+	paths []string, names []string, err error) {
+	var absPath string
+	for _, brick := range bricks {
+		info, statErr := os.Stat(brick)
+		if statErr == nil {
+			if info.IsDir() {
+				absPath, err = filepath.Abs(brick)
+				if err == nil {
+					paths = append(paths, absPath)
+				} else {
+					return
+				}
+			} else {
+				err = ErrBadArg{Reason: "Not a brick : path is not a directory",
+					Value: brick}
+				return
+			}
+		} else {
+			names = append(names, brick)
+		}
 	}
+	return
+}
 
-	return filepath.Abs(path)
-	/*if _, err1 := os.Stat(path + "/brick.yml"); err1 == nil {
-		return filepath.Abs(path)
-	} else if _, err2 := os.Stat(path + "/brick.yaml"); err2 == nil {
-		return filepath.Abs(path)
-	} else if os.IsNotExist(err1) {
-		return "", fmt.Errorf("! Error636a4412%s %s/brick.yml don't exist",
-			err_msg, path)
-	} else if os.IsNotExist(err2) {
-		return "", fmt.Errorf("! Error636a44bd%s %s/brick.yaml don't exist",
-			err_msg, path)
-	} else {
-		return "", fmt.Errorf("! Error00000000:%w\n"+"& Error00000000:%w\n"+
-			"> Error636a4711%s os.Stat(%s/brick.yml) && Os.Stat(%s/brick.yaml)",
-			err1, err2, err_msg, path, path)
-	}*/
+func getRegexList(rooms []extools.NamePathBinding) (
+	replaceList []extools.ReplaceOperation, err error) {
+	var replacement extools.ReplaceOperation
+	for _, room := range rooms {
+		replacement, err = extools.CreateReplaceOperation("^"+room.Path, room.Name)
+		if err != nil {
+			return
+		}
+		replaceList = append(replaceList, replacement)
+	}
+	replacement, err = extools.CreateReplaceOperation(`/\d+-`, "/")
+	if err != nil {
+		err = fmt.Errorf("INTERNAL ERROR: 63809c7f:%v", err)
+		return
+	}
+	replaceList = append(replaceList, replacement)
+	return
+}
+
+func convertToGetOnlyBrickName(
+	bricks []string, roomsPaths []extools.NamePathBinding) (
+	names []string, err error) {
+
+	var absPath string
+	var name string
+	var replaceList []extools.ReplaceOperation
+
+	for _, brick := range bricks {
+		info, statErr := os.Stat(brick)
+		if statErr != nil { // if it's not a path we assume it's already a name
+			names = append(names, brick)
+		} else {
+			if !info.IsDir() {
+				err = ErrBadArg{Reason: "Not a brick: path is not a directory",
+					Value: brick}
+				return
+			}
+			absPath, err = filepath.Abs(brick)
+			if err != nil {
+				return
+			}
+			if len(replaceList) == 0 {
+				replaceList, err = getRegexList(roomsPaths)
+				if err != nil {
+					return
+				}
+			}
+			name = absPath
+			for _, r := range replaceList {
+				name = r.Replace(name)
+			}
+			names = append(names, name)
+		}
+	}
+	return
 }
 
 func GetArguments() (Arguments, error) {
@@ -103,28 +154,23 @@ func GetArguments() (Arguments, error) {
 			"You need to specify an action: \"exeiac help\"", err_msg)
 	}
 
-	// set bricks_paths
-	// TODO: supports --bricks-names|-n
-	value, found = consume_opt_and_val("--bricks-paths", "-p", &os_args)
-	if found {
-		args.BricksPaths = strings.Split(value, ",")
-		for i, p := range args.BricksPaths {
-			args.BricksPaths[i], err = get_brick_full_path(p)
-			if err != nil {
-				return args, fmt.Errorf("%w\n> Error636a4b4d%s "+
-					"%s is not valid brick", err, err_msg, p)
-			}
-		}
-	}
-	value, found = consume_opt_and_val("--bricks-names", "-n", &os_args)
-	if found {
-		args.BricksNames = strings.Split(value, ",")
-	}
+	// set bricks (need args.Rooms)
+	var bricks []string
 	if len(os_args) > 0 {
 		if !strings.HasPrefix(os_args[0], "-") {
-			args.Brick = os_args[0]
+			if strings.Contains(os_args[0], ",") {
+				bricks = strings.Split(value, ",")
+			} else if strings.Contains(os_args[0], "\n") {
+				bricks = strings.Split(value, "\n")
+			} else {
+				bricks = []string{os_args[0]}
+			}
 			os_args = remove_item(0, os_args)
 		}
+	}
+	args.BricksNames, err = convertToGetOnlyBrickName(bricks, args.Rooms)
+	if err != nil {
+		return args, err
 	}
 
 	// set interactive

@@ -93,8 +93,12 @@ func CreateInfra(rooms []extools.NamePathBinding, modules []extools.NamePathBind
 	return i, nil
 }
 
-var hasDigitPrefixRegexp = regexp.MustCompile(`.*/\d+-\w+$`)
-var prefixRegexp = regexp.MustCompile(`\d+-`)
+var hasDigitPrefixRegexp = regexp.MustCompile(`.*/\d+-\w+$`) // TODO(arthur91f): change regex
+// .../1-database2-eu_confAdmin is a valid brick dirname
+var prefixRegexp = regexp.MustCompile(`\d+-`) // TODO(arthur91f): replace regex
+// `^\d+-` or `/\d+-` but we want to change
+// OK  rooms/1-database2-eu -> rooms/database2-eu
+// NOK rooms/1-database2-eu -> rooms/databaseeu
 
 func validateDirName(path string) bool {
 	return hasDigitPrefixRegexp.MatchString(path)

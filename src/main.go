@@ -32,7 +32,7 @@ func main() {
 	// build executionPlan
 	// TODO: Replace the last arguments to contain a list of brick names
 	// executionPlan, err := exexec.ExecutionPlan{}.New(infra, args.Action, args.brickNames)
-	executionPlan, err := exexec.CreateExecutionPlan(&infra, args.Action, []string{args.Brick})
+	executionPlan, err := exexec.CreateExecutionPlan(&infra, args.Action, args.BricksNames)
 	if err != nil {
 		fmt.Printf("%v\n> Error6373c57e:main/main: "+
 			"unable to get the executionPlan\n", err)
