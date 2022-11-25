@@ -56,7 +56,7 @@ func (e ErrBrickNotFound) Error() string {
 
 func CreateInfra(rooms []extools.NamePathBinding, modules []extools.NamePathBinding) (Infra, error) {
 	i := Infra{
-		Bricks:  make(map[string]*Brick),
+		Bricks: make(map[string]*Brick),
 	}
 
 	// create Modules
