@@ -159,15 +159,16 @@ func GetArguments() (Arguments, error) {
 	if len(os_args) > 0 {
 		if !strings.HasPrefix(os_args[0], "-") {
 			if strings.Contains(os_args[0], ",") {
-				bricks = strings.Split(value, ",")
+				bricks = strings.Split(os_args[0], ",")
 			} else if strings.Contains(os_args[0], "\n") {
-				bricks = strings.Split(value, "\n")
+				bricks = strings.Split(os_args[0], "\n")
 			} else {
 				bricks = []string{os_args[0]}
 			}
 			os_args = remove_item(0, os_args)
 		}
 	}
+	fmt.Println(bricks)
 	args.BricksNames, err = convertToGetOnlyBrickName(bricks, args.Rooms)
 	if err != nil {
 		return args, err
