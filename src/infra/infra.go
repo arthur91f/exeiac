@@ -21,7 +21,7 @@ func (slice Bricks) Len() int {
 
 // Allows for sorting over Bricks
 func (slice Bricks) Less(i, j int) bool {
-	return slice[i].Index > slice[j].Index
+	return slice[i].Index < slice[j].Index
 }
 
 // Allows for sorting over Bricks

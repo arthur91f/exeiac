@@ -40,30 +40,6 @@ func (a Arguments) String() string {
 			"otherOptions:"+extools.StringListOfString(a.OtherOptions)+"\n"+
 			modulesString+roomsString))
 }
-func splitBricksPathsAndNames(bricks []string) (
-	paths []string, names []string, err error) {
-	var absPath string
-	for _, brick := range bricks {
-		info, statErr := os.Stat(brick)
-		if statErr == nil {
-			if info.IsDir() {
-				absPath, err = filepath.Abs(brick)
-				if err == nil {
-					paths = append(paths, absPath)
-				} else {
-					return
-				}
-			} else {
-				err = ErrBadArg{Reason: "Not a brick : path is not a directory",
-					Value: brick}
-				return
-			}
-		} else {
-			names = append(names, brick)
-		}
-	}
-	return
-}
 
 func getRegexList(rooms []extools.NamePathBinding) (
 	replaceList []extools.ReplaceOperation, err error) {
