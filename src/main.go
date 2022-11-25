@@ -11,14 +11,14 @@ import (
 )
 
 func main() {
+	var statusCode int
 	// get arguments
 	args, err := exargs.GetArguments()
 	if err != nil {
 		fmt.Printf("%v\n> Error636a4c9e:main/main: unable to get arguments\n",
 			err)
-		os.Exit(1)
+		os.Exit(2)
 	}
-	exactions.ShowArgs(args)
 
 	// build infra representation
 	infra, err := exinfra.CreateInfra(args.Rooms, args.Modules)
@@ -27,7 +27,12 @@ func main() {
 			"unable to get an infra representation\n", err)
 		os.Exit(1)
 	}
-	fmt.Println(infra)
+
+	statusCode, err = exactions.Execute(&infra, &args)
+	if err != nil {
+		fmt.Printf("%v\n", err)
+	}
+	os.Exit(statusCode)
 
 	// build executionPlan
 	// TODO: Replace the last arguments to contain a list of brick names
@@ -56,5 +61,5 @@ func main() {
 		}
 	}
 
-	executionPlan.PrintPlan()
+	fmt.Println(executionPlan)
 }
