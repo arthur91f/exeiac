@@ -6,24 +6,8 @@ import (
 	"os"
 	exactions "src/exeiac/actions"
 	exargs "src/exeiac/arguments"
-	exexec "src/exeiac/executionFlow"
 	exinfra "src/exeiac/infra"
 )
-
-var actionsMap = map[string]func(*exinfra.Infra, *exargs.Arguments) (int, error){
-	"cd":            ChangeDirectory,
-	"clean":         Clean,
-	"help":          Help,
-	"init":          Init,
-	"lay":           Lay,
-	"plan":          Plan,
-	"remove":        Remove,
-	"show":          Show,
-	"validate_code": ValidateCode,
-	"debug_args":    DebugArgs,
-	"debug_infra":   DebugInfra,
-	// the personnal actions not implemented
-}
 
 func main() {
 	var statusCode int
@@ -59,14 +43,17 @@ func main() {
 		log.Fatal(err)
 	}
 
+	// create ActionsList
+	var actionsMap map[string]exactions.Action
+	actionsMap, err = exactions.CreateActionsMap(&infra, bricksToExecute)
+
 	// executeAction
 	// if args.action is in the list do that else use otherAction
-	statusCode, err = actionsMap[args.Action](&infra, &args, bricksToExecute)
+	statusCode, err = actionsMap[args.Action].Execute(&infra, &args, bricksToExecute)
 	if err != nil {
 		fmt.Printf("%v\n", err)
 	}
 	os.Exit(statusCode)
-
 }
 
 func validArgBricksAreInInfra(infra *exinfra.Infra, args *exargs.Arguments) error {

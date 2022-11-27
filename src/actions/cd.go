@@ -6,11 +6,13 @@ import (
 	exinfra "src/exeiac/infra"
 )
 
-func ChangeDirectory(infra *exinfra.Infra, args *exargs.Arguments) (
-	statusCode int, err error) {
+func ChangeDirectory(
+	infra *exinfra.Infra,
+	args *exargs.Arguments,
+	bricksToExecute []string) (statusCode int, err error) {
 
-	if len(args.BricksNames) == 1 {
-		err = os.Chdir(infra.Bricks[args.BricksNames[0]].Path)
+	if len(bricksToExecute) == 1 {
+		err = os.Chdir(infra.Bricks[bricksToExecute[0]].Path)
 	} else if len(args.BricksNames) == 0 {
 		err = exargs.ErrBadArg{
 			Reason: "You haven't specify any target brick to change directory"}

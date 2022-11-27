@@ -1,15 +1,12 @@
 package actions
 
 import (
-	"errors"
 	"fmt"
 	exargs "src/exeiac/arguments"
-	exexec "src/exeiac/executionFlow"
 	exinfra "src/exeiac/infra"
 )
 
-var defaultHelp = `exeiac (BRICK_PATH|BRICK_NAME) ACTIONS [OPTIONS]
-exeiac ACTIONS (BRICK_PATH|BRICK_NAME)[OPTIONS]
+var defaultHelp = `exeiac ACTIONS (BRICK_PATH|BRICK_NAME)[OPTIONS]
 ACTIONS:
 init: get some dependencies, typically download terraform modules
     or ansible deps
@@ -29,11 +26,10 @@ OPTIONS:
 -f --format: (name|path|input|output) use with show
 `
 
-func Help(infra *exinfra.Infra, args *exargs.Arguments) (statusCode int, err error) {
-
-	statusCode = 0
-	var executionPlan exexec.ExecutionPlan
-	var exitCode int
+func Help(
+	infra *exinfra.Infra,
+	args *exargs.Arguments,
+	bricksToExecute []string) (statusCode int, err error) {
 
 	if len(args.BricksNames) == 0 {
 		fmt.Println(defaultHelp)
@@ -48,6 +44,6 @@ func Help(infra *exinfra.Infra, args *exargs.Arguments) (statusCode int, err err
 		help: no specific help for this module
 		--  infra-ground/envs/production/bastion --
 		default help with an additionnal action:
-		format that permit to launch a terraform fmt
+		format: rewrite your file: terraform fmt, go fmt -w...
 	*/
 }
