@@ -5,11 +5,29 @@ import (
 	exinfra "src/exeiac/infra"
 )
 
+var BehaviourMap = map[string]func(*exinfra.Infra, *exargs.Arguments, []string) (int, error){
+	"cd":            ChangeDirectory,
+	"clean":         Clean,
+	"help":          Help,
+	"init":          Init,
+	"lay":           Lay,
+	"plan":          Plan,
+	"remove":        Remove,
+	"show":          Show,
+	"validate_code": ValidateCode,
+	"debug_args":    DebugArgs,
+	"debug_infra":   DebugInfra,
+}
+
+/*import (
+	exargs "src/exeiac/arguments"
+	exinfra "src/exeiac/infra"
+)
+
 type Action struct {
-	Name         string
 	Behaviour    string
-	UserCall     []string
-	ModuleAction bool
+	UserCall     []string // useless it should be the map key
+	ModuleAction bool     // perhaps not useful
 }
 
 var behaviourMap = map[string]func(*exinfra.Infra, *exargs.Arguments, []string) (int, error){
@@ -108,4 +126,4 @@ func CreateActionsMap(infra *exinfra.Infra, bricks []string) (
 		}
 	}
 	return
-}
+}*/

@@ -37,6 +37,8 @@ type Brick struct {
 	Module *Module
 	// Pointer to the bricks it depends on
 	Dependencies []Dependency
+	// Error from Enrich
+	EnrichError error
 }
 
 type BrickConfYaml struct {
