@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"sort"
 	exaction "src/exeiac/actions"
 	exargs "src/exeiac/arguments"
 	exinfra "src/exeiac/infra"
@@ -34,12 +35,12 @@ func main() {
 		log.Fatal(err)
 	}
 
+	// enrich bricks that we will execute
+	enrichBricks(&infra)
+
 	// TODO(arthur91f): func getBricksToExecute(args.BricksNames args.Specifier)
 	var bricksToExecute []string
 	bricksToExecute = args.BricksNames
-
-	// enrich bricks that we will execute
-	enrichBricks(&infra)
 
 	// executeAction
 	// if args.action is in the list do that else use otherAction
@@ -49,7 +50,7 @@ func main() {
 		statusCode, err = exaction.BehaviourMap["default"](&infra, &args, bricksToExecute)
 	}
 	if err != nil {
-		fmt.Printf("%v\n", err)
+		log.Printf("%v\n", err)
 	}
 	os.Exit(statusCode)
 }
@@ -100,39 +101,77 @@ func enrichBricks(infra *exinfra.Infra) {
 	}
 }
 
-/*func getBricksToExecute(infra *exinfra.Infra, args *exargs.Arguments) (
+func getBricksToExecute(
+	infra *exinfra.Infra, args *exargs.Arguments) (
 	bricksToExecute []string, err error) {
 
-	var bricks []*exinfra.Brick
+	var bricks exinfra.Bricks
 	for _, brickName := range args.BricksNames {
 		bricks = append(bricks, infra.Bricks[brickName])
 	}
 
-	var bricksSpecified []*exinfra.Brick
-	var bricksToAdd *exinfra.Brick
+	var bricksSpecified exinfra.Bricks
+	var bricksToAdd exinfra.Bricks
 	for _, specifier := range args.BricksSpecifiers {
+		bricksToAdd = exinfra.Bricks{}
 		switch specifier {
 		case "linked_previous", "all_previous", "lp", "ap":
 			for _, brick := range bricks {
-				bricksToAdd = exinfra.GetLinkedPrevious(infra, brickName)
+				bs, err := infra.GetLinkedPrevious(brick.Name) // recursive GetDirectPrevious
+				if err != nil {
+					// Handle error somehow
+					log.Fatal(err)
+				}
+				bricksToAdd = append(bricksToAdd, bs...)
 			}
 		case "direct_previous", "dp":
-			bricksToAdd = exinfra.GetDirectPrevious(infra, brickName)
+			for _, brick := range bricks {
+				bs, err := infra.GetDirectPrevious(brick.Name)
+				if err != nil {
+					// Handle error somehow
+					log.Fatal(err)
+				}
+				bricksToAdd = append(bricksToAdd, bs...)
+			}
 		case "selected", "s":
-			bricksToAdd = exinfra.GetLinkedPrevious()
+			for _, brick := range bricks {
+				bs, err := infra.GetSubBricks(brick.Name) // done
+				if err != nil {
+					// Handle error somehow
+					log.Fatal(err)
+				}
+				bricksToAdd = append(bricksToAdd, bs...)
+			}
 		case "direct_next", "dn":
-			bricksToAdd = exinfra.GetLinkedPrevious()
+			for _, brick := range bricks {
+				bs, err := infra.GetDirectNext(brick.Name)
+				if err != nil {
+					// Handle error somehow
+					log.Fatal(err)
+				}
+				bricksToAdd = append(bricksToAdd, bs...)
+			}
 		case "linked_next", "all_next", "ln", "an":
-			bricksToAdd = exinfra.GetLinkedPrevious()
+			for _, brick := range bricks {
+				var bs exinfra.Bricks
+				err := infra.GetLinkedNext(&bs, brick.Name)
+				if err != nil {
+					// Handle error somehow
+					log.Fatal(err)
+				}
+				bricksToAdd = append(bricksToAdd, bs...)
+			}
 		default:
 			err = exargs.ErrBadArg{Reason: "Brick's specifier doesn't exist:",
 				Value: specifier}
 			return
 		}
-		bricksSpecified = append(bricksSpecified, bricksToAdd)
+
+		bricksSpecified = append(bricksSpecified, bricksToAdd...)
 	}
 
 	sort.Sort(bricks)
+	bricks.RemoveDuplicates()
 
 	return
-}*/
+}

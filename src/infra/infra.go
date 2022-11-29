@@ -9,6 +9,7 @@ import (
 	"regexp"
 	extools "src/exeiac/tools"
 	"strings"
+	"sync"
 )
 
 // A slice of several Brick.
@@ -226,21 +227,24 @@ func (i Infra) GetSubBricksIndexes(brickName string) (bricks []Brick) {
 	return bricks
 }
 
-func (i *Infra) GetSubBricks(brick *Brick) []*Brick {
-	subBricks := []*Brick{}
+func (i *Infra) GetSubBricks(name string) (subBricks Bricks, err error) {
 
 	// the infra.Bricks is sorted with super bricks
 	// directly before their subbricks
-	superBrickPath := i.Bricks[brick.Name].Path
+	superBrickPath := i.Bricks[name].Path
 	for _, b := range i.Bricks {
 		brickPath := b.Path
 		// We ignore the sub-brick if they're the same; strings.HasPrefix returns true in that case
 		if brickPath != superBrickPath && strings.HasPrefix(brickPath, superBrickPath) {
+			if b.EnrichError != nil {
+				err = b.EnrichError
+				return
+			}
 			subBricks = append(subBricks, b)
 		}
 	}
 
-	return subBricks
+	return
 }
 
 // TODO(half-shell): Can use a generic argument and be merged with
@@ -263,4 +267,116 @@ func GetBrick(name string, bricks *[]Brick) (*Brick, error) {
 	}
 
 	return nil, errors.New("No matching module name")
+}
+
+// Checks wheither or not a brick's dependencies are enriched.
+// Returns a brick's dependency if they are, or an error otherwise.
+func (infra *Infra) GetDirectPrevious(name string) (results Bricks, err error) {
+	deps := infra.Bricks[name].Dependencies
+	for _, d := range deps {
+		err = infra.Bricks[d.BrickName].EnrichError
+		if infra.Bricks[d.BrickName].EnrichError != nil {
+			return
+		}
+
+		results = append(results, infra.Bricks[d.BrickName])
+	}
+
+	return
+}
+
+func (b Bricks) BricksContains(brick *Brick) bool {
+	// for _, i := range b {
+	// 	if
+
+	// }
+	return true
+}
+
+func (infra *Infra) GetLinkedPrevious(name string) (results Bricks, err error) {
+	var directPrevious Bricks
+	added, err := infra.GetDirectPrevious(name)
+
+	results = added
+	for {
+		toAdd := Bricks{}
+		for _, b := range added {
+			directPrevious, err = infra.GetDirectPrevious(b.Name)
+			for _, dp := range directPrevious {
+				if results.BricksContains(dp) {
+					toAdd = append(toAdd, dp)
+				}
+			}
+		}
+		if len(toAdd) == 0 {
+			break
+		}
+		results = append(results, toAdd...)
+		added = toAdd
+	}
+	return
+}
+
+// Checks wheither or not a brick's dependents are enriched.
+// Returns a slice of brick's pointers if they are, or the first error encountered otherwise
+func (infra *Infra) GetDirectNext(name string) (results Bricks, err error) {
+	// browse all infra.Bricks and return bricks that have brickName in dependencies
+	for _, b := range infra.Bricks {
+		for _, d := range b.Dependencies {
+			err = infra.Bricks[b.Name].EnrichError
+			if err != nil {
+				return
+			}
+
+			if d.BrickName == name {
+				results = append(results, infra.Bricks[b.Name])
+			}
+		}
+	}
+
+	return
+}
+
+// Cheks wheither or not a brick's dependents (and their dependents and so on) are enriched.
+// Returns a slice of brick's pointers if they are, or the first error encountered otherwise
+func (infra *Infra) GetLinkedNext(bricks *Bricks, name string) (err error) {
+	var wg sync.WaitGroup
+
+	for _, b := range infra.Bricks {
+		for _, d := range b.Dependencies {
+			err = infra.Bricks[b.Name].EnrichError
+			if err != nil {
+				return
+			}
+
+			if d.BrickName == name {
+				*bricks = append(*bricks, infra.Bricks[b.Name])
+			}
+
+			if len(infra.Bricks[b.Name].Dependencies) > 0 {
+				wg.Add(1)
+
+				go func(bricks *Bricks, brickName string) {
+					defer wg.Done()
+					infra.GetLinkedNext(bricks, brickName)
+				}(bricks, b.Name)
+			}
+		}
+	}
+
+	wg.Wait()
+
+	return
+}
+
+func (bricks Bricks) RemoveDuplicates() {
+	allKeys := make(map[int]bool)
+	bs := Bricks{}
+	for _, b := range bricks {
+		if _, ok := allKeys[b.Index]; !ok {
+			allKeys[b.Index] = true
+			bs = append(bs, b)
+		}
+	}
+	return
 }
