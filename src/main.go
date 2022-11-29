@@ -4,9 +4,10 @@ import (
 	"fmt"
 	"log"
 	"os"
-	exactions "src/exeiac/actions"
+	exaction "src/exeiac/actions"
 	exargs "src/exeiac/arguments"
 	exinfra "src/exeiac/infra"
+	extools "src/exeiac/tools"
 )
 
 func main() {
@@ -38,23 +39,27 @@ func main() {
 	bricksToExecute = args.BricksNames
 
 	// enrich bricks that we will execute
-	err = enrichBricks(&infra, bricksToExecute)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	// create ActionsList
-	var actionsMap map[string]exactions.Action
-	actionsMap, err = exactions.CreateActionsMap(&infra, bricksToExecute)
+	enrichBricks(&infra)
 
 	// executeAction
 	// if args.action is in the list do that else use otherAction
-	statusCode, err = actionsMap[args.Action].Execute(&infra, &args, bricksToExecute)
+	if behaviour, ok := exaction.BehaviourMap[args.Action]; ok {
+		statusCode, err = behaviour(&infra, &args, bricksToExecute)
+	} else {
+		statusCode, err = exaction.BehaviourMap["default"](&infra, &args, bricksToExecute)
+	}
 	if err != nil {
 		fmt.Printf("%v\n", err)
 	}
 	os.Exit(statusCode)
 }
+
+var availableBricksSpecifiers = []string{
+	"linked_previous", "all_previous", "lp", "ap",
+	"direct_previous", "dp",
+	"selected", "s",
+	"direct_next", "dn",
+	"linked_next", "all_next", "ln", "an"}
 
 func validArgBricksAreInInfra(infra *exinfra.Infra, args *exargs.Arguments) error {
 	// valid that args.BricksNames items are valid
@@ -64,28 +69,70 @@ func validArgBricksAreInInfra(infra *exinfra.Infra, args *exargs.Arguments) erro
 		}
 	}
 
-	// TODO(arthur91f): valid the action
-	//   if it's a known action -> ok
-	//   if it's a not known action
-	return nil
-}
-
-func enrichBricks(infra *exinfra.Infra, bricks []string) error {
-	for _, b := range bricks {
-		conf, err := exinfra.BrickConfYaml{}.New(infra.Bricks[b].ConfigurationFilePath)
-		if err != nil {
-			log.Fatalf("Unable to load brick's configuration file: %s", err)
-		}
-
-		err = infra.Bricks[b].Enrich(conf, infra)
-		if err != nil {
-			log.Fatalf("Unable to enrich brick: %s", err)
-		}
-
-		err = infra.Bricks[b].Module.LoadAvailableActions()
-		if err != nil {
-			log.Fatalf("Unable to load action for module %s: %s", b, err)
+	// valid BricksSpecifiers
+	for _, specifier := range args.BricksSpecifiers {
+		if !extools.ContainsString(availableBricksSpecifiers, specifier) {
+			return exargs.ErrBadArg{Reason: "Brick's specifier doesn't exist:",
+				Value: specifier}
 		}
 	}
 	return nil
 }
+
+func enrichBricks(infra *exinfra.Infra) {
+	// TODO(arthur91f): remove log.Fatal
+	for _, b := range infra.Bricks {
+		if b.IsElementary {
+			conf, err := exinfra.BrickConfYaml{}.New(b.ConfigurationFilePath)
+			if err != nil {
+				infra.Bricks[b.Name].EnrichError = err
+			}
+
+			err = b.Enrich(conf, infra)
+			if err != nil {
+				infra.Bricks[b.Name].EnrichError = err
+			}
+			err = b.Module.LoadAvailableActions()
+			if err != nil {
+				infra.Bricks[b.Name].EnrichError = err
+			}
+		}
+	}
+}
+
+/*func getBricksToExecute(infra *exinfra.Infra, args *exargs.Arguments) (
+	bricksToExecute []string, err error) {
+
+	var bricks []*exinfra.Brick
+	for _, brickName := range args.BricksNames {
+		bricks = append(bricks, infra.Bricks[brickName])
+	}
+
+	var bricksSpecified []*exinfra.Brick
+	var bricksToAdd *exinfra.Brick
+	for _, specifier := range args.BricksSpecifiers {
+		switch specifier {
+		case "linked_previous", "all_previous", "lp", "ap":
+			for _, brick := range bricks {
+				bricksToAdd = exinfra.GetLinkedPrevious(infra, brickName)
+			}
+		case "direct_previous", "dp":
+			bricksToAdd = exinfra.GetDirectPrevious(infra, brickName)
+		case "selected", "s":
+			bricksToAdd = exinfra.GetLinkedPrevious()
+		case "direct_next", "dn":
+			bricksToAdd = exinfra.GetLinkedPrevious()
+		case "linked_next", "all_next", "ln", "an":
+			bricksToAdd = exinfra.GetLinkedPrevious()
+		default:
+			err = exargs.ErrBadArg{Reason: "Brick's specifier doesn't exist:",
+				Value: specifier}
+			return
+		}
+		bricksSpecified = append(bricksSpecified, bricksToAdd)
+	}
+
+	sort.Sort(bricks)
+
+	return
+}*/
