@@ -8,7 +8,7 @@ import (
 func Plan(
 	infra *exinfra.Infra,
 	args *exargs.Arguments,
-	bricksToExecute []string) (statusCode int, err error) {
+	bricksToExecute exinfra.Bricks) (statusCode int, err error) {
 
 	statusCode = 3
 	// a test just to use the interface arguments

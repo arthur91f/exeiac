@@ -39,8 +39,11 @@ func main() {
 	enrichBricks(&infra)
 
 	// TODO(arthur91f): func getBricksToExecute(args.BricksNames args.Specifier)
-	var bricksToExecute []string
-	bricksToExecute = args.BricksNames
+	var bricksToExecute exinfra.Bricks
+	bricksToExecute, err = getBricksToExecute(&infra, &args)
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	// executeAction
 	// if args.action is in the list do that else use otherAction
@@ -103,62 +106,46 @@ func enrichBricks(infra *exinfra.Infra) {
 
 func getBricksToExecute(
 	infra *exinfra.Infra, args *exargs.Arguments) (
-	bricksToExecute []string, err error) {
+	bricksToExecute exinfra.Bricks, err error) {
 
 	var bricks exinfra.Bricks
 	for _, brickName := range args.BricksNames {
-		bricks = append(bricks, infra.Bricks[brickName])
+		var sb exinfra.Bricks
+		sb, err = infra.GetSubBricks(infra.Bricks[brickName])
+		if err != nil {
+			return
+		}
+		bricks = append(bricks, sb...)
 	}
 
-	var bricksSpecified exinfra.Bricks
 	var bricksToAdd exinfra.Bricks
 	for _, specifier := range args.BricksSpecifiers {
 		bricksToAdd = exinfra.Bricks{}
 		switch specifier {
 		case "linked_previous", "all_previous", "lp", "ap":
 			for _, brick := range bricks {
-				bs, err := infra.GetLinkedPrevious(brick.Name) // recursive GetDirectPrevious
-				if err != nil {
-					// Handle error somehow
-					log.Fatal(err)
-				}
+				bs, _ := infra.GetLinkedPrevious(brick)
 				bricksToAdd = append(bricksToAdd, bs...)
 			}
 		case "direct_previous", "dp":
 			for _, brick := range bricks {
-				bs, err := infra.GetDirectPrevious(brick.Name)
-				if err != nil {
-					// Handle error somehow
-					log.Fatal(err)
-				}
+				bs, _ := infra.GetDirectPrevious(brick)
 				bricksToAdd = append(bricksToAdd, bs...)
 			}
 		case "selected", "s":
 			for _, brick := range bricks {
-				bs, err := infra.GetSubBricks(brick.Name) // done
-				if err != nil {
-					// Handle error somehow
-					log.Fatal(err)
-				}
+				bs, _ := infra.GetSubBricks(brick)
 				bricksToAdd = append(bricksToAdd, bs...)
 			}
 		case "direct_next", "dn":
 			for _, brick := range bricks {
-				bs, err := infra.GetDirectNext(brick.Name)
-				if err != nil {
-					// Handle error somehow
-					log.Fatal(err)
-				}
+				bs, _ := infra.GetDirectNext(brick)
 				bricksToAdd = append(bricksToAdd, bs...)
 			}
 		case "linked_next", "all_next", "ln", "an":
 			for _, brick := range bricks {
 				var bs exinfra.Bricks
-				err := infra.GetLinkedNext(&bs, brick.Name)
-				if err != nil {
-					// Handle error somehow
-					log.Fatal(err)
-				}
+				infra.GetLinkedNext(&bs, brick)
 				bricksToAdd = append(bricksToAdd, bs...)
 			}
 		default:
@@ -167,11 +154,21 @@ func getBricksToExecute(
 			return
 		}
 
-		bricksSpecified = append(bricksSpecified, bricksToAdd...)
+		bricksToExecute = append(bricksToExecute, bricksToAdd...)
 	}
 
-	sort.Sort(bricks)
-	bricks.RemoveDuplicates()
+	sort.Sort(bricksToExecute)
+	bricksToExecute = exinfra.RemoveDuplicates(bricksToExecute)
+
+	// check if some bricksToExecute are in error
+	for _, b := range bricksToExecute {
+		if b.EnrichError != nil {
+			err = fmt.Errorf(
+				"Error: a specified brick couldn't beeing enriched:%s: %v",
+				b.Name, b.EnrichError)
+			return
+		}
+	}
 
 	return
 }

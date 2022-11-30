@@ -29,7 +29,7 @@ OPTIONS:
 func Help(
 	infra *exinfra.Infra,
 	args *exargs.Arguments,
-	bricksToExecute []string) (statusCode int, err error) {
+	bricksToExecute exinfra.Bricks) (statusCode int, err error) {
 
 	if len(args.BricksNames) == 0 {
 		fmt.Println(defaultHelp)

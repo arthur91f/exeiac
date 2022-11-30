@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	extools "src/exeiac/tools"
 	"strings"
 
 	"github.com/PaesslerAG/gval"
@@ -19,6 +20,10 @@ type Dependency struct {
 	VarName string
 	// The JSON path to access the variable
 	JsonPath gval.Evaluable
+}
+
+func (d Dependency) String() string {
+	return fmt.Sprintf("%s -> %s:%v", d.VarName, d.BrickName, d.JsonPath)
 }
 
 type Brick struct {
@@ -84,8 +89,29 @@ func (bcy BrickConfYaml) New(path string) (BrickConfYaml, error) {
 }
 
 func (b Brick) String() string {
-	return fmt.Sprintf("name: %s\npath: %s\nisElementary: %t\nconfFile: %s",
-		b.Name, b.Path, b.IsElementary, b.ConfigurationFilePath)
+	alwaysPresent := fmt.Sprintf(
+		"index: %d\nname: %s\npath: %s\nisElementary: %t\nconfFile: %s",
+		b.Index, b.Name, b.Path, b.IsElementary, b.ConfigurationFilePath)
+
+	conditional := "\n"
+	if b.EnrichError != nil {
+		conditional = fmt.Sprintf("enrichError:%s\n", b.EnrichError)
+	}
+
+	if b.Module != nil {
+		conditional = fmt.Sprintf("%smodule:%s\n", conditional, b.Module.Name)
+	}
+
+	if len(b.Dependencies) > 0 {
+		dpStr := []string{}
+		for _, d := range b.Dependencies {
+			dpStr = append(dpStr, d.String())
+		}
+		conditional = fmt.Sprintf("%sinputData:%s",
+			conditional, extools.StringListOfString(dpStr))
+	}
+
+	return fmt.Sprintf("%s%s", alwaysPresent, conditional)
 }
 
 func (brick *Brick) SetElementary(cfp string) *Brick {

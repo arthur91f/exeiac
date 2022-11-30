@@ -5,8 +5,7 @@ import (
 	exinfra "src/exeiac/infra"
 )
 
-var BehaviourMap = map[string]func(*exinfra.Infra, *exargs.Arguments, []string) (int, error){
-	"cd":            ChangeDirectory,
+var BehaviourMap = map[string]func(*exinfra.Infra, *exargs.Arguments, exinfra.Bricks) (int, error){
 	"clean":         Clean,
 	"help":          Help,
 	"init":          Init,

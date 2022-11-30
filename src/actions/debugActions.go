@@ -9,14 +9,23 @@ import (
 func DebugArgs(
 	infra *exinfra.Infra,
 	args *exargs.Arguments,
-	bricksToExecute []string) (int, error) {
+	bricksToExecute exinfra.Bricks) (int, error) {
 	fmt.Println(args)
+	fmt.Printf("bricksToExecute:")
+	if len(bricksToExecute) == 0 {
+		fmt.Println(" []")
+	} else {
+		for _, b := range bricksToExecute {
+			fmt.Printf("\n  - %d:%s", b.Index, b.Name)
+		}
+		fmt.Println("")
+	}
 	return 0, nil
 }
 
 func DebugInfra(infra *exinfra.Infra,
 	args *exargs.Arguments,
-	bricksToExecute []string) (statusCode int, err error) {
+	bricksToExecute exinfra.Bricks) (statusCode int, err error) {
 	statusCode = 0
 	fmt.Println(*infra)
 	return
