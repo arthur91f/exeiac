@@ -84,7 +84,6 @@ func validArgBricksAreInInfra(infra *exinfra.Infra, args *exargs.Arguments) erro
 }
 
 func enrichBricks(infra *exinfra.Infra) {
-	// TODO(arthur91f): remove log.Fatal
 	for _, b := range infra.Bricks {
 		if b.IsElementary {
 			conf, err := exinfra.BrickConfYaml{}.New(b.ConfigurationFilePath)
@@ -169,6 +168,9 @@ func getBricksToExecute(
 			return
 		}
 	}
+
+	// for direct next or linked next: check if some bricks with an higher
+	// index have an enrich error
 
 	return
 }
