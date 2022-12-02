@@ -16,4 +16,5 @@ var BehaviourMap = map[string]func(*exinfra.Infra, *exargs.Arguments, exinfra.Br
 	"validate_code": ValidateCode,
 	"debug_args":    DebugArgs,
 	"debug_infra":   DebugInfra,
+	"default":       DebugInfra,
 }
