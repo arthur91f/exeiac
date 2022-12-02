@@ -9,7 +9,7 @@ import (
 func DefaultBehaviour(
 	infra *exinfra.Infra,
 	args *exargs.Arguments,
-	bricksToExecute []string) (statusCode int, err error) {
+	bricksToExecute exinfra.Bricks) (statusCode int, err error) {
 
 	statusCode = 3
 	// a test just to use the interface arguments
@@ -25,7 +25,7 @@ func DefaultBehaviour(
 func Init(
 	infra *exinfra.Infra,
 	args *exargs.Arguments,
-	bricksToExecute []string) (statusCode int, err error) {
+	bricksToExecute exinfra.Bricks) (statusCode int, err error) {
 
 	statusCode, err = DefaultBehaviour(infra, args, bricksToExecute)
 	return
@@ -34,7 +34,7 @@ func Init(
 func ValidateCode(
 	infra *exinfra.Infra,
 	args *exargs.Arguments,
-	bricksToExecute []string) (statusCode int, err error) {
+	bricksToExecute exinfra.Bricks) (statusCode int, err error) {
 
 	statusCode, err = DefaultBehaviour(infra, args, bricksToExecute)
 	return

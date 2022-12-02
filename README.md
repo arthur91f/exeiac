@@ -71,12 +71,12 @@ go build src/exeiac
 - deploy a brick and recursively deploy all bricks that depends on an output
   that have changed. Note that here we have used the brickname and not the path
   ```bash
-  exeiac deploy infra-core/staging/ssh_bastion --bricks-specifier=selected+needed_dependents
+  exeiac lay infra-core/staging/ssh_bastion --bricks-specifier=selected+needed_dependents
   ```
 - destroy a higher level brick. It will destroy all elementary bricks
   contained in the higher level bricks in the right order.
   ```bash
-  exeiac destroy infra-core/staging
+  exeiac remove infra-core/staging
   ```
 - get more help
   ```bash
@@ -127,10 +127,14 @@ action. You can also implement other personal action.
   - help
   - personnal_action
 - action to not implement, because they are already in the exeiac logic:
-  - show_input: use brick.yml
-  - show_dependencies: use show_input
-  - show_dependents: use show_dependencies
-  - show_dependencies_recursively: use show_dependencies
-  - show_dependents_recursively: use show_dependents
-  - list_elementary_bricks: is reprensented by the directory tree
+  - show --format input: use brick.yml
+  - show --format direct-previous: display the list of bricks whom output are
+    needed for execute the brick
+  - show --format direct-next: display the list of bricks that needs the output
+    of the specified bricks
+  - show --format linked-previous: display the list of bricks that needs to be 
+    layed to lay your brick (as their outputs are needed directly or not)
+  - show --format linked-next: display the list of bricks that can be impacted 
+    recursively by a change in your brick
+  - show --children: display elementary bricks 
   - ... others exeiac command in general

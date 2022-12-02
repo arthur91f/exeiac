@@ -5,15 +5,6 @@ import (
 	"os"
 )
 
-func is_string_in_list(str string, list []string) bool {
-	for _, value := range list {
-		if value == str {
-			return true
-		}
-	}
-	return false
-}
-
 func get_index(str string, list []string) (int, bool) {
 	for index, value := range list {
 		if value == str {
