@@ -28,7 +28,8 @@ func (b Bricks) BricksContains(brick *Brick) bool {
 	return false
 }
 
-// Remove duplicates in a slice of bricks
+// Remove duplicates in a slice of bricks.
+// Return the de-duplicated slice of bricks.
 func RemoveDuplicates(bricks Bricks) Bricks {
 	allKeys := make(map[int]bool)
 	bs := Bricks{}
