@@ -282,7 +282,13 @@ func (infra *Infra) GetDirectPrevious(brick *Brick) (results Bricks, err error) 
 			return
 		}
 
-		results = append(results, infra.Bricks[d.BrickName])
+		var elementaryBricks Bricks
+		elementaryBricks, err = infra.GetSubBricks(infra.Bricks[d.BrickName])
+		if err != nil {
+			return
+		}
+
+		results = append(results, elementaryBricks...)
 	}
 
 	return
