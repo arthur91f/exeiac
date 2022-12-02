@@ -95,7 +95,7 @@ func CreateActionsMap(infra *exinfra.Infra, bricks []string) (
 		"show": {
 			Behaviour:    "show",
 			UserCall:     []string{"show"},
-			ModuleAction: true,
+			ModuleAction: true,fjfj
 		},
 		"validate_code": {
 			Behaviour:    "validate_code",
