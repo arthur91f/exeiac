@@ -52,9 +52,11 @@ func main() {
 	} else {
 		statusCode, err = exaction.BehaviourMap["default"](&infra, &args, bricksToExecute)
 	}
+
 	if err != nil {
 		log.Printf("%v\n", err)
 	}
+
 	os.Exit(statusCode)
 }
 

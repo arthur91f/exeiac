@@ -3,7 +3,9 @@ package infra
 import (
 	"bytes"
 	"fmt"
+	"os"
 	"os/exec"
+	extools "src/exeiac/tools"
 )
 
 const ACTION_HELP = "help"
@@ -66,4 +68,50 @@ func (module *Module) LoadAvailableActions() error {
 	}
 
 	return nil
+}
+
+func (m *Module) exec(brick *Brick, args []string) (output []byte, err error) {
+	cmd := exec.Cmd{
+		Path:   m.Path,
+		Args:   append([]string{m.Path}, args...),
+		Env:    []string{},
+		Dir:    brick.Path,
+		Stdin:  os.Stdin,
+		Stdout: os.Stdout,
+		Stderr: os.Stderr,
+	}
+
+	err = cmd.Run()
+
+	return
+}
+
+type ActionNotImplementedError struct {
+	Action string
+	Module *Module
+}
+
+func (err ActionNotImplementedError) Error() string {
+	return fmt.Sprintf("Module %s does not implement action %s", err.Module.Name, err.Action)
+}
+
+func (m *Module) Exec(b *Brick, action string, args []string) (output []byte, exitError *exec.ExitError, err error) {
+	if !extools.ContainsString(m.Actions, action) {
+		err = ActionNotImplementedError{Action: action, Module: m}
+
+		return
+	}
+
+	output, err = m.exec(b, append([]string{action}, args...))
+
+	if err != nil {
+		if ee, isExitError := err.(*exec.ExitError); isExitError {
+			// NOTE(half-shell): We don't consider an exitError an actual error as far as exeiac goes.
+			// We return it as a separate value to make that distinction obvious.
+			exitError = ee
+			err = nil
+		}
+	}
+
+	return
 }
