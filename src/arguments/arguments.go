@@ -116,18 +116,9 @@ func GetArguments() (Arguments, error) {
 	if len(os_args) < 1 {
 		return args, fmt.Errorf("! Error636a49b4%s "+
 			"You need to specify at least an action", err_msg)
-	} else if is_string_in_list(os_args[0], actions_list) {
+	} else {
 		args.Action = os_args[0]
 		os_args = remove_item(0, os_args)
-	} else if len(os_args) < 2 {
-		return args, fmt.Errorf("! Error636a4ac7%s You need to specify "+
-			"at least an action in first or second arg", err_msg)
-	} else if is_string_in_list(os_args[1], actions_list) {
-		args.Action = os_args[1]
-		os_args = remove_item(1, os_args)
-	} else {
-		return args, fmt.Errorf("! Error636a4b37%s "+
-			"You need to specify an action: \"exeiac help\"", err_msg)
 	}
 
 	// set bricks (need args.Rooms)
@@ -144,7 +135,6 @@ func GetArguments() (Arguments, error) {
 			os_args = remove_item(0, os_args)
 		}
 	}
-	fmt.Println(bricks)
 	args.BricksNames, err = convertToGetOnlyBrickName(bricks, args.Rooms)
 	if err != nil {
 		return args, err

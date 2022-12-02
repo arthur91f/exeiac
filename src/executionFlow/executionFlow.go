@@ -2,27 +2,49 @@ package executionFlow
 
 import (
 	"fmt"
-	"os/exec"
 	"sort"
 	exargs "src/exeiac/arguments"
 	exinfra "src/exeiac/infra"
 )
 
 type executionStep struct {
-	Action    string
-	Brick     *exinfra.Brick
-	State     string
-	ExitError *exec.ExitError
+	Action     string
+	Brick      *exinfra.Brick
+	State      string
+	StatusCode int
 }
 
 type ExecutionPlan []executionStep
 
-func (e ExecutionPlan) PrintPlan() {
-	fmt.Println("Here the execution plan")
-	for _, step := range e {
-		fmt.Printf("- action: %s\n", step.Action)
-		fmt.Printf("  brick: %s\n", step.Brick.Name)
+func (e executionStep) String() string {
+	var s string
+	a := e.Action
+	b := e.Brick.Name
+	if e.State != "" {
+		if e.StatusCode > 0 {
+			s = fmt.Sprintf("%s(%d)", e.State, e.StatusCode)
+		} else { // success or abnormal failure without return code
+			s = e.State
+		}
+	} else {
+		s = "todo"
 	}
+	return fmt.Sprintf("%s:%s: %s", a, b, s)
+}
+
+func (e ExecutionPlan) String() string {
+	var str string
+	for _, step := range e {
+		str = fmt.Sprintf("%s%s\n", str, step.String())
+	}
+	return str
+}
+
+func (e ExecutionPlan) SkipFromIndex(index int) string {
+	for i := index + 1; index < len(e); i++ {
+		e[i].State = "skipped"
+	}
+	return e.String()
 }
 
 func CreateExecutionPlan(i *exinfra.Infra, action string, brickNames []string) (ExecutionPlan, error) {
