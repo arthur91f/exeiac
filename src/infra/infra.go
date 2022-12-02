@@ -12,47 +12,9 @@ import (
 	"sync"
 )
 
-// A slice of several Brick.
-type Bricks []*Brick
-
-// Allows for sorting over Bricks
-func (slice Bricks) Len() int {
-	return len(slice)
-}
-
-// Allows for sorting over Bricks
-func (slice Bricks) Less(i, j int) bool {
-	return slice[i].Index < slice[j].Index
-}
-
-// Allows for sorting over Bricks
-func (slice Bricks) Swap(i, j int) {
-	slice[i], slice[j] = slice[j], slice[i]
-}
-
 type Infra struct {
 	Modules []Module
 	Bricks  map[string]*Brick
-}
-
-type RoomError struct {
-	id     string
-	path   string
-	reason string
-	trace  error
-}
-
-func (e RoomError) Error() string {
-	return fmt.Sprintf("! Error%s:room: %s: %s\n< %s", e.id,
-		e.reason, e.path, e.trace.Error())
-}
-
-type ErrBrickNotFound struct {
-	brick string
-}
-
-func (e ErrBrickNotFound) Error() string {
-	return fmt.Sprintf("Brick not found: %s", e.brick)
 }
 
 func CreateInfra(rooms []extools.NamePathBinding, modules []extools.NamePathBinding) (Infra, error) {
@@ -194,37 +156,14 @@ func (infra Infra) String() string {
 	)
 }
 
-func ConvertToName(path string) string {
-	return ""
-}
-
-func (i Infra) GetBrickIndexWithPath(brickPath string) (int, error) {
-	if brick, ok := i.Bricks[ConvertToName(brickPath)]; ok {
-		return brick.Index, nil
-	}
-
-	return -1, ErrBrickNotFound{brick: brickPath}
-}
-
-func (i Infra) GetBrickIndexWithName(brickName string) (int, error) {
-	if brick, ok := i.Bricks[brickName]; ok {
-		return brick.Index, nil
-	}
-
-	return -1, ErrBrickNotFound{brick: brickName}
-}
-
-func (i Infra) GetSubBricksIndexes(brickName string) (bricks []Brick) {
-	// the infra.Bricks is sorted with super bricks
-	// directly before their subbricks
-	superBrickPath := i.Bricks[brickName].Path
-	for n, b := range i.Bricks {
-		if strings.HasPrefix(i.Bricks[n].Path, superBrickPath) {
-			bricks = append(bricks, *b)
+func GetModule(name string, modules *[]Module) (*Module, error) {
+	for i, m := range *modules {
+		if m.Name == name {
+			return &(*modules)[i], nil
 		}
 	}
 
-	return bricks
+	return nil, errors.New("No matching module name")
 }
 
 // Resolve a brick to a slice of elementary bricks.
@@ -250,28 +189,6 @@ func (i *Infra) GetSubBricks(brick *Brick) (subBricks Bricks, err error) {
 	return
 }
 
-// TODO(half-shell): Can use a generic argument and be merged with
-// `GetBrick`
-func GetModule(name string, modules *[]Module) (*Module, error) {
-	for i, m := range *modules {
-		if m.Name == name {
-			return &(*modules)[i], nil
-		}
-	}
-
-	return nil, errors.New("No matching module name")
-}
-
-func GetBrick(name string, bricks *[]Brick) (*Brick, error) {
-	for i, b := range *bricks {
-		if b.Name == name {
-			return &(*bricks)[i], nil
-		}
-	}
-
-	return nil, errors.New("No matching module name")
-}
-
 // Checks wheither or not a brick's dependencies are enriched.
 // Returns a brick's dependency if they are, or an error otherwise.
 func (infra *Infra) GetDirectPrevious(brick *Brick) (results Bricks, err error) {
@@ -292,16 +209,6 @@ func (infra *Infra) GetDirectPrevious(brick *Brick) (results Bricks, err error) 
 	}
 
 	return
-}
-
-// Helper function to check wheither or not a brick was added to a slice of bricks
-func (b Bricks) BricksContains(brick *Brick) bool {
-	for _, i := range b {
-		if i.Index == brick.Index {
-			return true
-		}
-	}
-	return false
 }
 
 func (infra *Infra) GetLinkedPrevious(brick *Brick) (results Bricks, err error) {
@@ -383,16 +290,4 @@ func (infra *Infra) GetLinkedNext(bricks *Bricks, brick *Brick) (err error) {
 	wg.Wait()
 
 	return
-}
-
-func RemoveDuplicates(bricks Bricks) Bricks {
-	allKeys := make(map[int]bool)
-	bs := Bricks{}
-	for _, b := range bricks {
-		if _, ok := allKeys[b.Index]; !ok {
-			allKeys[b.Index] = true
-			bs = append(bs, b)
-		}
-	}
-	return bs
 }
