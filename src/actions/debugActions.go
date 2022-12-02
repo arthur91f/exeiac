@@ -11,6 +11,14 @@ func DebugArgs(
 	args *exargs.Arguments,
 	bricksToExecute exinfra.Bricks) (int, error) {
 	fmt.Println(args)
+	return 0, nil
+}
+
+func DebugInfra(
+	infra *exinfra.Infra, args *exargs.Arguments, bricksToExecute exinfra.Bricks) (
+	statusCode int, err error) {
+	statusCode = 0
+	fmt.Println(infra)
 	fmt.Printf("bricksToExecute:")
 	if len(bricksToExecute) == 0 {
 		fmt.Println(" []")
@@ -20,13 +28,6 @@ func DebugArgs(
 		}
 		fmt.Println("")
 	}
-	return 0, nil
-}
 
-func DebugInfra(infra *exinfra.Infra,
-	args *exargs.Arguments,
-	bricksToExecute exinfra.Bricks) (statusCode int, err error) {
-	statusCode = 0
-	fmt.Println(*infra)
 	return
 }
