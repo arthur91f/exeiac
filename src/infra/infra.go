@@ -7,6 +7,7 @@ import (
 	"log"
 	"path/filepath"
 	"regexp"
+	"sort"
 	extools "src/exeiac/tools"
 	"strings"
 	"sync"
@@ -288,6 +289,93 @@ func (infra *Infra) GetLinkedNext(bricks *Bricks, brick *Brick) (err error) {
 	}
 
 	wg.Wait()
+
+	return
+}
+
+func (infra *Infra) GetBricksFromNames(names []string) (bricks Bricks, err error) {
+	for _, name := range names {
+		b, exist := infra.Bricks[name]
+		if !exist {
+			err = ErrBrickNotFound{brick: name}
+			return
+		}
+		bricks = append(bricks, b)
+	}
+	return
+}
+
+func (infra *Infra) GetCorrespondingBricks(
+	bricks Bricks, specifiers []string) (
+	correspondingBricks Bricks, err error) {
+
+	var elementaryBricks Bricks
+	for _, brick := range bricks {
+		if !brick.IsElementary {
+			var sb Bricks
+			sb, err = infra.GetSubBricks(brick)
+			if err != nil {
+				return
+			}
+			elementaryBricks = append(elementaryBricks, sb...)
+		} else {
+			elementaryBricks = append(elementaryBricks, brick)
+		}
+	}
+
+	var bricksToAdd Bricks
+	for _, specifier := range specifiers {
+		bricksToAdd = Bricks{}
+		switch specifier {
+		case "linked_previous", "all_previous", "lp", "ap":
+			for _, brick := range elementaryBricks {
+				bs, _ := infra.GetLinkedPrevious(brick)
+				bricksToAdd = append(bricksToAdd, bs...)
+			}
+		case "direct_previous", "dp":
+			for _, brick := range elementaryBricks {
+				bs, _ := infra.GetDirectPrevious(brick)
+				bricksToAdd = append(bricksToAdd, bs...)
+			}
+		case "selected", "s":
+			for _, brick := range elementaryBricks {
+				bs, _ := infra.GetSubBricks(brick)
+				bricksToAdd = append(bricksToAdd, bs...)
+			}
+		case "direct_next", "dn":
+			for _, brick := range elementaryBricks {
+				bs, _ := infra.GetDirectNext(brick)
+				bricksToAdd = append(bricksToAdd, bs...)
+			}
+		case "linked_next", "all_next", "ln", "an":
+			for _, brick := range elementaryBricks {
+				var bs Bricks
+				infra.GetLinkedNext(&bs, brick)
+				bricksToAdd = append(bricksToAdd, bs...)
+			}
+		default:
+			err = fmt.Errorf("Error: Brick's specifier doesn't exist: %s", specifier)
+			return
+		}
+
+		correspondingBricks = append(correspondingBricks, bricksToAdd...)
+	}
+
+	sort.Sort(correspondingBricks)
+	correspondingBricks = RemoveDuplicates(correspondingBricks)
+
+	// check if some correspondingBricks are in error
+	for _, b := range correspondingBricks {
+		if b.EnrichError != nil {
+			err = fmt.Errorf(
+				"Error: a specified brick couldn't beeing enriched:%s: %v",
+				b.Name, b.EnrichError)
+			return
+		}
+	}
+
+	// for direct next or linked next: check if some elementaryBricks with an higher
+	// index have an enrich error
 
 	return
 }
