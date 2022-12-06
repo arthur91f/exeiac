@@ -157,6 +157,12 @@ func GetArguments() (Arguments, error) {
 		args.BricksSpecifiers = strings.Split(value, "+")
 	}
 
+	// set brick specifier
+	value, found = consume_opt_and_val("--format", "-f", &os_args)
+	if found {
+		args.Format = value
+	}
+
 	// return
 	if len(os_args) > 0 {
 		args.OtherOptions = os_args
