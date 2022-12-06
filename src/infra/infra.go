@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/fs"
 	"log"
+	"os"
 	"path/filepath"
 	"regexp"
 	"sort"
@@ -75,6 +76,24 @@ func SanitizeBrickName(name string) string {
 func GetBricks(room extools.NamePathBinding) ([]Brick, error) {
 	var bricks []Brick
 	var err error
+
+	_, err = os.Stat(room.Path)
+	if err != nil {
+		if os.IsNotExist(err) {
+			err = ErrBrickNotFound{brick: room.Path}
+			return bricks, err
+		}
+		return bricks, err
+	}
+	bricks = []Brick{Brick{
+		Name:         room.Name,
+		Path:         room.Path,
+		IsElementary: false,
+	}}
+	_, err = os.Stat(room.Path + "/brick.yml")
+	if err == nil {
+		bricks[0].IsElementary = true
+	}
 
 	err = filepath.WalkDir(
 		room.Path,
