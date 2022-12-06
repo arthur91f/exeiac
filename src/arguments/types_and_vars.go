@@ -10,6 +10,7 @@ type Arguments struct {
 	BricksNames      []string
 	BricksSpecifiers []string
 	Interactive      bool
+	Format           string
 	Modules          []extools.NamePathBinding
 	OutputSpecifier  string
 	OtherOptions     []string
@@ -21,6 +22,7 @@ func getDefaultArguments() Arguments {
 		Action:           "",
 		BricksSpecifiers: []string{"selected"},
 		Interactive:      true,
+		Format:           "all",
 		Modules:          []extools.NamePathBinding{},
 		OutputSpecifier:  ".",
 		OtherOptions:     []string{},
