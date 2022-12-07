@@ -12,7 +12,7 @@ function show_implemented_actions {
 }
 
 function init {
-    echo "execute init: install tools and deps"
+    echo "execute init: install tools and deps for $PWD"
 }
 
 function internal_interactive {
@@ -84,19 +84,7 @@ function  remove {
     lay
 }
 
-cd "$BRICK_PATH"
-if [ "$?" != 0 ]; then
-    echo "ERROR: \`cd $BRICK_PATH\` failed" >&2
-    exit 3
-fi
-
 $ACTION
 EXIT_CODE="$?"
-
-cd "$CURRENT_PATH"
-if [ "$?" != 0 ]; then
-    echo "ERROR: \`cd $CURRENT_PATH\` failed" >&2
-    exit 3
-fi
 
 exit "$EXIT_CODE"
