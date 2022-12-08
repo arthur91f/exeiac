@@ -100,7 +100,7 @@ type StdOutput struct {
 	Output []byte
 }
 
-func (stdout StdOutput) Write(p []byte) (n int, err error) {
+func (stdout *StdOutput) Write(p []byte) (n int, err error) {
 	stdout.Output = append(stdout.Output, p...)
 
 	return os.Stdout.Write(p)
@@ -110,7 +110,7 @@ type StdError struct {
 	Output []byte
 }
 
-func (stderr StdError) Write(p []byte) (n int, err error) {
+func (stderr *StdError) Write(p []byte) (n int, err error) {
 	stderr.Output = append(stderr.Output, p...)
 
 	return os.Stderr.Write(p)
