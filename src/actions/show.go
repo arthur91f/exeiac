@@ -38,11 +38,11 @@ func Show(
 			return 3, err
 		}
 		if len(bricksToExecute) == 1 {
-			fmt.Println(bricksToExecute[0].Output)
+			fmt.Println(string(bricksToExecute[0].Output))
 		} else {
 			for _, brick := range bricksToExecute {
 				extools.DisplaySeparator(brick.Name)
-				fmt.Println(brick.Output)
+				fmt.Println(string(brick.Output))
 			}
 		}
 	default:
