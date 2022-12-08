@@ -103,7 +103,7 @@ type StdOutput struct {
 func (stdout *StdOutput) Write(p []byte) (n int, err error) {
 	stdout.Output = append(stdout.Output, p...)
 
-	return os.Stdout.Write(p)
+	return len(p), nil
 }
 
 type StdError struct {
@@ -113,7 +113,7 @@ type StdError struct {
 func (stderr *StdError) Write(p []byte) (n int, err error) {
 	stderr.Output = append(stderr.Output, p...)
 
-	return os.Stderr.Write(p)
+	return len(p), nil
 }
 
 func (m *Module) Exec(b *Brick, action string, args []string, writers ...io.Writer) (exitError *exec.ExitError, err error) {
