@@ -20,7 +20,7 @@ var BehaviourMap = map[string]func(*exinfra.Infra, *exargs.Arguments, exinfra.Br
 	"default":       Default,
 }
 
-func enrichDatas(bricksToExecute exinfra.Bricks, infra exinfra.Infra) error {
+func enrichDatas(bricksToExecute exinfra.Bricks, infra *exinfra.Infra) error {
 
 	// find all bricks that we need to ask output
 	var neededBricksForTheirOutputs exinfra.Bricks
