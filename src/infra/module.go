@@ -96,21 +96,31 @@ func (err ActionNotImplementedError) Error() string {
 	return fmt.Sprintf("Module %s does not implement action %s", err.Module.Name, err.Action)
 }
 
-type StdOutput struct {
+type StoreStdout struct {
 	Output []byte
 }
 
-func (stdout *StdOutput) Write(p []byte) (n int, err error) {
+func (stdout *StoreStdout) Write(p []byte) (int, error) {
+	stdout.Output = append(stdout.Output, p...)
+
+	return len(p), nil
+}
+
+type StoreAndDisplayStdout struct {
+	Output []byte
+}
+
+func (stdout *StoreAndDisplayStdout) Write(p []byte) (int, error) {
 	stdout.Output = append(stdout.Output, p...)
 
 	return os.Stdout.Write(p)
 }
 
-type StdError struct {
+type StoreAndDisplayStderr struct {
 	Output []byte
 }
 
-func (stderr *StdError) Write(p []byte) (n int, err error) {
+func (stderr *StoreAndDisplayStderr) Write(p []byte) (int, error) {
 	stderr.Output = append(stderr.Output, p...)
 
 	return os.Stderr.Write(p)
