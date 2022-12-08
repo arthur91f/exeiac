@@ -89,7 +89,7 @@ function output {
     "production": {
         "name": "production",
         "project": "prod-120822",
-        "credntials": {
+        "credentials": {
             "user": "ci-prod",
             "key": "-----BEGIN PRIVATE KEY-----\nproductionfjh6qnrS4z3qPOrOthu9hVJiM9sXPISuIMWCQUVDhA7cKwuZ3ErN3Mue2GBt\nKYuINui3SbsyfuAJlF/3FcUVfbwbioRWMKEs4rTPeU9Nz06Ipj2wZnRUpQ0njgptzxyrzH\nNblRVU1Skj9xNTzNbj02bWoOYSOgq3YIF+901gbQuZdE8JPxcKZMUXSxTvhgq5zA5bpKrj\nZm3Gja0rYjNM6NEFCRfVW4Fg==\n-----END PRIVATE KEY-----"
         }
@@ -97,7 +97,7 @@ function output {
     "staging": {
         "name": "staging",
         "project": "stage-120822",
-        "credntials": {
+        "credentials": {
             "user": "ci-staging",
             "key": "-----BEGIN PRIVATE KEY-----\nstagingfjh6qnrS4z3qPOrOthu9hVJiM9sXPISuIMWCQUVDhA7cKwuZ3ErN3Mue2GBt\nKYuINui3SbsyfuAJlF/3FcUVfbwbioRWMKEs4rTPeU9Nz06Ipj2wZnRUpQ0njgptzxyrzH\nNblRVU1Skj9xNTzNbj02bWoOYSOgq3YIF+901gbQuZdE8JPxcKZMUXSxTvhgq5zA5bpKrj\nZm3Gja0rYjNM6NEFCRfVW4Fg==\n-----END PRIVATE KEY-----"
         }
@@ -105,7 +105,7 @@ function output {
     "monitoring": {
         "name": "monitoring",
         "project": "monit-120822",
-        "credntials": {
+        "credentials": {
             "user": "ci-monitoring",
             "key": "-----BEGIN PRIVATE KEY-----\nmonitoringfjh6qnrS4z3qPOrOthu9hVJiM9sXPISuIMWCQUVDhA7cKwuZ3ErN3Mue2GBt\nKYuINui3SbsyfuAJlF/3FcUVfbwbioRWMKEs4rTPeU9Nz06Ipj2wZnRUpQ0njgptzxyrzH\nNblRVU1Skj9xNTzNbj02bWoOYSOgq3YIF+901gbQuZdE8JPxcKZMUXSxTvhgq5zA5bpKrj\nZm3Gja0rYjNM6NEFCRfVW4Fg==\n-----END PRIVATE KEY-----"
         }
