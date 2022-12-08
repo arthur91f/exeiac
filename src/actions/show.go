@@ -33,7 +33,10 @@ func Show(
 			fmt.Println(brick)
 		}
 	case "output", "outputs", "o":
-		enrichDatas(bricksToExecute, infra)
+		err = enrichDatas(bricksToExecute, infra)
+		if err != nil {
+			return 3, err
+		}
 		if len(bricksToExecute) == 1 {
 			fmt.Println(bricksToExecute[0].Output)
 		} else {
