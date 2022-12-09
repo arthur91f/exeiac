@@ -47,7 +47,7 @@ type EnvFormat struct {
 func (i EnvFormat) Write(f *os.File) (n int, err error) {
 	buf := new(bytes.Buffer)
 	for varName, varVal := range i.Inputs {
-		buf.WriteString(fmt.Sprintf("%s=%v\n", varName, varVal))
+		buf.WriteString(fmt.Sprintf("%s=\"%v\"\n", varName, varVal))
 	}
 
 	n, err = f.Write(buf.Bytes())
@@ -57,7 +57,7 @@ func (i EnvFormat) Write(f *os.File) (n int, err error) {
 
 func (i EnvFormat) String() (input []string) {
 	for varName, varVal := range i.Inputs {
-		input = append(input, fmt.Sprintf("%s=%v", varName, varVal))
+		input = append(input, fmt.Sprintf("%s=\"%v\"", varName, varVal))
 	}
 
 	return
