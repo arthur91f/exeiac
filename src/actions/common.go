@@ -44,6 +44,11 @@ func enrichDatas(bricksToExecute exinfra.Bricks, infra *exinfra.Infra) error {
 			return b.EnrichError
 		}
 
+		err := b.GenerateDependencyInputFile(infra)
+		if err != nil {
+			return err
+		}
+
 		stdout := exinfra.StoreStdout{}
 		exitError, err := b.Module.Exec(b, "output", []string{}, &stdout)
 		if err != nil {
