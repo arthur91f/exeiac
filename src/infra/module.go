@@ -87,45 +87,6 @@ func (m *Module) exec(brick *Brick, args []string, stdout io.Writer, stderr io.W
 	return
 }
 
-type ActionNotImplementedError struct {
-	Action string
-	Module *Module
-}
-
-func (err ActionNotImplementedError) Error() string {
-	return fmt.Sprintf("Module %s does not implement action %s", err.Module.Name, err.Action)
-}
-
-type StoreStdout struct {
-	Output []byte
-}
-
-func (stdout *StoreStdout) Write(p []byte) (int, error) {
-	stdout.Output = append(stdout.Output, p...)
-
-	return len(p), nil
-}
-
-type StoreAndDisplayStdout struct {
-	Output []byte
-}
-
-func (stdout *StoreAndDisplayStdout) Write(p []byte) (int, error) {
-	stdout.Output = append(stdout.Output, p...)
-
-	return os.Stdout.Write(p)
-}
-
-type StoreAndDisplayStderr struct {
-	Output []byte
-}
-
-func (stderr *StoreAndDisplayStderr) Write(p []byte) (int, error) {
-	stderr.Output = append(stderr.Output, p...)
-
-	return os.Stderr.Write(p)
-}
-
 func (m *Module) Exec(b *Brick, action string, args []string, writers ...io.Writer) (exitError *exec.ExitError, err error) {
 	if !extools.ContainsString(m.Actions, action) {
 		err = ActionNotImplementedError{Action: action, Module: m}
