@@ -16,18 +16,16 @@ import (
 )
 
 type Dependency struct {
-	// A reference to the related brick
-	BrickName string
 	// The name the variable is supposed to take
 	VarName string
 	// The JSON path to access the variable
 	JsonPath string
-	// A pointer referencing the brick. It is basically the BrickName resolved into a Brick
+	// A reference to the related brick
 	Brick *Brick
 }
 
 func (d Dependency) String() string {
-	return fmt.Sprintf("%s -> %s:%v", d.VarName, d.BrickName, d.JsonPath)
+	return fmt.Sprintf("%s -> %s:%v", d.VarName, d.Brick.Name, d.JsonPath)
 }
 
 type Brick struct {
@@ -48,7 +46,7 @@ type Brick struct {
 	Dependencies []Dependency
 
 	Output []byte
-	// Error from Enrich
+	// Error from the last call to `Enrich()`
 	EnrichError error
 }
 
@@ -140,10 +138,11 @@ func (brick *Brick) Enrich(bcy BrickConfYaml, infra *Infra) error {
 	}
 
 	brick.Module = module
-	dependencies, err := bcy.getDependencies(infra)
+	dependencies, err := bcy.resolveDependencies(infra)
 	if err != nil {
 		log.Println("An error occured when getting dependencies: ", err)
 	}
+
 	brick.Dependencies = dependencies
 
 	return nil
@@ -152,20 +151,12 @@ func (brick *Brick) Enrich(bcy BrickConfYaml, infra *Infra) error {
 // TODO(half-shell): Ideally here we would not want any argument since we should
 // be able to do everything once the brick's dependencies are resolved to bricks pointers
 // e.g. `b.Dependencies[0].Brick != nil`
-func (b *Brick) GenerateDependencyInputFile(infra *Infra) (err error) {
+func (b *Brick) GenerateDependencyInputFile() (err error) {
 	inputs := make(map[string]interface{}, len(b.Dependencies))
 
 	for _, d := range b.Dependencies {
-		// We make sure the brick pointer is set
-		var brick *Brick
-		if d.Brick != nil {
-			brick = d.Brick
-		} else {
-			brick = infra.Bricks[d.BrickName]
-		}
-
 		var output interface{}
-		err := json.Unmarshal(brick.Output, &output)
+		err := json.Unmarshal(d.Brick.Output, &output)
 		if err != nil {
 			log.Fatalf("Could not parse JSON: %v", err)
 		}
@@ -199,7 +190,7 @@ func (b *Brick) GenerateDependencyInputFile(infra *Infra) (err error) {
 	return nil
 }
 
-func (bcy BrickConfYaml) getDependencies(infra *Infra) ([]Dependency, error) {
+func (bcy BrickConfYaml) resolveDependencies(infra *Infra) ([]Dependency, error) {
 	var dependencies []Dependency
 	parseFromField := func(from string) (brickName string, dataKey string) {
 		fields := strings.Split(from, ":")
@@ -225,9 +216,9 @@ func (bcy BrickConfYaml) getDependencies(infra *Infra) ([]Dependency, error) {
 			}
 
 			dependencies = append(dependencies, Dependency{
-				BrickName: brick.Name,
-				VarName:   d.Name,
-				JsonPath:  keyPath,
+				VarName:  d.Name,
+				JsonPath: keyPath,
+				Brick:    brick,
 			})
 		}
 	}

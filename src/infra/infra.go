@@ -85,7 +85,7 @@ func GetBricks(room extools.NamePathBinding) ([]Brick, error) {
 		}
 		return bricks, err
 	}
-	bricks = []Brick{Brick{
+	bricks = []Brick{{
 		Name:         room.Name,
 		Path:         room.Path,
 		IsElementary: false,
@@ -214,13 +214,13 @@ func (i *Infra) GetSubBricks(brick *Brick) (subBricks Bricks, err error) {
 func (infra *Infra) GetDirectPrevious(brick *Brick) (results Bricks, err error) {
 	deps := brick.Dependencies
 	for _, d := range deps {
-		err = infra.Bricks[d.BrickName].EnrichError
-		if infra.Bricks[d.BrickName].EnrichError != nil {
+		err = d.Brick.EnrichError
+		if d.Brick.EnrichError != nil {
 			return
 		}
 
 		var elementaryBricks Bricks
-		elementaryBricks, err = infra.GetSubBricks(infra.Bricks[d.BrickName])
+		elementaryBricks, err = infra.GetSubBricks(d.Brick)
 		if err != nil {
 			return
 		}
@@ -266,7 +266,7 @@ func (infra *Infra) GetDirectNext(brick *Brick) (results Bricks, err error) {
 				return
 			}
 
-			if d.BrickName == brick.Name {
+			if d.Brick.Name == brick.Name {
 				results = append(results, infra.Bricks[b.Name])
 			}
 		}
@@ -287,7 +287,7 @@ func (infra *Infra) GetLinkedNext(bricks *Bricks, brick *Brick) (err error) {
 				return
 			}
 
-			if d.BrickName == brick.Name {
+			if d.Brick.Name == brick.Name {
 				*bricks = append(*bricks, infra.Bricks[b.Name])
 
 				// TODO(half-shell): handle cases of cirulare dependencies
