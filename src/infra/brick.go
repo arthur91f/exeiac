@@ -1,7 +1,6 @@
 package infra
 
 import (
-	"bytes"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -161,43 +160,57 @@ func (brick *Brick) Enrich(bcy BrickConfYaml, infra *Infra) error {
 	return nil
 }
 
-// TODO(half-shell): Ideally here we would not want any argument since we should
-// be able to do everything once the brick's dependencies are resolved to bricks pointers
-// e.g. `b.Input[0].Brick != nil`
-func (b *Brick) GenerateDependencyInputFile() (path string, err error) {
-	inputs := make(map[string]interface{}, len(b.Inputs))
+// Parses this brick's input brick dependencies JSON output, and creates a map of formatters.
+// Returns a map with the intput file path as the key, and the relevant Formatter as the value.
+// The key is `env` if there is no path and the inputs are supposed to be passed around as
+// environment variables
+func (b *Brick) CreateFormatters() (formatters map[string]Formatter, err error) {
+	formatters = make(map[string]Formatter)
 
-	for _, d := range b.Inputs {
+	// NOTE(half-shell): This is pretty ugly, but there does not seem to be a way to create
+	// a 3-fold nested map otherwise.
+	// This is a pretty good use case for a tree-like structure!
+	varNameToVal := make(map[string]interface{})
+	pathToVars := make(map[string]map[string]interface{})
+	// Temporary variable holding the values dispatched by format, path and variable name.
+	// e.g. rawInputs[<data_format>][<file_path>][<variable_name>] => <variable_value>
+	rawInputs := make(map[string]map[string]map[string]interface{})
+
+	for _, i := range b.Inputs {
 		var output interface{}
-		err := json.Unmarshal(d.Brick.Output, &output)
+		err := json.Unmarshal(i.Brick.Output, &output)
 		if err != nil {
 			log.Fatalf("Could not parse JSON: %v", err)
 		}
 
-		varVal, err := jsonpath.Get(d.JsonPath, output)
+		varVal, err := jsonpath.Get(i.JsonPath, output)
 		if err != nil {
-			log.Fatalf("Error happened when solving dependency JSON path %v: %v", d.JsonPath, err)
+			log.Fatalf("Error happened when solving dependency JSON path %v: %v", i.JsonPath, err)
 		}
 
-		inputs[d.VarName] = varVal
+		path := filepath.Join(b.Path, i.Path)
+		varNameToVal[i.VarName] = varVal
+		pathToVars[path] = varNameToVal
+		rawInputs[i.Type] = pathToVars
 	}
 
-	// NOTE(half-shell): This could end up being in some other kind of format.
-	// Probably even JSON. For now though, we're only interested in matching what's in the
-	// brick.yml configuration as a key-value pair.
-	buf := new(bytes.Buffer)
-	for varName, varVal := range inputs {
-		buf.WriteString(fmt.Sprintf("%s = %v\n", varName, varVal))
+	for format, paths := range rawInputs {
+		for path, vals := range paths {
+			switch format {
+			case "json":
+				formatters[path] = JsonFormat{Inputs: vals}
+			case "env_file":
+				formatters[path] = EnvFormat{Inputs: vals}
+			default:
+				// TODO(half-shell): One way of dealing with inputs passed around as environment variables
+				// would be to check for a path, and if none is present, just return on for a path of `env`
+				// for instance, which would be handled some other way down the line
+				return formatters, errors.New(fmt.Sprintf("Format %s is not handled", format))
+			}
+		}
 	}
 
-	// TODO(half-shell): We should use what's provided in the configuration file as
-	// `Path` here as it seems to be a configurable field.
-	// For testing purposes however, we'll be dealing here only with a `.env` file.
-	path = filepath.Join(b.Path, ".env")
-	// NOTE(half-shell): We set permissions as read/write for the user and read-only for others
-	err = os.WriteFile(path, buf.Bytes(), 0644)
-
-	return
+	return formatters, nil
 }
 
 func (bcy BrickConfYaml) resolveDependencies(infra *Infra) ([]Input, error) {
