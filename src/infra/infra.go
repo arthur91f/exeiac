@@ -212,7 +212,7 @@ func (i *Infra) GetSubBricks(brick *Brick) (subBricks Bricks, err error) {
 // Checks wheither or not a brick's dependencies are enriched.
 // Returns a brick's dependency if they are, or an error otherwise.
 func (infra *Infra) GetDirectPrevious(brick *Brick) (results Bricks, err error) {
-	deps := brick.Dependencies
+	deps := brick.Input
 	for _, d := range deps {
 		err = d.Brick.EnrichError
 		if d.Brick.EnrichError != nil {
@@ -260,7 +260,7 @@ func (infra *Infra) GetLinkedPrevious(brick *Brick) (results Bricks, err error) 
 func (infra *Infra) GetDirectNext(brick *Brick) (results Bricks, err error) {
 	// browse all infra.Bricks and return bricks that have brickName in dependencies
 	for _, b := range infra.Bricks {
-		for _, d := range b.Dependencies {
+		for _, d := range b.Input {
 			err = infra.Bricks[b.Name].EnrichError
 			if err != nil {
 				return
@@ -281,7 +281,7 @@ func (infra *Infra) GetLinkedNext(bricks *Bricks, brick *Brick) (err error) {
 	var wg sync.WaitGroup
 
 	for _, b := range infra.Bricks {
-		for _, d := range b.Dependencies {
+		for _, d := range b.Input {
 			err = infra.Bricks[b.Name].EnrichError
 			if err != nil {
 				return
@@ -295,7 +295,7 @@ func (infra *Infra) GetLinkedNext(bricks *Bricks, brick *Brick) (err error) {
 				// the number of wait group created, or just a check over the indexes
 				// of the bricks handled here. Or prevent adding a brick already added
 				// to avoid those cases.
-				if len(infra.Bricks[b.Name].Dependencies) > 0 {
+				if len(infra.Bricks[b.Name].Input) > 0 {
 					wg.Add(1)
 
 					go func(bricks *Bricks, brick *Brick) {

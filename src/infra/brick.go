@@ -15,17 +15,22 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
-type Dependency struct {
+type Input struct {
 	// The name the variable is supposed to take
 	VarName string
 	// The JSON path to access the variable
 	JsonPath string
 	// A reference to the related brick
 	Brick *Brick
+	// The type can be env_var, env_file, json, yaml, hashicorp
+	Type string
+	// The relative path from the brickPath of the file where the input will be written
+	Path string // (obviously it is "" for env_var type)
 }
 
-func (d Dependency) String() string {
-	return fmt.Sprintf("%s -> %s:%v", d.VarName, d.Brick.Name, d.JsonPath)
+func (i Input) String() string {
+	return fmt.Sprintf("%s(%s):%s -> %s:%v",
+		i.Path, i.Type, i.VarName, i.Brick.Name, i.JsonPath)
 }
 
 type Brick struct {
@@ -42,8 +47,9 @@ type Brick struct {
 	IsElementary bool
 	// A pointer to a module
 	Module *Module
-	// Pointer to the bricks it depends on
-	Dependencies []Dependency
+
+	// Data (and their represenation) from other bricks output that brick need to plan,lay,remove,output
+	Input []Input
 
 	Output []byte
 	// Error from the last call to `Enrich()`
@@ -106,9 +112,9 @@ func (b Brick) String() string {
 		conditional = fmt.Sprintf("%smodule:%s\n", conditional, b.Module.Name)
 	}
 
-	if len(b.Dependencies) > 0 {
+	if len(b.Input) > 0 {
 		dpStr := []string{}
-		for _, d := range b.Dependencies {
+		for _, d := range b.Input {
 			dpStr = append(dpStr, d.String())
 		}
 		conditional = fmt.Sprintf("%sinputData:%s",
@@ -143,18 +149,18 @@ func (brick *Brick) Enrich(bcy BrickConfYaml, infra *Infra) error {
 		log.Println("An error occured when getting dependencies: ", err)
 	}
 
-	brick.Dependencies = dependencies
+	brick.Input = dependencies
 
 	return nil
 }
 
 // TODO(half-shell): Ideally here we would not want any argument since we should
 // be able to do everything once the brick's dependencies are resolved to bricks pointers
-// e.g. `b.Dependencies[0].Brick != nil`
+// e.g. `b.Input[0].Brick != nil`
 func (b *Brick) GenerateDependencyInputFile() (path string, err error) {
-	inputs := make(map[string]interface{}, len(b.Dependencies))
+	inputs := make(map[string]interface{}, len(b.Input))
 
-	for _, d := range b.Dependencies {
+	for _, d := range b.Input {
 		var output interface{}
 		err := json.Unmarshal(d.Brick.Output, &output)
 		if err != nil {
@@ -187,8 +193,8 @@ func (b *Brick) GenerateDependencyInputFile() (path string, err error) {
 	return
 }
 
-func (bcy BrickConfYaml) resolveDependencies(infra *Infra) ([]Dependency, error) {
-	var dependencies []Dependency
+func (bcy BrickConfYaml) resolveDependencies(infra *Infra) ([]Input, error) {
+	var dependencies []Input
 	parseFromField := func(from string) (brickName string, dataKey string) {
 		fields := strings.Split(from, ":")
 
@@ -212,10 +218,12 @@ func (bcy BrickConfYaml) resolveDependencies(infra *Infra) ([]Dependency, error)
 				return dependencies, err
 			}
 
-			dependencies = append(dependencies, Dependency{
+			dependencies = append(dependencies, Input{
 				VarName:  d.Name,
 				JsonPath: keyPath,
 				Brick:    brick,
+				Type:     i.Type,
+				Path:     i.Path,
 			})
 		}
 	}
