@@ -44,7 +44,7 @@ func enrichDatas(bricksToExecute exinfra.Bricks, infra *exinfra.Infra) error {
 			return b.EnrichError
 		}
 
-		err := b.GenerateDependencyInputFile(infra)
+		err := b.GenerateDependencyInputFile()
 		if err != nil {
 			return err
 		}
