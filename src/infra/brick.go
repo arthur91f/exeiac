@@ -151,7 +151,7 @@ func (brick *Brick) Enrich(bcy BrickConfYaml, infra *Infra) error {
 // TODO(half-shell): Ideally here we would not want any argument since we should
 // be able to do everything once the brick's dependencies are resolved to bricks pointers
 // e.g. `b.Dependencies[0].Brick != nil`
-func (b *Brick) GenerateDependencyInputFile() (err error) {
+func (b *Brick) GenerateDependencyInputFile() (path string, err error) {
 	inputs := make(map[string]interface{}, len(b.Dependencies))
 
 	for _, d := range b.Dependencies {
@@ -180,14 +180,11 @@ func (b *Brick) GenerateDependencyInputFile() (err error) {
 	// TODO(half-shell): We should use what's provided in the configuration file as
 	// `Path` here as it seems to be a configurable field.
 	// For testing purposes however, we'll be dealing here only with a `.env` file.
-	path := filepath.Join(b.Path, ".env")
+	path = filepath.Join(b.Path, ".env")
 	// NOTE(half-shell): We set permissions as read/write for the user and read-only for others
 	err = os.WriteFile(path, buf.Bytes(), 0644)
-	if err != nil {
-		return
-	}
 
-	return nil
+	return
 }
 
 func (bcy BrickConfYaml) resolveDependencies(infra *Infra) ([]Dependency, error) {
