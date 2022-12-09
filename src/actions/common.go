@@ -1,6 +1,7 @@
 package actions
 
 import (
+	"os"
 	"sort"
 	exargs "src/exeiac/arguments"
 	exinfra "src/exeiac/infra"
@@ -44,9 +45,23 @@ func enrichDatas(bricksToExecute exinfra.Bricks, infra *exinfra.Infra) error {
 			return b.EnrichError
 		}
 
-		_, err := b.GenerateDependencyInputFile()
+		formatters, err := b.CreateFormatters()
 		if err != nil {
 			return err
+		}
+
+		if len(formatters) > 0 {
+			for path, formatter := range formatters {
+				f, err := os.Create(path)
+				if err != nil {
+					return err
+				}
+
+				_, err = formatter.Write(f)
+				if err != nil {
+					return err
+				}
+			}
 		}
 
 		stdout := exinfra.StoreStdout{}
