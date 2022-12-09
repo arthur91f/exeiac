@@ -47,6 +47,8 @@ type Brick struct {
 	IsElementary bool
 	// A pointer to a module
 	Module *Module
+	// Pointer to the bricks it depends on
+	DirectPrevious Bricks
 
 	// Data (and their represenation) from other bricks output that brick need to plan,lay,remove,output
 	Input []Input
@@ -150,6 +152,11 @@ func (brick *Brick) Enrich(bcy BrickConfYaml, infra *Infra) error {
 	}
 
 	brick.Input = dependencies
+
+	for _, i := range brick.Input {
+		brick.DirectPrevious = append(brick.DirectPrevious, i.Brick)
+	}
+	brick.DirectPrevious = RemoveDuplicates(brick.DirectPrevious)
 
 	return nil
 }
