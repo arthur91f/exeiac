@@ -1,14 +1,16 @@
 package infra
 
 import (
+	"bytes"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"log"
 	"os"
+	"path/filepath"
 	extools "src/exeiac/tools"
 	"strings"
 
-	"github.com/PaesslerAG/gval"
 	"github.com/PaesslerAG/jsonpath"
 	"gopkg.in/yaml.v2"
 )
@@ -19,7 +21,9 @@ type Dependency struct {
 	// The name the variable is supposed to take
 	VarName string
 	// The JSON path to access the variable
-	JsonPath gval.Evaluable
+	JsonPath string
+	// A pointer referencing the brick. It is basically the BrickName resolved into a Brick
+	Brick *Brick
 }
 
 func (d Dependency) String() string {
@@ -42,6 +46,8 @@ type Brick struct {
 	Module *Module
 	// Pointer to the bricks it depends on
 	Dependencies []Dependency
+
+	Output []byte
 	// Error from Enrich
 	EnrichError error
 }
@@ -143,6 +149,56 @@ func (brick *Brick) Enrich(bcy BrickConfYaml, infra *Infra) error {
 	return nil
 }
 
+// TODO(half-shell): Ideally here we would not want any argument since we should
+// be able to do everything once the brick's dependencies are resolved to bricks pointers
+// e.g. `b.Dependencies[0].Brick != nil`
+func (b *Brick) GenerateDependencyInputFile(infra *Infra) (err error) {
+	inputs := make(map[string]interface{}, len(b.Dependencies))
+
+	for _, d := range b.Dependencies {
+		// We make sure the brick pointer is set
+		var brick *Brick
+		if d.Brick != nil {
+			brick = d.Brick
+		} else {
+			brick = infra.Bricks[d.BrickName]
+		}
+
+		var output interface{}
+		err := json.Unmarshal(brick.Output, &output)
+		if err != nil {
+			log.Fatalf("Could not parse JSON: %v", err)
+		}
+
+		varVal, err := jsonpath.Get(d.JsonPath, output)
+		if err != nil {
+			log.Fatalf("Error happened when solving dependency JSON path %v: %v", d.JsonPath, err)
+		}
+
+		inputs[d.VarName] = varVal
+	}
+
+	// NOTE(half-shell): This could end up being in some other kind of format.
+	// Probably even JSON. For now though, we're only interested in matching what's in the
+	// brick.yml configuration as a key-value pair.
+	buf := new(bytes.Buffer)
+	for varName, varVal := range inputs {
+		buf.WriteString(fmt.Sprintf("%s = %v\n", varName, varVal))
+	}
+
+	// TODO(half-shell): We should use what's provided in the configuration file as
+	// `Path` here as it seems to be a configurable field.
+	// For testing purposes however, we'll be dealing here only with a `.env` file.
+	path := filepath.Join(b.Path, ".env")
+	// NOTE(half-shell): We set permissions as read/write for the user and read-only for others
+	err = os.WriteFile(path, buf.Bytes(), 0644)
+	if err != nil {
+		return
+	}
+
+	return nil
+}
+
 func (bcy BrickConfYaml) getDependencies(infra *Infra) ([]Dependency, error) {
 	var dependencies []Dependency
 	parseFromField := func(from string) (brickName string, dataKey string) {
@@ -163,7 +219,7 @@ func (bcy BrickConfYaml) getDependencies(infra *Infra) ([]Dependency, error) {
 			}
 
 			// NOTE(half-shell): We make sure the jsonPath's form is valid
-			jsonPath, err := jsonpath.New(keyPath)
+			_, err := jsonpath.New(keyPath)
 			if err != nil {
 				return dependencies, err
 			}
@@ -171,7 +227,7 @@ func (bcy BrickConfYaml) getDependencies(infra *Infra) ([]Dependency, error) {
 			dependencies = append(dependencies, Dependency{
 				BrickName: brick.Name,
 				VarName:   d.Name,
-				JsonPath:  jsonPath,
+				JsonPath:  keyPath,
 			})
 		}
 	}

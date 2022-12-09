@@ -4,6 +4,7 @@ import (
 	"fmt"
 	exargs "src/exeiac/arguments"
 	exinfra "src/exeiac/infra"
+	extools "src/exeiac/tools"
 )
 
 func Show(
@@ -30,6 +31,19 @@ func Show(
 	case "all", "a":
 		for _, brick := range bricksToExecute {
 			fmt.Println(brick)
+		}
+	case "output", "outputs", "o":
+		err = enrichDatas(bricksToExecute, infra)
+		if err != nil {
+			return 3, err
+		}
+		if len(bricksToExecute) == 1 {
+			fmt.Println(string(bricksToExecute[0].Output))
+		} else {
+			for _, brick := range bricksToExecute {
+				extools.DisplaySeparator(brick.Name)
+				fmt.Println(string(brick.Output))
+			}
 		}
 	default:
 		statusCode = 3

@@ -4,7 +4,10 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"strings"
 )
+
+const LINE_LENGTH = 80
 
 func AskConfirmation(question string) (confirm bool, err error) {
 
@@ -25,4 +28,23 @@ func AskConfirmation(question string) (confirm bool, err error) {
 		confirm = false
 	}
 	return
+}
+
+func DisplaySeparator(separatorName string) {
+	var s string
+	if separatorName == "" {
+		s = strings.Repeat("_", LINE_LENGTH)
+		fmt.Printf("\033[01;36m" + s + "\033[0m\n")
+	} else {
+		endLineLength := LINE_LENGTH - len(separatorName) - 4
+		if endLineLength > 0 {
+			s = strings.Repeat("-", endLineLength)
+			fmt.Printf("\033[01;36m-- " + separatorName + " " + s + "\033[0m\n")
+		} else {
+			lengthToDisplay := LINE_LENGTH - 3
+			s = "-- " + separatorName
+			s = s[0:lengthToDisplay]
+			fmt.Printf("\033[01;36m" + s + "..." + "\033[0m\n")
+		}
+	}
 }

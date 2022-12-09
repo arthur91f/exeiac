@@ -3,6 +3,7 @@ package infra
 import (
 	"bytes"
 	"fmt"
+	"io"
 	"os"
 	"os/exec"
 	extools "src/exeiac/tools"
@@ -70,15 +71,15 @@ func (module *Module) LoadAvailableActions() error {
 	return nil
 }
 
-func (m *Module) exec(brick *Brick, args []string) (output []byte, err error) {
+func (m *Module) exec(brick *Brick, args []string, stdout io.Writer, stderr io.Writer) (err error) {
 	cmd := exec.Cmd{
 		Path:   m.Path,
 		Args:   append([]string{m.Path}, args...),
 		Env:    []string{},
 		Dir:    brick.Path,
 		Stdin:  os.Stdin,
-		Stdout: os.Stdout,
-		Stderr: os.Stderr,
+		Stdout: stdout,
+		Stderr: stderr,
 	}
 
 	err = cmd.Run()
@@ -95,14 +96,50 @@ func (err ActionNotImplementedError) Error() string {
 	return fmt.Sprintf("Module %s does not implement action %s", err.Module.Name, err.Action)
 }
 
-func (m *Module) Exec(b *Brick, action string, args []string) (output []byte, exitError *exec.ExitError, err error) {
+type StoreStdout struct {
+	Output []byte
+}
+
+func (stdout *StoreStdout) Write(p []byte) (int, error) {
+	stdout.Output = append(stdout.Output, p...)
+
+	return len(p), nil
+}
+
+type StoreAndDisplayStdout struct {
+	Output []byte
+}
+
+func (stdout *StoreAndDisplayStdout) Write(p []byte) (int, error) {
+	stdout.Output = append(stdout.Output, p...)
+
+	return os.Stdout.Write(p)
+}
+
+type StoreAndDisplayStderr struct {
+	Output []byte
+}
+
+func (stderr *StoreAndDisplayStderr) Write(p []byte) (int, error) {
+	stderr.Output = append(stderr.Output, p...)
+
+	return os.Stderr.Write(p)
+}
+
+func (m *Module) Exec(b *Brick, action string, args []string, writers ...io.Writer) (exitError *exec.ExitError, err error) {
 	if !extools.ContainsString(m.Actions, action) {
 		err = ActionNotImplementedError{Action: action, Module: m}
 
 		return
 	}
 
-	output, err = m.exec(b, append([]string{action}, args...))
+	if len(writers) > 1 {
+		err = m.exec(b, append([]string{action}, args...), writers[0], writers[1])
+	} else if len(writers) > 0 {
+		err = m.exec(b, append([]string{action}, args...), writers[0], os.Stderr)
+	} else {
+		err = m.exec(b, append([]string{action}, args...), os.Stdout, os.Stderr)
+	}
 
 	if err != nil {
 		if ee, isExitError := err.(*exec.ExitError); isExitError {

@@ -1,6 +1,5 @@
 #!/bin/bash
 ACTION="$1"
-BRICK_PATH="$2"
 ALL_ARGS="$@"
 CURRENT_PATH="$(pwd)"
 
@@ -80,8 +79,47 @@ function lay {
     fi
 }
 
-function  remove {
+function remove {
     lay
+}
+
+function output {
+    # for test we display all outputs here it's simpler
+    echo '{
+    "production": {
+        "name": "production",
+        "project": "prod-120822",
+        "credentials": {
+            "user": "ci-prod",
+            "key": "-----BEGIN PRIVATE KEY-----\nproductionfjh6qnrS4z3qPOrOthu9hVJiM9sXPISuIMWCQUVDhA7cKwuZ3ErN3Mue2GBt\nKYuINui3SbsyfuAJlF/3FcUVfbwbioRWMKEs4rTPeU9Nz06Ipj2wZnRUpQ0njgptzxyrzH\nNblRVU1Skj9xNTzNbj02bWoOYSOgq3YIF+901gbQuZdE8JPxcKZMUXSxTvhgq5zA5bpKrj\nZm3Gja0rYjNM6NEFCRfVW4Fg==\n-----END PRIVATE KEY-----"
+        }
+    },
+    "staging": {
+        "name": "staging",
+        "project": "stage-120822",
+        "credentials": {
+            "user": "ci-staging",
+            "key": "-----BEGIN PRIVATE KEY-----\nstagingfjh6qnrS4z3qPOrOthu9hVJiM9sXPISuIMWCQUVDhA7cKwuZ3ErN3Mue2GBt\nKYuINui3SbsyfuAJlF/3FcUVfbwbioRWMKEs4rTPeU9Nz06Ipj2wZnRUpQ0njgptzxyrzH\nNblRVU1Skj9xNTzNbj02bWoOYSOgq3YIF+901gbQuZdE8JPxcKZMUXSxTvhgq5zA5bpKrj\nZm3Gja0rYjNM6NEFCRfVW4Fg==\n-----END PRIVATE KEY-----"
+        }
+    },
+    "monitoring": {
+        "name": "monitoring",
+        "project": "monit-120822",
+        "credentials": {
+            "user": "ci-monitoring",
+            "key": "-----BEGIN PRIVATE KEY-----\nmonitoringfjh6qnrS4z3qPOrOthu9hVJiM9sXPISuIMWCQUVDhA7cKwuZ3ErN3Mue2GBt\nKYuINui3SbsyfuAJlF/3FcUVfbwbioRWMKEs4rTPeU9Nz06Ipj2wZnRUpQ0njgptzxyrzH\nNblRVU1Skj9xNTzNbj02bWoOYSOgq3YIF+901gbQuZdE8JPxcKZMUXSxTvhgq5zA5bpKrj\nZm3Gja0rYjNM6NEFCRfVW4Fg==\n-----END PRIVATE KEY-----"
+        }
+    },
+    "domain_name": {
+        "internal": "internal.mycompany.co",
+        "private": "priv.mycompany.co",
+        "public": "mycompany.com"
+    },
+    "network": {
+        "ip_range": "10.0.0.0/20",
+        "network_id": "myaccount/myproject/network/123456-7890"
+    }
+}'
 }
 
 $ACTION
