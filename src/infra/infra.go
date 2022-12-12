@@ -192,7 +192,7 @@ func GetModule(name string, modules *[]Module) (*Module, error) {
 func (i *Infra) GetSubBricks(brick *Brick) (subBricks Bricks, err error) {
 	// the infra.Bricks is sorted with super bricks
 	// directly before their subbricks
-	superBrickPath := i.Bricks[brick.Name].Path
+	superBrickPath := brick.Path
 	for _, b := range i.Bricks {
 		brickPath := b.Path
 		// We ignore the sub-brick if they're the same; strings.HasPrefix returns true in that case
@@ -212,20 +212,22 @@ func (i *Infra) GetSubBricks(brick *Brick) (subBricks Bricks, err error) {
 // Checks wheither or not a brick's dependencies are enriched.
 // Returns a brick's dependency if they are, or an error otherwise.
 func (infra *Infra) GetDirectPrevious(brick *Brick) (results Bricks, err error) {
-	deps := brick.Inputs
-	for _, d := range deps {
-		err = d.Brick.EnrichError
-		if d.Brick.EnrichError != nil {
+	for _, dp := range brick.DirectPrevious {
+		err = dp.EnrichError
+		if dp.EnrichError != nil {
 			return
 		}
 
-		var elementaryBricks Bricks
-		elementaryBricks, err = infra.GetSubBricks(d.Brick)
-		if err != nil {
-			return
+		if dp.IsElementary {
+			results = append(results, dp)
+		} else {
+			var elementaryBricks Bricks
+			elementaryBricks, err = infra.GetSubBricks(dp)
+			if err != nil {
+				return
+			}
+			results = append(results, elementaryBricks...)
 		}
-
-		results = append(results, elementaryBricks...)
 	}
 
 	return
@@ -258,20 +260,24 @@ func (infra *Infra) GetLinkedPrevious(brick *Brick) (results Bricks, err error) 
 // Checks wheither or not a brick's dependents are enriched.
 // Returns a slice of brick's pointers if they are, or the first error encountered otherwise
 func (infra *Infra) GetDirectNext(brick *Brick) (results Bricks, err error) {
-	// browse all infra.Bricks and return bricks that have brickName in dependencies
+	// browse all infra.Bricks and return bricks that have brick in their directPrevious bricks
 	for _, b := range infra.Bricks {
-		for _, d := range b.Inputs {
-			err = infra.Bricks[b.Name].EnrichError
-			if err != nil {
-				return
-			}
+		err = b.EnrichError
+		if err != nil {
+			return
+		}
 
-			if d.Brick.Name == brick.Name {
+		var directPrevious Bricks
+		directPrevious, err = infra.GetDirectPrevious(b)
+		if err != nil {
+			return
+		}
+		for _, dp := range directPrevious {
+			if dp.Name == brick.Name {
 				results = append(results, infra.Bricks[b.Name])
 			}
 		}
 	}
-
 	return
 }
 
@@ -281,13 +287,17 @@ func (infra *Infra) GetLinkedNext(bricks *Bricks, brick *Brick) (err error) {
 	var wg sync.WaitGroup
 
 	for _, b := range infra.Bricks {
-		for _, d := range b.Inputs {
-			err = infra.Bricks[b.Name].EnrichError
-			if err != nil {
-				return
-			}
-
-			if d.Brick.Name == brick.Name {
+		err = b.EnrichError
+		if err != nil {
+			return
+		}
+		var directPrevious Bricks
+		directPrevious, err = infra.GetDirectPrevious(b)
+		if err != nil {
+			return
+		}
+		for _, dp := range directPrevious {
+			if dp.Name == brick.Name {
 				*bricks = append(*bricks, infra.Bricks[b.Name])
 
 				// TODO(half-shell): handle cases of cirulare dependencies
@@ -295,7 +305,7 @@ func (infra *Infra) GetLinkedNext(bricks *Bricks, brick *Brick) (err error) {
 				// the number of wait group created, or just a check over the indexes
 				// of the bricks handled here. Or prevent adding a brick already added
 				// to avoid those cases.
-				if len(infra.Bricks[b.Name].Inputs) > 0 {
+				if len(b.DirectPrevious) > 0 {
 					wg.Add(1)
 
 					go func(bricks *Bricks, brick *Brick) {
