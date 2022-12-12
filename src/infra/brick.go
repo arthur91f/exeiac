@@ -198,9 +198,9 @@ func (b *Brick) CreateFormatters() (formatters map[string]Formatter, err error) 
 		for path, vals := range paths {
 			switch format {
 			case "json":
-				formatters[path] = JsonFormat{Inputs: vals}
+				formatters[path] = JsonFormat(vals)
 			case "env_file":
-				formatters[path] = EnvFormat{Inputs: vals}
+				formatters[path] = EnvFormat(vals)
 			default:
 				// TODO(half-shell): One way of dealing with inputs passed around as environment variables
 				// would be to check for a path, and if none is present, just return on for a path of `env`

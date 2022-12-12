@@ -57,7 +57,8 @@ func enrichDatas(bricksToExecute exinfra.Bricks, infra *exinfra.Infra) error {
 					return err
 				}
 
-				_, err = formatter.Write(f)
+				data, err := formatter.Format()
+				_, err = f.Write(data)
 				if err != nil {
 					return err
 				}
