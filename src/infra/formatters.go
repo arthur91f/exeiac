@@ -6,6 +6,20 @@ import (
 	"fmt"
 )
 
+type InputFormat string
+
+const (
+	Json = InputFormat("json")
+	Yaml = InputFormat("yaml")
+	Env  = InputFormat("env")
+)
+
+var SupportedFormats = map[string]InputFormat{
+	"json": Json,
+	"yaml": Yaml,
+	"env":  Env,
+}
+
 // A formatter is an interface that allows to produce an output in a specific format.
 type Formatter interface {
 	Format() (input []byte, err error)
