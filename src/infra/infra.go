@@ -209,8 +209,8 @@ func (i *Infra) GetSubBricks(brick *Brick) (subBricks Bricks, err error) {
 	return
 }
 
-// Checks wheither or not a brick's dependencies are enriched.
-// Returns a brick's dependency if they are, or an error otherwise.
+// Return only elementary bricks (although Brick.DirectPrevious can contains super brick)
+// return error when a elementary bricks b to return has b.EnrichError != nil
 func (infra *Infra) GetDirectPrevious(brick *Brick) (results Bricks, err error) {
 	for _, dp := range brick.DirectPrevious {
 		err = dp.EnrichError
@@ -233,6 +233,8 @@ func (infra *Infra) GetDirectPrevious(brick *Brick) (results Bricks, err error) 
 	return
 }
 
+// Return only elementary bricks,
+// return error when a elementary bricks b to return has b.EnrichError != nil
 func (infra *Infra) GetLinkedPrevious(brick *Brick) (results Bricks, err error) {
 	var directPrevious Bricks
 	added, err := infra.GetDirectPrevious(brick)
@@ -257,7 +259,7 @@ func (infra *Infra) GetLinkedPrevious(brick *Brick) (results Bricks, err error) 
 	return
 }
 
-// Checks wheither or not a brick's dependents are enriched.
+// Checks wheither or not a the brick that dependends directly of the given brick are enriched.
 // Returns a slice of brick's pointers if they are, or the first error encountered otherwise
 func (infra *Infra) GetDirectNext(brick *Brick) (results Bricks, err error) {
 	// browse all infra.Bricks and return bricks that have brick in their directPrevious bricks
@@ -281,7 +283,7 @@ func (infra *Infra) GetDirectNext(brick *Brick) (results Bricks, err error) {
 	return
 }
 
-// Cheks wheither or not a brick's dependents (and their dependents and so on) are enriched.
+// Cheks wheither or not the brick that dependends (directly or not) of the given brick are enriched.
 // Returns a slice of brick's pointers if they are, or the first error encountered otherwise
 func (infra *Infra) GetLinkedNext(bricks *Bricks, brick *Brick) (err error) {
 	var wg sync.WaitGroup

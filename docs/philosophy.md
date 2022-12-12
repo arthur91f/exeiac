@@ -121,6 +121,18 @@ production environment don't depends of a brick of your staging environment.
 Also as you can't lay brick of your 3rd floor if you haven't built your second 
 floor, the dependencies shouldn't be circular.
 
+*ExeIaC vocabulary : name brick B relatively to brick A : *
+- *direct previous brick: * a brick B is a direct previous of brick A if A needs 
+  data of B outputs to be lay. So B needs to be layed before A.
+- *linked previous brick: * it's the recursive concept of direct previous.
+  A brick B is a linked previous of brick A if B is a direct previous brick of A 
+  or a direct previous of a direct previous of A or ...
+- *direct next brick: * a brick B is a direct next of A if A is a direct previous
+  of B ie. if B need data from A output to be layed.
+- *linked next brick: * it's the recursive concept of direct next. It represent
+  all the brick that can be impacted by a change to brick A.
+- * independant bricks: * two bricks are independant between each other if they 
+  are not linked previous or linked next.
 #### Go further: particular higher order brick
 
 - room: represent a functional unit. OK, that's the case for all bricks, but it 
