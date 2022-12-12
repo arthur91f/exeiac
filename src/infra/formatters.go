@@ -2,6 +2,7 @@ package infra
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
 )
 
@@ -14,6 +15,8 @@ type JsonFormat map[string]interface{}
 type EnvFormat map[string]interface{}
 
 func (i JsonFormat) Format() (input []byte, err error) {
+	input, err = json.MarshalIndent(i, "", "\t")
+
 	return
 }
 
