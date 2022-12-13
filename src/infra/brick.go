@@ -22,7 +22,7 @@ type Input struct {
 	// A reference to the related brick
 	Brick *Brick
 	// The type can be env_var, env_file, json, yaml, hashicorp
-	Type string
+	Type InputFormat
 	// The relative path from the brickPath of the file where the input will be written
 	Path string // (obviously it is "" for env_var type)
 }
@@ -174,7 +174,7 @@ func (b *Brick) CreateFormatters() (formatters map[string]Formatter, err error) 
 	pathToVars := make(map[string]map[string]interface{})
 	// Temporary variable holding the values dispatched by format, path and variable name.
 	// e.g. rawInputs[<data_format>][<file_path>][<variable_name>] => <variable_value>
-	rawInputs := make(map[string]map[string]map[string]interface{})
+	rawInputs := make(map[InputFormat]map[string]map[string]interface{})
 
 	for _, i := range b.Inputs {
 		var output interface{}
@@ -197,9 +197,9 @@ func (b *Brick) CreateFormatters() (formatters map[string]Formatter, err error) 
 	for format, paths := range rawInputs {
 		for path, vals := range paths {
 			switch format {
-			case "json":
+			case Json:
 				formatters[path] = JsonFormat(vals)
-			case "env_file":
+			case Env:
 				formatters[path] = EnvFormat(vals)
 			default:
 				// TODO(half-shell): One way of dealing with inputs passed around as environment variables
@@ -238,13 +238,17 @@ func (bcy BrickConfYaml) resolveDependencies(infra *Infra) ([]Input, error) {
 				return dependencies, err
 			}
 
-			dependencies = append(dependencies, Input{
-				VarName:  d.Name,
-				JsonPath: keyPath,
-				Brick:    brick,
-				Type:     i.Type,
-				Path:     i.Path,
-			})
+			if inputType, isSupported := SupportedFormats[i.Type]; isSupported {
+				dependencies = append(dependencies, Input{
+					VarName:  d.Name,
+					JsonPath: keyPath,
+					Brick:    brick,
+					Type:     inputType,
+					Path:     i.Path,
+				})
+			} else {
+				err = errors.New(fmt.Sprintf("Format %s not supported", i.Type))
+			}
 		}
 	}
 
