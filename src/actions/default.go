@@ -72,7 +72,7 @@ func Default(
 	execSummary := make(ExecSummary, len(bricksToExecute))
 
 	for i, b := range bricksToExecute {
-		exitError, err := b.Module.Exec(b, args.Action, args.OtherOptions)
+		exitError, err := b.Module.Exec(b, args.Action, args.OtherOptions, []string{})
 
 		if exitError != nil {
 			statusCode = exitError.ExitCode()
