@@ -417,7 +417,7 @@ func (infra *Infra) EnrichBricks() {
 	}
 }
 
-func (infra *Infra) ValidateConfiguration(configuration *exargs.Configuration) error {
+func (infra *Infra) ValidateConfiguration(configuration *exargs.Configuration) (err error) {
 	// validate brick names
 	for _, brickName := range configuration.BricksNames {
 		if _, ok := infra.Bricks[brickName]; !ok {
