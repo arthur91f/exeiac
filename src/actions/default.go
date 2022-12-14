@@ -10,7 +10,7 @@ import (
 // Ignores errors and calls the action in `args.Action` for every single brick,
 // then prints out a summary of it all.
 // Exit code matches 3 if an error occured, 0 otherwise.
-func Default(
+func PassthroughAction(
 	infra *exinfra.Infra,
 	conf *exargs.Configuration,
 	bricksToExecute exinfra.Bricks,

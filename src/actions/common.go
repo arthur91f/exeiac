@@ -16,15 +16,15 @@ import (
 var BehaviourMap = map[string]func(*exinfra.Infra, *exargs.Configuration, exinfra.Bricks) (int, error){
 	"clean":         Clean,
 	"help":          Help,
-	"init":          Default,
+	"init":          PassthroughAction,
 	"lay":           Lay,
 	"plan":          Plan,
 	"remove":        Remove,
 	"show":          Show,
-	"validate_code": Default,
+	"validate_code": PassthroughAction,
 	"debug_args":    DebugArgs,
 	"debug_infra":   DebugInfra,
-	"default":       Default,
+	"default":       PassthroughAction,
 }
 
 const TAG_OK = "OK"
@@ -96,7 +96,6 @@ func (es ExecSummary) String() string {
 }
 
 func enrichDatas(bricksToExecute exinfra.Bricks, infra *exinfra.Infra) error {
-
 	// find all bricks that we need to ask output
 	var neededBricksForTheirOutputs exinfra.Bricks
 	for _, b := range bricksToExecute {
