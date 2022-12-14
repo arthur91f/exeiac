@@ -19,7 +19,7 @@ cd: change directory but you can use brick name althought path
 show: display brick attributes (depends of the format option choosen)
 clean: remove all files created by exeiac
 OPTIONS:
--I --non-interactive: run without interaction (use especially for ignore 
+-I --non-interactive: run without interaction (use especially for ignore
                       confirmation after lay or remove)
 -s --bricks-specifier: (selected|previous|following|children|this|
                         recursive-following|recursive-precedents)
