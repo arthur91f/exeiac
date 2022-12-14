@@ -323,9 +323,12 @@ func (infra *Infra) GetBricksFromNames(names []string) (bricks Bricks, err error
 }
 
 func (infra *Infra) GetCorrespondingBricks(
-	bricks Bricks, specifiers []string) (
-	correspondingBricks Bricks, err error) {
-
+	bricks Bricks,
+	specifiers []string,
+) (
+	correspondingBricks Bricks,
+	err error,
+) {
 	var elementaryBricks Bricks
 	for _, brick := range bricks {
 		if !brick.IsElementary {
