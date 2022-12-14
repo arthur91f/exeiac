@@ -1,6 +1,7 @@
 package actions
 
 import (
+	"fmt"
 	"os"
 	"sort"
 	exargs "src/exeiac/arguments"
@@ -66,16 +67,15 @@ func enrichDatas(bricksToExecute exinfra.Bricks, infra *exinfra.Infra) error {
 		}
 
 		stdout := exinfra.StoreStdout{}
-		exitError, err := b.Module.Exec(b, "output", []string{}, envFormatter.Environ(), &stdout)
+		statusCode, err := b.Module.Exec(b, "output", []string{}, envFormatter.Environ(), &stdout)
 		if err != nil {
 			return err
 		}
 
-		if exitError != nil {
-			if exitError.ExitCode() != 0 {
-				return exitError
-			}
+		if statusCode != 0 {
+			return fmt.Errorf("unable to get output of %s", b.Name)
 		}
+
 		b.Output = stdout.Output
 	}
 
