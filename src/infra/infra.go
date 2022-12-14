@@ -9,6 +9,7 @@ import (
 	"path/filepath"
 	"regexp"
 	"sort"
+	exargs "src/exeiac/arguments"
 	extools "src/exeiac/tools"
 	"strings"
 	"sync"
@@ -19,27 +20,26 @@ type Infra struct {
 	Bricks  map[string]*Brick
 }
 
-func CreateInfra(rooms []extools.NamePathBinding, modules []extools.NamePathBinding) (Infra, error) {
+func CreateInfra(configuration exargs.Configuration) (Infra, error) {
 	i := Infra{
 		Bricks: make(map[string]*Brick),
 	}
 
 	// create Modules
-	for _, m := range modules {
+	for name, path := range configuration.Modules {
 		i.Modules = append(i.Modules, Module{
-			Name: m.Name,
-			Path: m.Path,
+			Name: name,
+			Path: path,
 		})
 	}
 
 	// Temporary brick storage to have consistent indexing across rooms
 	// i.e. having an overall ordering as the index
 	bricks := []Brick{}
-	for _, r := range rooms {
-		b, err := GetBricks(r)
+	for name, path := range configuration.Rooms {
+		b, err := GetBricks(name, path)
 		if err != nil {
-			fmt.Printf("%v\n> Warning63724ff3:infra/CreateInfra:"+
-				"can't add bricks of this room: %s", err, r.Path)
+			fmt.Printf(`Cannot add "%s" (path: %s) room's bricks: %s`, name, path, err)
 		}
 
 		bricks = append(bricks, b...)
@@ -73,32 +73,32 @@ func SanitizeBrickName(name string) string {
 }
 
 // Walks the file system from the provided root, gathers all folders containing a `brick.html` file, and build a Brick struct from it.
-func GetBricks(room extools.NamePathBinding) ([]Brick, error) {
+func GetBricks(roomName string, roomPath string) ([]Brick, error) {
 	var bricks []Brick
 	var err error
 
-	_, err = os.Stat(room.Path)
+	_, err = os.Stat(roomPath)
 	if err != nil {
 		if os.IsNotExist(err) {
-			err = ErrBrickNotFound{brick: room.Path}
+			err = ErrBrickNotFound{brick: roomPath}
 			return bricks, err
 		}
 		return bricks, err
 	}
 	bricks = []Brick{{
-		Name:         room.Name,
-		Path:         room.Path,
+		Name:         roomName,
+		Path:         roomPath,
 		IsElementary: false,
 	}}
-	_, err = os.Stat(room.Path + "/brick.yml")
+	_, err = os.Stat(roomPath + "/brick.yml")
 	if err == nil {
 		bricks[0].IsElementary = true
 	}
 
 	err = filepath.WalkDir(
-		room.Path,
+		roomPath,
 		func(path string, d fs.DirEntry, err error) error {
-			brickRelPath, err := filepath.Rel(room.Path, path)
+			brickRelPath, err := filepath.Rel(roomPath, path)
 			if err != nil {
 				log.Fatal(err)
 			}
@@ -113,7 +113,7 @@ func GetBricks(room extools.NamePathBinding) ([]Brick, error) {
 
 			// A brick can just be described as a sub-path of a room, containing a prefixed folder name with digits, and split with a hypen ("-")
 			if d.Type().IsDir() && validateDirName(path) {
-				brickName := filepath.Join(room.Name, brickRelPath)
+				brickName := filepath.Join(roomName, brickRelPath)
 				name := SanitizeBrickName(brickName)
 
 				// Do not duplicate entries
@@ -129,7 +129,7 @@ func GetBricks(room extools.NamePathBinding) ([]Brick, error) {
 			// An elementary brick has prefixed folder name, and a brick.yml file.
 			// TODO(half-shell): Make the configuration filename more flexible.
 			if d.Type().IsRegular() && d.Name() == "brick.yml" {
-				brickName := filepath.Join(room.Name, filepath.Dir(brickRelPath))
+				brickName := filepath.Join(roomName, filepath.Dir(brickRelPath))
 				name := SanitizeBrickName(brickName)
 
 				// Set the last brick as elementary if names match
@@ -429,4 +429,21 @@ func (infra *Infra) EnrichBricks() {
 			}
 		}
 	}
+}
+
+func (infra *Infra) ValidateConfiguration(configuration *exargs.Configuration) error {
+	// validate brick names
+	for _, brickName := range configuration.BricksNames {
+		if _, ok := infra.Bricks[brickName]; !ok {
+			return ErrBadArg{Reason: "Brick doesn't exist:", Value: brickName}
+		}
+	}
+
+	// validate BricksSpecifiers
+	for _, specifier := range configuration.BricksSpecifiers {
+		if !extools.ContainsString(exargs.AvailableBricksSpecifiers, specifier) {
+			return ErrBadArg{Reason: "Brick's specifier doesn't exist:", Value: specifier}
+		}
+	}
+	return nil
 }

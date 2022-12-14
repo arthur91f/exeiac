@@ -12,10 +12,14 @@ import (
 // Exit code matches 3 if an error occured, 0 otherwise.
 func Default(
 	infra *exinfra.Infra,
-	args *exargs.Arguments,
-	bricksToExecute exinfra.Bricks) (statusCode int, err error) {
-	if infra == nil && args == nil {
-		err = exargs.ErrBadArg{Reason: "Error: infra and args are not set"}
+	conf *exargs.Configuration,
+	bricksToExecute exinfra.Bricks,
+) (
+	statusCode int,
+	err error,
+) {
+	if infra == nil && conf == nil {
+		err = exinfra.ErrBadArg{Reason: "Error: infra and args are not set"}
 
 		return
 	}
@@ -23,8 +27,10 @@ func Default(
 	execSummary := make(ExecSummary, len(bricksToExecute))
 
 	for i, b := range bricksToExecute {
+
 		report := ExecReport{Brick: b}
-		statusCode, err = b.Module.Exec(b, args.Action, args.OtherOptions, []string{})
+
+		statusCode, err = b.Module.Exec(b, conf.Action, conf.OtherOptions, []string{})
 
 		if err != nil {
 			if _, is := err.(exinfra.ActionNotImplementedError); is {

@@ -9,17 +9,20 @@ import (
 
 func Show(
 	infra *exinfra.Infra,
-	args *exargs.Arguments,
-	bricksToExecute exinfra.Bricks) (statusCode int, err error) {
-
+	conf *exargs.Configuration,
+	bricksToExecute exinfra.Bricks,
+) (
+	statusCode int,
+	err error,
+) {
 	// a test just to use the interface arguments
-	if infra == nil && args == nil {
+	if infra == nil && conf == nil {
 		statusCode = 3
-		err = exargs.ErrBadArg{Reason: "Error: infra and args are not setted"}
+		err = exinfra.ErrBadArg{Reason: "Error: infra and args are not setted"}
 		return
 	}
 
-	switch args.Format {
+	switch conf.Format {
 	case "path", "p":
 		for _, brick := range bricksToExecute {
 			fmt.Println(brick.Path)
@@ -47,7 +50,7 @@ func Show(
 		}
 	default:
 		statusCode = 3
-		err = fmt.Errorf("Error: format not valid for show action: %s", args.Format)
+		err = fmt.Errorf("Error: format not valid for show action: %s", conf.Format)
 		return
 	}
 	return

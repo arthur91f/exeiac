@@ -10,13 +10,16 @@ import (
 
 func Remove(
 	infra *exinfra.Infra,
-	args *exargs.Arguments,
-	bricksToExecute exinfra.Bricks) (statusCode int, err error) {
-
+	conf *exargs.Configuration,
+	bricksToExecute exinfra.Bricks,
+) (
+	statusCode int,
+	err error,
+) {
 	if len(bricksToExecute) == 0 {
-		err = exargs.ErrBadArg{Reason: "Error: you should specify at least a brick for \"remove\" action"}
+		err = exinfra.ErrBadArg{Reason: "Error: you should specify at least a brick for \"remove\" action"}
 		return 3, err
-	} else if len(bricksToExecute) > 1 && args.Interactive {
+	} else if len(bricksToExecute) > 1 && conf.Interactive {
 		fmt.Print("Here, the bricks list to remove :")
 		fmt.Print(bricksToExecute)
 		var confirm bool
