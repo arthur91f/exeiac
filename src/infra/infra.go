@@ -430,7 +430,7 @@ func (infra *Infra) ValidateConfiguration(configuration *exargs.Configuration) (
 
 	// validate BricksSpecifiers
 	for _, specifier := range configuration.BricksSpecifiers {
-		if !extools.ContainsString(exargs.AvailableBricksSpecifiers, specifier) {
+		if !extools.ContainsString(exargs.AvailableBricksSpecifiers[:], specifier) {
 			return ErrBadArg{Reason: "Brick's specifier doesn't exist:", Value: specifier}
 		}
 	}

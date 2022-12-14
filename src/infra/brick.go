@@ -131,11 +131,11 @@ func (b Brick) String() string {
 	return sb.String()
 }
 
-func (brick *Brick) SetElementary(cfp string) *Brick {
+// Set's a brick as an elementary brick by setting its `IsElementary` flag
+// to `true` and its `ConfigurationFilePath` with the provided one.
+func (brick *Brick) SetElementary(cfp string) {
 	brick.IsElementary = true
 	brick.ConfigurationFilePath = cfp
-
-	return brick
 }
 
 // Processes the relevant parts of a brick's configuration and updates the brick itself
@@ -223,8 +223,12 @@ func (b *Brick) CreateFormatters() (fileFormatters map[string]Formatter, env_for
 	return
 }
 
-func (bcy BrickConfYaml) resolveDependencies(infra *Infra) ([]Input, error) {
-	var dependencies []Input
+// Loops through a `Brick`'s configuration file's `Input` and builds a slice of `Input`s
+// out of it.
+// The `infra` argument is used to resolve a brick's name to a `Brick` reference.
+// Returns an error if something wrong happened during `Brick's` name-to-reference resolution,
+// or when checking that the `JsonPath` is a valid JSONPath.
+func (bcy BrickConfYaml) resolveDependencies(infra *Infra) (inputs []Input, err error) {
 	parseFromField := func(from string) (brickName string, dataKey string) {
 		fields := strings.Split(from, ":")
 
@@ -239,17 +243,19 @@ func (bcy BrickConfYaml) resolveDependencies(infra *Infra) ([]Input, error) {
 			brick, ok := infra.Bricks[SanitizeBrickName(brickName)]
 
 			if !ok {
-				return dependencies, errors.New(fmt.Sprintf("No brick names %s", brickName))
+				err = fmt.Errorf("No brick names %s", brickName)
+
+				return
 			}
 
 			// NOTE(half-shell): We make sure the jsonPath's form is valid
-			_, err := jsonpath.New(keyPath)
+			_, err = jsonpath.New(keyPath)
 			if err != nil {
-				return dependencies, err
+				return
 			}
 
 			if inputFormat, isSupported := SupportedFormats[i.Format]; isSupported {
-				dependencies = append(dependencies, Input{
+				inputs = append(inputs, Input{
 					VarName:  d.Name,
 					JsonPath: keyPath,
 					Brick:    brick,
@@ -263,5 +269,5 @@ func (bcy BrickConfYaml) resolveDependencies(infra *Infra) ([]Input, error) {
 		}
 	}
 
-	return dependencies, nil
+	return
 }

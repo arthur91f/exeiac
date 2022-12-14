@@ -10,6 +10,8 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
+// A type matching the structure of exeiac's configuration file (`conf.yml`)
+// Its purpose is merely to load the configuration.
 type ConfigurationFile struct {
 	Rooms []struct {
 		Name string `yaml:"name"`
@@ -26,6 +28,11 @@ type ConfigurationFile struct {
 	} `yaml:"default_arguments"`
 }
 
+// A structure matching the `Arguments` type one. It is used to merge the values defined both
+// in the command lien with flags, and in the exeiac configuration file.
+//
+// NOTE(half-shell): Should be able to embed the ` Arguments` struct.
+// We replicate the `Arguments` since it does not seem to work out of the box for some reason.
 type Configuration struct {
 	Action            string
 	BricksNames       []string
@@ -89,6 +96,11 @@ func createConfiguration(confFilePath string) (configuration Configuration, err 
 	return
 }
 
+// Creates a `Configuration` struct resulting from the merger of the configuration file, and
+// the command lien arguments (`Arguments`).
+// Takes an instance of the `Arguments` struct as input that it can use to load the configuration file.
+// Returns a tuple of a configuration if successful, return an error as last member otherwise.
+//
 // NOTE(half-shell): We can change the behaviour of the configuration building
 // depending on a flag defined in "Arguments".
 // For instance: do we want to merge arguments or override them?

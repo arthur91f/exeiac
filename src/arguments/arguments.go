@@ -6,6 +6,9 @@ import (
 	"strings"
 )
 
+// A struct matching the arguments available to be provided through the command line.
+// Used only to gather the command line arguments once parsed, and to be used as
+// a parameter to build a `Configuration` struct.
 type Arguments struct {
 	Action            string
 	BricksNames       []string
@@ -35,12 +38,14 @@ func (a Arguments) String() string {
 	return sb.String()
 }
 
-var actions_list = []string{
+// An array containing all of the supported actions
+var actions_list = [...]string{
 	"plan", "lay", "remove", "output", "init", "validate_code", "help",
 	"show_input", "list_elementary_bricks", "cd",
 	"get_brick_path", "get_brick_name"}
 
-var AvailableBricksSpecifiers = []string{
+// An array containing all of the supported brick's specifiers
+var AvailableBricksSpecifiers = [...]string{
 	"linked_previous", "all_previous", "lp", "ap",
 	"direct_previous", "dp",
 	"selected", "s",
