@@ -44,3 +44,10 @@ func (i EnvFormat) Format() (input []byte, err error) {
 
 	return
 }
+
+func (i EnvFormat) Environ() (envVars []string) {
+	for varName, varVal := range i {
+		envVars = append(envVars, fmt.Sprintf("%s=%v", varName, varVal))
+	}
+	return
+}

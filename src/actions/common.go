@@ -45,7 +45,7 @@ func enrichDatas(bricksToExecute exinfra.Bricks, infra *exinfra.Infra) error {
 			return b.EnrichError
 		}
 
-		formatters, err := b.CreateFormatters()
+		formatters, envFormatter, err := b.CreateFormatters()
 		if err != nil {
 			return err
 		}
@@ -66,7 +66,7 @@ func enrichDatas(bricksToExecute exinfra.Bricks, infra *exinfra.Infra) error {
 		}
 
 		stdout := exinfra.StoreStdout{}
-		exitError, err := b.Module.Exec(b, "output", []string{}, &stdout)
+		exitError, err := b.Module.Exec(b, "output", []string{}, envFormatter.Environ(), &stdout)
 		if err != nil {
 			return err
 		}

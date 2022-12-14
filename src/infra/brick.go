@@ -21,8 +21,10 @@ type Input struct {
 	JsonPath string
 	// A reference to the related brick
 	Brick *Brick
-	// The type can be env_var, env_file, json, yaml, hashicorp
-	Type InputFormat
+	// The Format can be env, json, yaml, hashicorp
+	Format InputFormat
+	// The type can be env, file
+	Type string
 	// The relative path from the brickPath of the file where the input will be written
 	Path string // (obviously it is "" for env_var type)
 }
@@ -66,8 +68,10 @@ type BrickConfYaml struct {
 	// It **usually** matches the plain or processed output of another brick
 	Input []struct {
 		// The type of input this brick is expecting
-		// Can match the strings "env_file" or "env_var"
+		// Can match the strings "file" or "env_vars"
 		Type string `yaml:"type"`
+		// Can be json, yaml, env
+		Format string `yaml:"format"`
 		// If the type is a path, it is the path the dependency output should be saved to
 		Path string `yaml:"path"`
 		Data []struct {
@@ -164,12 +168,11 @@ func (brick *Brick) Enrich(bcy BrickConfYaml, infra *Infra) error {
 // Returns a map with the intput file path as the key, and the relevant Formatter as the value.
 // The key is `env` if there is no path and the inputs are supposed to be passed around as
 // environment variables
-func (b *Brick) CreateFormatters() (formatters map[string]Formatter, err error) {
-	formatters = make(map[string]Formatter)
+func (b *Brick) CreateFormatters() (fileFormatters map[string]Formatter, env_formatters EnvFormat, err error) {
+	fileFormatters = make(map[string]Formatter)
 
 	// NOTE(half-shell): This is pretty ugly, but there does not seem to be a way to create
-	// a 3-fold nested map otherwise.
-	// This is a pretty good use case for a tree-like structure!
+	// a 3-fold nested map otherwise.	// This is a pretty good use case for a tree-like structure!
 	varNameToVal := make(map[string]interface{})
 	pathToVars := make(map[string]map[string]interface{})
 	// Temporary variable holding the values dispatched by format, path and variable name.
@@ -191,26 +194,31 @@ func (b *Brick) CreateFormatters() (formatters map[string]Formatter, err error) 
 		path := filepath.Join(b.Path, i.Path)
 		varNameToVal[i.VarName] = varVal
 		pathToVars[path] = varNameToVal
-		rawInputs[i.Type] = pathToVars
+		rawInputs[i.Format] = pathToVars
 	}
 
 	for format, paths := range rawInputs {
 		for path, vals := range paths {
 			switch format {
 			case Json:
-				formatters[path] = JsonFormat(vals)
+				fileFormatters[path] = JsonFormat(vals)
 			case Env:
-				formatters[path] = EnvFormat(vals)
+				if path == b.Path {
+					env_formatters = EnvFormat(vals)
+				} else {
+					fileFormatters[path] = EnvFormat(vals)
+				}
 			default:
 				// TODO(half-shell): One way of dealing with inputs passed around as environment variables
 				// would be to check for a path, and if none is present, just return on for a path of `env`
 				// for instance, which would be handled some other way down the line
-				return formatters, errors.New(fmt.Sprintf("Format %s is not handled", format))
+				err = fmt.Errorf("Format %s is not handled", format)
+				return
 			}
 		}
 	}
 
-	return formatters, nil
+	return
 }
 
 func (bcy BrickConfYaml) resolveDependencies(infra *Infra) ([]Input, error) {
@@ -238,12 +246,13 @@ func (bcy BrickConfYaml) resolveDependencies(infra *Infra) ([]Input, error) {
 				return dependencies, err
 			}
 
-			if inputType, isSupported := SupportedFormats[i.Type]; isSupported {
+			if inputFormat, isSupported := SupportedFormats[i.Format]; isSupported {
 				dependencies = append(dependencies, Input{
 					VarName:  d.Name,
 					JsonPath: keyPath,
 					Brick:    brick,
-					Type:     inputType,
+					Format:   inputFormat,
+					Type:     i.Type,
 					Path:     i.Path,
 				})
 			} else {

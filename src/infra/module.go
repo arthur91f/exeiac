@@ -71,11 +71,14 @@ func (module *Module) LoadAvailableActions() error {
 	return nil
 }
 
-func (m *Module) exec(brick *Brick, args []string, stdout io.Writer, stderr io.Writer) (err error) {
+func (m *Module) exec(brick *Brick,
+	args []string, env []string,
+	stdout io.Writer, stderr io.Writer) (err error) {
+
 	cmd := exec.Cmd{
 		Path:   m.Path,
 		Args:   append([]string{m.Path}, args...),
-		Env:    []string{},
+		Env:    env,
 		Dir:    brick.Path,
 		Stdin:  os.Stdin,
 		Stdout: stdout,
@@ -87,19 +90,27 @@ func (m *Module) exec(brick *Brick, args []string, stdout io.Writer, stderr io.W
 	return
 }
 
-func (m *Module) Exec(b *Brick, action string, args []string, writers ...io.Writer) (exitError *exec.ExitError, err error) {
+func (m *Module) Exec(b *Brick,
+	action string, args []string, env []string,
+	writers ...io.Writer) (exitError *exec.ExitError, err error) {
+
 	if !extools.ContainsString(m.Actions, action) {
 		err = ActionNotImplementedError{Action: action, Module: m}
-
 		return
 	}
 
-	if len(writers) > 1 {
-		err = m.exec(b, append([]string{action}, args...), writers[0], writers[1])
-	} else if len(writers) > 0 {
-		err = m.exec(b, append([]string{action}, args...), writers[0], os.Stderr)
+	if len(env) != 0 {
+		env = append(os.Environ(), env...)
 	} else {
-		err = m.exec(b, append([]string{action}, args...), os.Stdout, os.Stderr)
+		env = os.Environ()
+	}
+
+	if len(writers) > 1 {
+		err = m.exec(b, append([]string{action}, args...), env, writers[0], writers[1])
+	} else if len(writers) > 0 {
+		err = m.exec(b, append([]string{action}, args...), env, writers[0], os.Stderr)
+	} else {
+		err = m.exec(b, append([]string{action}, args...), env, os.Stdout, os.Stderr)
 	}
 
 	if err != nil {
