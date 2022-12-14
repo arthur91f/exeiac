@@ -21,3 +21,12 @@ type ErrBrickNotFound struct {
 func (e ErrBrickNotFound) Error() string {
 	return fmt.Sprintf("Brick not found: %s", e.brick)
 }
+
+type ActionNotImplementedError struct {
+	Action string
+	Module *Module
+}
+
+func (err ActionNotImplementedError) Error() string {
+	return fmt.Sprintf("Module %s does not implement action %s", err.Module.Name, err.Action)
+}
