@@ -4,57 +4,7 @@ import (
 	"fmt"
 	exargs "src/exeiac/arguments"
 	exinfra "src/exeiac/infra"
-	"strings"
-
-	color "github.com/fatih/color"
 )
-
-type ExecSummary []ExecReport
-
-type ExecReport struct {
-	Brick      *exinfra.Brick
-	StatusCode int
-	Error      error
-}
-
-func (es ExecSummary) Display() {
-	var sb strings.Builder
-
-	sb.WriteString(color.New(color.Bold).Sprint("\nSummary:\n"))
-	for _, report := range es {
-		sb.WriteString("- ")
-		if report.Error != nil || report.StatusCode != 0 {
-			sb.WriteString(color.New(color.Bold).Sprint("["))
-			sb.WriteString(color.RedString("NOK"))
-			sb.WriteString(color.New(color.Bold).Sprint("]"))
-		} else {
-			sb.WriteString(color.New(color.Bold).Sprint("["))
-			sb.WriteString(color.GreenString("OK"))
-			sb.WriteString(color.New(color.Bold).Sprint("]"))
-		}
-		sb.WriteString(fmt.Sprintf(" %s", report.Brick.Name))
-		sb.WriteString("\n")
-	}
-
-	fmt.Print(sb.String())
-}
-
-func (es ExecSummary) String() string {
-	var sb strings.Builder
-
-	sb.WriteString("Summary:\n")
-	for _, report := range es {
-		if report.Error != nil {
-			sb.WriteString("Failed")
-		} else {
-			sb.WriteString("Succeess")
-		}
-		sb.WriteString(fmt.Sprintf(" %s", report.Brick.Name))
-		sb.WriteString("\n")
-	}
-
-	return sb.String()
-}
 
 // Triggers a module execution for very single brick in `bricksToExecute`
 // Ignores errors and calls the action in `args.Action` for every single brick,
@@ -73,6 +23,7 @@ func Default(
 	execSummary := make(ExecSummary, len(bricksToExecute))
 
 	for i, b := range bricksToExecute {
+		report := ExecReport{Brick: b}
 		statusCode, err = b.Module.Exec(b, args.Action, args.OtherOptions, []string{})
 
 		if err != nil {
@@ -81,16 +32,17 @@ func Default(
 				// and move on with the execution
 				fmt.Printf("%v ; assume there is nothing to do.\n", err)
 				err = nil
+				report.Status = "OK"
 			} else {
 				statusCode = 3
+				report.Status = "ERR"
+				report.Error = err
 			}
+		} else {
+			report.Status = "DONE"
 		}
 
-		execSummary[i] = ExecReport{
-			Brick:      b,
-			StatusCode: statusCode,
-			Error:      err,
-		}
+		execSummary[i] = report
 	}
 
 	execSummary.Display()
