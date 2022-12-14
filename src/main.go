@@ -35,7 +35,7 @@ func main() {
 	}
 
 	// enrich bricks that we will execute
-	enrichBricks(&infra)
+	infra.EnrichBricks()
 
 	// get bricks selected
 	var bricks exinfra.Bricks
@@ -89,24 +89,4 @@ func validArgBricksAreInInfra(infra *exinfra.Infra, args *exargs.Arguments) erro
 		}
 	}
 	return nil
-}
-
-func enrichBricks(infra *exinfra.Infra) {
-	for _, b := range infra.Bricks {
-		if b.IsElementary {
-			conf, err := exinfra.BrickConfYaml{}.New(b.ConfigurationFilePath)
-			if err != nil {
-				infra.Bricks[b.Name].EnrichError = err
-			}
-
-			err = b.Enrich(conf, infra)
-			if err != nil {
-				infra.Bricks[b.Name].EnrichError = err
-			}
-			err = b.Module.LoadAvailableActions()
-			if err != nil {
-				infra.Bricks[b.Name].EnrichError = err
-			}
-		}
-	}
 }

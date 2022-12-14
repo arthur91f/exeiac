@@ -410,3 +410,23 @@ func (infra *Infra) GetCorrespondingBricks(
 
 	return
 }
+
+func (infra *Infra) EnrichBricks() {
+	for _, b := range infra.Bricks {
+		if b.IsElementary {
+			conf, err := BrickConfYaml{}.New(b.ConfigurationFilePath)
+			if err != nil {
+				infra.Bricks[b.Name].EnrichError = err
+			}
+
+			err = b.Enrich(conf, infra)
+			if err != nil {
+				infra.Bricks[b.Name].EnrichError = err
+			}
+			err = b.Module.LoadAvailableActions()
+			if err != nil {
+				infra.Bricks[b.Name].EnrichError = err
+			}
+		}
+	}
+}
