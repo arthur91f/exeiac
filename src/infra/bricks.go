@@ -1,9 +1,16 @@
 package infra
 
-import "fmt"
+import (
+	"fmt"
+	"strings"
+)
 
 // A slice of several Brick.
 type Bricks []*Brick
+
+// A map of bricks, key being the brick's name, and the value being a reference to a `Brick` struct.
+// Defined as itw own type mainly for display purposes.
+type BricksMap map[string]*Brick
 
 // Allows for sorting over Bricks
 func (slice Bricks) Len() int {
@@ -18,6 +25,19 @@ func (slice Bricks) Less(i, j int) bool {
 // Allows for sorting over Bricks
 func (slice Bricks) Swap(i, j int) {
 	slice[i], slice[j] = slice[j], slice[i]
+}
+
+func (b Bricks) String() string {
+	var sb strings.Builder
+
+	for i, brick := range b {
+		sb.WriteString(fmt.Sprintf("- \t%d: %s", brick.Index, brick.Name))
+		if i < len(b)-1 {
+			sb.WriteString("\n")
+		}
+	}
+
+	return sb.String()
 }
 
 // Helper function to check wheither or not a brick was added to a slice of bricks
@@ -44,14 +64,12 @@ func RemoveDuplicates(bricks Bricks) Bricks {
 	return bs
 }
 
-func (b Bricks) String() string {
-	var str string
-	if len(b) > 0 {
-		for _, brick := range b {
-			str = fmt.Sprintf("%s\n- %s", str, brick.Name)
-		}
-	} else {
-		str = " []"
+func (b BricksMap) String() string {
+	var sb strings.Builder
+
+	for _, brick := range b {
+		sb.WriteString(fmt.Sprintf("- %v", brick))
 	}
-	return str
+
+	return sb.String()
 }

@@ -17,7 +17,7 @@ import (
 
 type Infra struct {
 	Modules []Module
-	Bricks  map[string]*Brick
+	Bricks  BricksMap
 }
 
 func CreateInfra(configuration exargs.Configuration) (Infra, error) {
@@ -147,33 +147,19 @@ func GetBricks(roomName string, roomPath string) ([]Brick, error) {
 }
 
 func (infra Infra) String() string {
-	var modulesString string
-	var bricksString string
+	var sb strings.Builder
+	var modulesSb strings.Builder
+	var bricksSb strings.Builder
 
-	if len(infra.Modules) > 0 {
-		for _, m := range infra.Modules {
-			modulesString = fmt.Sprintf("%s%s", modulesString,
-				extools.IndentForListItem(m.String()))
-		}
-		modulesString = fmt.Sprintf("modules:\n%s", modulesString)
-	} else {
-		modulesString = "modules: []\n"
+	for _, m := range infra.Modules {
+		modulesSb.WriteString(fmt.Sprintf("%s", m))
 	}
 
-	if len(infra.Bricks) > 0 {
-		for _, b := range infra.Bricks {
-			bricksString = fmt.Sprintf("%s%s", bricksString,
-				extools.IndentForListItem(b.String()))
-		}
-		bricksString = fmt.Sprintf("bricks:\n%s", bricksString)
-	} else {
-		bricksString = "bricks: []\n"
-	}
+	bricksSb.WriteString(fmt.Sprintf("%v", infra.Bricks))
 
-	return fmt.Sprintf("infra:\n%s%s",
-		extools.Indent(modulesString),
-		extools.Indent(bricksString),
-	)
+	sb.WriteString(fmt.Sprintf("Modules: [\n%s]\nBricks:[\n%s]", modulesSb.String(), bricksSb.String()))
+
+	return sb.String()
 }
 
 func GetModule(name string, modules *[]Module) (*Module, error) {

@@ -7,7 +7,6 @@ import (
 	"log"
 	"os"
 	"path/filepath"
-	extools "src/exeiac/tools"
 	"strings"
 
 	"github.com/PaesslerAG/jsonpath"
@@ -104,29 +103,32 @@ func (bcy BrickConfYaml) New(path string) (BrickConfYaml, error) {
 }
 
 func (b Brick) String() string {
-	alwaysPresent := fmt.Sprintf(
-		"index: %d\nname: %s\npath: %s\nisElementary: %t\nconfFile: %s",
-		b.Index, b.Name, b.Path, b.IsElementary, b.ConfigurationFilePath)
+	var sb strings.Builder
 
-	conditional := "\n"
+	sb.WriteString(fmt.Sprintf("\tIndex: %d\n", b.Index))
+	sb.WriteString(fmt.Sprintf("\tName: %s\n", b.Name))
+	sb.WriteString(fmt.Sprintf("\tPath: %s\n", b.Path))
+	sb.WriteString(fmt.Sprintf("\tIsElementary: %v", b.IsElementary))
+
+	if len(b.ConfigurationFilePath) != 0 {
+		sb.WriteString(fmt.Sprintf("\n\tConfigurationFile: %s", b.ConfigurationFilePath))
+	}
+
 	if b.EnrichError != nil {
-		conditional = fmt.Sprintf("enrichError:%s\n", b.EnrichError)
+		sb.WriteString(fmt.Sprintf("\n\tEnrichError:%s", b.EnrichError))
 	}
 
 	if b.Module != nil {
-		conditional = fmt.Sprintf("%smodule:%s\n", conditional, b.Module.Name)
+		sb.WriteString(fmt.Sprintf("\n\tModule:%s", b.Module.Name))
 	}
 
 	if len(b.Inputs) > 0 {
-		dpStr := []string{}
-		for _, d := range b.Inputs {
-			dpStr = append(dpStr, d.String())
-		}
-		conditional = fmt.Sprintf("%sinputData:%s",
-			conditional, extools.StringListOfString(dpStr))
+		sb.WriteString(fmt.Sprintf("\n\tInputs: %v", b.Inputs))
 	}
 
-	return fmt.Sprintf("%s%s", alwaysPresent, conditional)
+	sb.WriteString("\n")
+
+	return sb.String()
 }
 
 func (brick *Brick) SetElementary(cfp string) *Brick {
