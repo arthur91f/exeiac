@@ -33,10 +33,10 @@ func PassthroughAction(
 		statusCode, err = b.Module.Exec(b, conf.Action, conf.OtherOptions, []string{})
 
 		if err != nil {
-			if _, is := err.(exinfra.ActionNotImplementedError); is {
+			if actionNotImplementedError, isActionNotImplemented := err.(exinfra.ActionNotImplementedError); isActionNotImplemented {
 				// NOTE(half-shell): if action if not implemented, we don't take it as an error
 				// and move on with the execution
-				fmt.Printf("%v ; assume there is nothing to do.\n", err)
+				fmt.Printf("%v ; assume there is nothing to do.\n", actionNotImplementedError)
 				err = nil
 				report.Status = "OK"
 			} else {
