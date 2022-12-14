@@ -12,8 +12,9 @@ import (
 type ExecSummary []ExecReport
 
 type ExecReport struct {
-	Brick *exinfra.Brick
-	Error error
+	Brick      *exinfra.Brick
+	StatusCode int
+	Error      error
 }
 
 func (es ExecSummary) Display() {
@@ -22,7 +23,7 @@ func (es ExecSummary) Display() {
 	sb.WriteString(color.New(color.Bold).Sprint("\nSummary:\n"))
 	for _, report := range es {
 		sb.WriteString("- ")
-		if report.Error != nil {
+		if report.Error != nil || report.StatusCode != 0 {
 			sb.WriteString(color.New(color.Bold).Sprint("["))
 			sb.WriteString(color.RedString("NOK"))
 			sb.WriteString(color.New(color.Bold).Sprint("]"))
@@ -72,11 +73,7 @@ func Default(
 	execSummary := make(ExecSummary, len(bricksToExecute))
 
 	for i, b := range bricksToExecute {
-		exitError, err := b.Module.Exec(b, args.Action, args.OtherOptions, []string{})
-
-		if exitError != nil {
-			statusCode = exitError.ExitCode()
-		}
+		statusCode, err = b.Module.Exec(b, args.Action, args.OtherOptions, []string{})
 
 		if err != nil {
 			if _, is := err.(exinfra.ActionNotImplementedError); is {
@@ -90,8 +87,9 @@ func Default(
 		}
 
 		execSummary[i] = ExecReport{
-			Brick: b,
-			Error: err,
+			Brick:      b,
+			StatusCode: statusCode,
+			Error:      err,
 		}
 	}
 

@@ -92,7 +92,7 @@ func (m *Module) exec(brick *Brick,
 
 func (m *Module) Exec(b *Brick,
 	action string, args []string, env []string,
-	writers ...io.Writer) (exitError *exec.ExitError, err error) {
+	writers ...io.Writer) (statusCode int, err error) {
 
 	if !extools.ContainsString(m.Actions, action) {
 		err = ActionNotImplementedError{Action: action, Module: m}
@@ -114,10 +114,12 @@ func (m *Module) Exec(b *Brick,
 	}
 
 	if err != nil {
+		statusCode = 0
+	} else {
 		if ee, isExitError := err.(*exec.ExitError); isExitError {
 			// NOTE(half-shell): We don't consider an exitError an actual error as far as exeiac goes.
 			// We return it as a separate value to make that distinction obvious.
-			exitError = ee
+			statusCode = ee.ExitCode()
 			err = nil
 		}
 	}
