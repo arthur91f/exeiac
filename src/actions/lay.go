@@ -3,7 +3,6 @@ package actions
 import (
 	"bytes"
 	"fmt"
-	"os"
 	exargs "src/exeiac/arguments"
 	exinfra "src/exeiac/infra"
 	extools "src/exeiac/tools"
@@ -29,72 +28,57 @@ func Lay(
 
 		// skip if an error was encounter before
 		if skipFollowing {
-			report.Status = "SKIP"
+			report.Status = TAG_SKIP
 			execSummary[i] = report
 			continue
 		}
 
 		// write env file if needed
-		formatters, envFormatter, err := b.CreateFormatters()
+		var envs []string
+		envs, err = writeEnvFilesAndGetEnvs(b)
 		if err != nil {
 			return 3, err
 		}
 
-		if len(formatters) > 0 {
-			for path, formatter := range formatters {
-				f, err := os.Create(path)
-				if err != nil {
-					return 3, err
-				}
-
-				data, err := formatter.Format()
-				_, err = f.Write(data)
-				if err != nil {
-					return 3, err
-				}
-			}
-		}
-
 		// lay and manage error
-		exitStatus, err := b.Module.Exec(b, "lay", []string{}, envFormatter.Environ())
+		exitStatus, err := b.Module.Exec(b, "lay", []string{}, envs)
 		if err != nil {
 			skipFollowing = true
 			report.Error = err
-			report.Status = "ERR"
+			report.Status = TAG_ERROR
+			statusCode = 3
 		} else if exitStatus != 0 {
 			skipFollowing = true
 			report.Error = fmt.Errorf("lay return: %b", exitStatus)
-			report.Status = "ERR"
+			report.Status = TAG_ERROR
+			statusCode = 3
 		}
 
 		// check if outputs has changed
 		stdout := exinfra.StoreStdout{}
-		exitStatus, err = b.Module.Exec(b, "output", []string{}, envFormatter.Environ(), &stdout)
+		exitStatus, err = b.Module.Exec(b, "output", []string{}, envs, &stdout)
 		if err != nil {
 			skipFollowing = true
 			report.Error = fmt.Errorf("layed apparently success but output failed : %v", err)
-			report.Status = "ERR"
+			report.Status = TAG_ERROR
+			statusCode = 3
 		}
 		if exitStatus != 0 {
 			skipFollowing = true
 			report.Error = fmt.Errorf("layed apparently success but output return : %b", exitStatus)
-			report.Status = "ERR"
+			report.Status = TAG_ERROR
+			statusCode = 3
 		}
 		if bytes.Compare(stdout.Output, b.Output) == 0 {
-			report.Status = "OK"
+			report.Status = TAG_NO_CHANGE
 		} else {
 			b.Output = stdout.Output
-			report.Status = "DONE"
+			report.Status = TAG_DONE
 		}
-		execSummary[i] = report
 
+		execSummary[i] = report
 	}
 
 	execSummary.Display()
-	for _, report := range execSummary {
-		if !(report.Status == "OK" || report.Status == "DONE") {
-			statusCode = 3
-		}
-	}
 	return
 }
