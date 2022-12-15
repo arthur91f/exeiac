@@ -15,7 +15,7 @@ func Lay(
 
 	if len(bricksToExecute) == 0 {
 		err = exargs.ErrBadArg{Reason: "Error: you should specify at least a brick for lay action"}
-		return
+		return 3, err
 	} else if len(bricksToExecute) > 1 && args.Interactive {
 		fmt.Print("Here, the bricks list to lay :")
 		fmt.Print(bricksToExecute)
