@@ -14,12 +14,6 @@ func Lay(
 	args *exargs.Arguments,
 	bricksToExecute exinfra.Bricks) (statusCode int, err error) {
 
-	if infra == nil && args == nil {
-		statusCode = 3
-		err = exargs.ErrBadArg{Reason: "Error: infra and args are not setted"}
-		return
-	}
-
 	err = enrichDatas(bricksToExecute, infra)
 	if err != nil {
 		return 3, err
@@ -30,7 +24,6 @@ func Lay(
 
 	for i, b := range bricksToExecute {
 
-		// what you always do
 		extools.DisplaySeparator(b.Name)
 		report := ExecReport{Brick: b}
 
@@ -93,14 +86,11 @@ func Lay(
 			b.Output = stdout.Output
 			report.Status = "DONE"
 		}
-
-		// what you always do
 		execSummary[i] = report
 
 	}
 
 	execSummary.Display()
-	statusCode = 0
 	for _, report := range execSummary {
 		if !(report.Status == "OK" || report.Status == "DONE") {
 			statusCode = 3
