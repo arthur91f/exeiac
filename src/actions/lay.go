@@ -13,6 +13,21 @@ func Lay(
 	args *exargs.Arguments,
 	bricksToExecute exinfra.Bricks) (statusCode int, err error) {
 
+	if len(bricksToExecute) == 0 {
+		err = exargs.ErrBadArg{Reason: "Error: you should specify at least a brick for lay action"}
+		return
+	} else if len(bricksToExecute) > 1 && args.Interactive {
+		fmt.Print("Here, the bricks list to lay :")
+		fmt.Print(bricksToExecute)
+		var confirm bool
+		confirm, err = extools.AskConfirmation("\nDo you want to continue ?")
+		if err != nil {
+			return 3, err
+		} else if !confirm {
+			return 0, nil
+		}
+	}
+
 	err = enrichDatas(bricksToExecute, infra)
 	if err != nil {
 		return 3, err
