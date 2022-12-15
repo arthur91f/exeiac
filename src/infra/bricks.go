@@ -1,5 +1,7 @@
 package infra
 
+import "fmt"
+
 // A slice of several Brick.
 type Bricks []*Brick
 
@@ -40,4 +42,16 @@ func RemoveDuplicates(bricks Bricks) Bricks {
 		}
 	}
 	return bs
+}
+
+func (b Bricks) String() string {
+	var str string
+	if len(b) > 0 {
+		for _, brick := range b {
+			str = fmt.Sprintf("%s\n- %s", str, brick.Name)
+		}
+	} else {
+		str = " []"
+	}
+	return str
 }
