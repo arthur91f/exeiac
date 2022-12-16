@@ -19,6 +19,7 @@ type Arguments struct {
 	OtherOptions      []string
 	Rooms             map[string]string
 	ConfigurationFile string
+	ShowUsage         bool
 }
 
 func (a Arguments) String() string {
