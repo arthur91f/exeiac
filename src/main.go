@@ -31,22 +31,24 @@ func main() {
 
 	configuration, err := exargs.FromArguments(exargs.Args)
 	if err != nil {
-		fmt.Printf("%v\n> Error636a4c9e:main/main: unable to get exargs.Args\n",
-			err)
+		fmt.Fprintln(os.Stderr, err)
+
 		os.Exit(2)
 	}
 
 	// build infra representation
 	infra, err := exinfra.CreateInfra(configuration)
 	if err != nil {
-		fmt.Printf("%v\n> Error636f6894:main/main: "+
-			"unable to get an infra representation\n", err)
+		fmt.Fprintln(os.Stderr, err)
+
 		os.Exit(1)
 	}
 
 	err = infra.ValidateConfiguration(&configuration)
 	if err != nil {
-		log.Fatal(err)
+		fmt.Fprintln(os.Stderr, err)
+
+		os.Exit(1)
 	}
 
 	// enrich bricks that we will execute
@@ -56,14 +58,18 @@ func main() {
 	var bricks exinfra.Bricks
 	bricks, err = infra.GetBricksFromNames(exargs.Args.BricksNames)
 	if err != nil {
-		log.Fatal(err)
+		fmt.Fprintln(os.Stderr, err)
+
+		os.Exit(1)
 	}
 
 	// get bricks specified by parameters
 	var bricksToExecute exinfra.Bricks
 	bricksToExecute, err = infra.GetCorrespondingBricks(bricks, configuration.BricksSpecifiers)
 	if err != nil {
-		log.Fatal(err)
+		fmt.Fprintln(os.Stderr, err)
+
+		os.Exit(1)
 	}
 
 	// executeAction
@@ -75,7 +81,8 @@ func main() {
 	}
 
 	if err != nil {
-		log.Printf("%v\n", err)
+		fmt.Fprintln(os.Stderr, err)
+		log.Fatal(err)
 	}
 
 	os.Exit(statusCode)

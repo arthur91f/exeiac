@@ -4,11 +4,15 @@ import (
 	"fmt"
 	"os"
 	"reflect"
-	extools "src/exeiac/tools"
 	"strings"
 
+	extools "src/exeiac/tools"
+
+	"github.com/adrg/xdg"
 	"gopkg.in/yaml.v2"
 )
+
+const CONFIG_FILE = "exeiac/exeiac.yml"
 
 // A type matching the structure of exeiac's configuration file (`conf.yml`)
 // Its purpose is merely to load the configuration.
@@ -106,7 +110,19 @@ func createConfiguration(confFilePath string) (configuration Configuration, err 
 // For instance: do we want to merge arguments or override them?
 // Current behaviour is "merging" them
 func FromArguments(args Arguments) (configuration Configuration, err error) {
-	conf, err := createConfiguration(args.ConfigurationFile)
+	var conf Configuration
+
+	if args.ConfigurationFile != "" {
+		conf, err = createConfiguration(args.ConfigurationFile)
+	} else {
+		var configFilePath string
+
+		configFilePath, err = xdg.SearchConfigFile(CONFIG_FILE)
+		if err == nil {
+			conf, err = createConfiguration(configFilePath)
+		}
+	}
+
 	if err != nil {
 		// NOTE(half-shell): We only report an error on configuration reading if the command line
 		// arguments are enough to handle exeiac's execution.
