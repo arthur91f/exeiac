@@ -28,15 +28,18 @@ OPTIONS:
 
 func Help(
 	infra *exinfra.Infra,
-	args *exargs.Arguments,
-	bricksToExecute exinfra.Bricks) (statusCode int, err error) {
-
-	if len(args.BricksNames) == 0 {
+	conf *exargs.Configuration,
+	bricksToExecute exinfra.Bricks,
+) (
+	statusCode int,
+	err error,
+) {
+	if len(conf.BricksNames) == 0 {
 		fmt.Println(defaultHelp)
 		return
 	} else {
 		// TODO(arthur91f): let browse the execute plan to check all different bricks help
-		return 3, exargs.ErrBadArg{
+		return 3, exinfra.ErrBadArg{
 			Reason: "Help action take 0 or one brick as arg, not more"}
 	}
 	/*

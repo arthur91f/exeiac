@@ -1,7 +1,8 @@
 version: 0.0.1
 module: test
 input:
-  - type: env_file
+  - format: env
+    type: file
     path: .env
     data:
       - name: env_name

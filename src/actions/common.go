@@ -13,7 +13,7 @@ import (
 	"github.com/fatih/color"
 )
 
-var BehaviourMap = map[string]func(*exinfra.Infra, *exargs.Arguments, exinfra.Bricks) (int, error){
+var BehaviourMap = map[string]func(*exinfra.Infra, *exargs.Configuration, exinfra.Bricks) (int, error){
 	"clean":         Clean,
 	"help":          Help,
 	"init":          Default,

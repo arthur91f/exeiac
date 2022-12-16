@@ -13,5 +13,5 @@ rooms:
   - name: users
     path: /home/ME/git-repos/users
 default_arguments:
-  other_options: "--test-args 0+0=toto"
-
+  other_options:
+    - "--test-args 0+0=toto"

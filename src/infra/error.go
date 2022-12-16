@@ -27,6 +27,19 @@ type ActionNotImplementedError struct {
 	Module *Module
 }
 
+type ErrBadArg struct {
+	Reason string
+	Value  string
+}
+
 func (err ActionNotImplementedError) Error() string {
 	return fmt.Sprintf("Module %s does not implement action %s", err.Module.Name, err.Action)
+}
+
+func (e ErrBadArg) Error() string {
+	if e.Value == "" {
+		return fmt.Sprintf("! Bad argument: %s", e.Reason)
+	} else {
+		return fmt.Sprintf("! Bad argument: %s: %s", e.Reason, e.Value)
+	}
 }

@@ -8,14 +8,19 @@ import (
 
 func DebugArgs(
 	infra *exinfra.Infra,
-	args *exargs.Arguments,
-	bricksToExecute exinfra.Bricks) (int, error) {
-	fmt.Println(args)
-	return 0, nil
+	conf *exargs.Configuration,
+	bricksToExecute exinfra.Bricks,
+) (
+	statusCode int,
+	err error,
+) {
+	fmt.Println(conf)
+
+	return
 }
 
 func DebugInfra(
-	infra *exinfra.Infra, args *exargs.Arguments, bricksToExecute exinfra.Bricks) (
+	infra *exinfra.Infra, conf *exargs.Configuration, bricksToExecute exinfra.Bricks) (
 	statusCode int, err error) {
 	statusCode = 0
 	fmt.Println(infra)

@@ -9,11 +9,14 @@ import (
 
 func Plan(
 	infra *exinfra.Infra,
-	args *exargs.Arguments,
-	bricksToExecute exinfra.Bricks) (statusCode int, err error) {
-
+	args *exargs.Configuration,
+	bricksToExecute exinfra.Bricks,
+) (
+	statusCode int,
+	err error,
+) {
 	if len(bricksToExecute) == 0 {
-		err = exargs.ErrBadArg{Reason: "Error: you should specify at least a brick for plan action"}
+		err = exinfra.ErrBadArg{Reason: "Error: you should specify at least a brick for plan action"}
 		return 3, err
 	}
 
