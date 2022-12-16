@@ -9,7 +9,7 @@ import (
 
 func Plan(
 	infra *exinfra.Infra,
-	args *exargs.Configuration,
+	conf *exargs.Configuration,
 	bricksToExecute exinfra.Bricks,
 ) (
 	statusCode int,

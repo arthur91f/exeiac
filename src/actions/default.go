@@ -10,7 +10,7 @@ import (
 // Ignores errors and calls the action in `args.Action` for every single brick,
 // then prints out a summary of it all.
 // Exit code matches 3 if an error occured, 0 otherwise.
-func Default(
+func PassthroughAction(
 	infra *exinfra.Infra,
 	conf *exargs.Configuration,
 	bricksToExecute exinfra.Bricks,
@@ -33,10 +33,10 @@ func Default(
 		statusCode, err = b.Module.Exec(b, conf.Action, conf.OtherOptions, []string{})
 
 		if err != nil {
-			if _, is := err.(exinfra.ActionNotImplementedError); is {
+			if actionNotImplementedError, isActionNotImplemented := err.(exinfra.ActionNotImplementedError); isActionNotImplemented {
 				// NOTE(half-shell): if action if not implemented, we don't take it as an error
 				// and move on with the execution
-				fmt.Printf("%v ; assume there is nothing to do.\n", err)
+				fmt.Printf("%v ; assume there is nothing to do.\n", actionNotImplementedError)
 				err = nil
 				report.Status = "OK"
 			} else {

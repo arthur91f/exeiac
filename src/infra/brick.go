@@ -7,7 +7,6 @@ import (
 	"log"
 	"os"
 	"path/filepath"
-	extools "src/exeiac/tools"
 	"strings"
 
 	"github.com/PaesslerAG/jsonpath"
@@ -104,36 +103,39 @@ func (bcy BrickConfYaml) New(path string) (BrickConfYaml, error) {
 }
 
 func (b Brick) String() string {
-	alwaysPresent := fmt.Sprintf(
-		"index: %d\nname: %s\npath: %s\nisElementary: %t\nconfFile: %s",
-		b.Index, b.Name, b.Path, b.IsElementary, b.ConfigurationFilePath)
+	var sb strings.Builder
 
-	conditional := "\n"
+	sb.WriteString(fmt.Sprintf("\tIndex: %d\n", b.Index))
+	sb.WriteString(fmt.Sprintf("\tName: %s\n", b.Name))
+	sb.WriteString(fmt.Sprintf("\tPath: %s\n", b.Path))
+	sb.WriteString(fmt.Sprintf("\tIsElementary: %v", b.IsElementary))
+
+	if len(b.ConfigurationFilePath) != 0 {
+		sb.WriteString(fmt.Sprintf("\n\tConfigurationFile: %s", b.ConfigurationFilePath))
+	}
+
 	if b.EnrichError != nil {
-		conditional = fmt.Sprintf("enrichError:%s\n", b.EnrichError)
+		sb.WriteString(fmt.Sprintf("\n\tEnrichError:%s", b.EnrichError))
 	}
 
 	if b.Module != nil {
-		conditional = fmt.Sprintf("%smodule:%s\n", conditional, b.Module.Name)
+		sb.WriteString(fmt.Sprintf("\n\tModule:%s", b.Module.Name))
 	}
 
 	if len(b.Inputs) > 0 {
-		dpStr := []string{}
-		for _, d := range b.Inputs {
-			dpStr = append(dpStr, d.String())
-		}
-		conditional = fmt.Sprintf("%sinputData:%s",
-			conditional, extools.StringListOfString(dpStr))
+		sb.WriteString(fmt.Sprintf("\n\tInputs: %v", b.Inputs))
 	}
 
-	return fmt.Sprintf("%s%s", alwaysPresent, conditional)
+	sb.WriteString("\n")
+
+	return sb.String()
 }
 
-func (brick *Brick) SetElementary(cfp string) *Brick {
+// Set's a brick as an elementary brick by setting its `IsElementary` flag
+// to `true` and its `ConfigurationFilePath` with the provided one.
+func (brick *Brick) SetElementary(cfp string) {
 	brick.IsElementary = true
 	brick.ConfigurationFilePath = cfp
-
-	return brick
 }
 
 // Processes the relevant parts of a brick's configuration and updates the brick itself
@@ -221,8 +223,12 @@ func (b *Brick) CreateFormatters() (fileFormatters map[string]Formatter, env_for
 	return
 }
 
-func (bcy BrickConfYaml) resolveDependencies(infra *Infra) ([]Input, error) {
-	var dependencies []Input
+// Loops through a `Brick`'s configuration file's `Input` and builds a slice of `Input`s
+// out of it.
+// The `infra` argument is used to resolve a brick's name to a `Brick` reference.
+// Returns an error if something wrong happened during `Brick's` name-to-reference resolution,
+// or when checking that the `JsonPath` is a valid JSONPath.
+func (bcy BrickConfYaml) resolveDependencies(infra *Infra) (inputs []Input, err error) {
 	parseFromField := func(from string) (brickName string, dataKey string) {
 		fields := strings.Split(from, ":")
 
@@ -237,17 +243,19 @@ func (bcy BrickConfYaml) resolveDependencies(infra *Infra) ([]Input, error) {
 			brick, ok := infra.Bricks[SanitizeBrickName(brickName)]
 
 			if !ok {
-				return dependencies, errors.New(fmt.Sprintf("No brick names %s", brickName))
+				err = fmt.Errorf("No brick names %s", brickName)
+
+				return
 			}
 
 			// NOTE(half-shell): We make sure the jsonPath's form is valid
-			_, err := jsonpath.New(keyPath)
+			_, err = jsonpath.New(keyPath)
 			if err != nil {
-				return dependencies, err
+				return
 			}
 
 			if inputFormat, isSupported := SupportedFormats[i.Format]; isSupported {
-				dependencies = append(dependencies, Input{
+				inputs = append(inputs, Input{
 					VarName:  d.Name,
 					JsonPath: keyPath,
 					Brick:    brick,
@@ -261,5 +269,5 @@ func (bcy BrickConfYaml) resolveDependencies(infra *Infra) ([]Input, error) {
 		}
 	}
 
-	return dependencies, nil
+	return
 }

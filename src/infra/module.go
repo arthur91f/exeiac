@@ -7,6 +7,7 @@ import (
 	"os"
 	"os/exec"
 	extools "src/exeiac/tools"
+	"strings"
 )
 
 const ACTION_HELP = "help"
@@ -24,13 +25,13 @@ type Module struct {
 }
 
 func (m Module) String() string {
-	if len(m.Actions) > 0 {
-		return fmt.Sprintf("name: %s\npath: %s\nactions: %v\n",
-			m.Name, m.Path, m.Actions)
-	} else {
-		return fmt.Sprintf("name: %s\npath: %s\nactions: []",
-			m.Name, m.Path)
-	}
+	var sb strings.Builder
+
+	sb.WriteString(fmt.Sprintf("-\tName: %s\n", m.Name))
+	sb.WriteString(fmt.Sprintf("\tPath: %s\n", m.Path))
+	sb.WriteString(fmt.Sprintf("\tActions: %v\n", m.Actions))
+
+	return sb.String()
 }
 
 // Executes the ACTION_SHOW_AVAILABLE_ACTIONS command on a module to get

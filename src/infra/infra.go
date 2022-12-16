@@ -17,7 +17,7 @@ import (
 
 type Infra struct {
 	Modules []Module
-	Bricks  map[string]*Brick
+	Bricks  BricksMap
 }
 
 func CreateInfra(configuration exargs.Configuration) (Infra, error) {
@@ -147,33 +147,19 @@ func GetBricks(roomName string, roomPath string) ([]Brick, error) {
 }
 
 func (infra Infra) String() string {
-	var modulesString string
-	var bricksString string
+	var sb strings.Builder
+	var modulesSb strings.Builder
+	var bricksSb strings.Builder
 
-	if len(infra.Modules) > 0 {
-		for _, m := range infra.Modules {
-			modulesString = fmt.Sprintf("%s%s", modulesString,
-				extools.IndentForListItem(m.String()))
-		}
-		modulesString = fmt.Sprintf("modules:\n%s", modulesString)
-	} else {
-		modulesString = "modules: []\n"
+	for _, m := range infra.Modules {
+		modulesSb.WriteString(fmt.Sprintf("%s", m))
 	}
 
-	if len(infra.Bricks) > 0 {
-		for _, b := range infra.Bricks {
-			bricksString = fmt.Sprintf("%s%s", bricksString,
-				extools.IndentForListItem(b.String()))
-		}
-		bricksString = fmt.Sprintf("bricks:\n%s", bricksString)
-	} else {
-		bricksString = "bricks: []\n"
-	}
+	bricksSb.WriteString(fmt.Sprintf("%v", infra.Bricks))
 
-	return fmt.Sprintf("infra:\n%s%s",
-		extools.Indent(modulesString),
-		extools.Indent(bricksString),
-	)
+	sb.WriteString(fmt.Sprintf("Modules: [\n%s]\nBricks:[\n%s]", modulesSb.String(), bricksSb.String()))
+
+	return sb.String()
 }
 
 func GetModule(name string, modules *[]Module) (*Module, error) {
@@ -337,9 +323,12 @@ func (infra *Infra) GetBricksFromNames(names []string) (bricks Bricks, err error
 }
 
 func (infra *Infra) GetCorrespondingBricks(
-	bricks Bricks, specifiers []string) (
-	correspondingBricks Bricks, err error) {
-
+	bricks Bricks,
+	specifiers []string,
+) (
+	correspondingBricks Bricks,
+	err error,
+) {
 	var elementaryBricks Bricks
 	for _, brick := range bricks {
 		if !brick.IsElementary {
@@ -431,7 +420,7 @@ func (infra *Infra) EnrichBricks() {
 	}
 }
 
-func (infra *Infra) ValidateConfiguration(configuration *exargs.Configuration) error {
+func (infra *Infra) ValidateConfiguration(configuration *exargs.Configuration) (err error) {
 	// validate brick names
 	for _, brickName := range configuration.BricksNames {
 		if _, ok := infra.Bricks[brickName]; !ok {
@@ -441,7 +430,7 @@ func (infra *Infra) ValidateConfiguration(configuration *exargs.Configuration) e
 
 	// validate BricksSpecifiers
 	for _, specifier := range configuration.BricksSpecifiers {
-		if !extools.ContainsString(exargs.AvailableBricksSpecifiers, specifier) {
+		if !extools.ContainsString(exargs.AvailableBricksSpecifiers[:], specifier) {
 			return ErrBadArg{Reason: "Brick's specifier doesn't exist:", Value: specifier}
 		}
 	}

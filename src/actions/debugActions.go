@@ -20,19 +20,15 @@ func DebugArgs(
 }
 
 func DebugInfra(
-	infra *exinfra.Infra, conf *exargs.Configuration, bricksToExecute exinfra.Bricks) (
-	statusCode int, err error) {
-	statusCode = 0
-	fmt.Println(infra)
-	fmt.Printf("bricksToExecute:")
-	if len(bricksToExecute) == 0 {
-		fmt.Println(" []")
-	} else {
-		for _, b := range bricksToExecute {
-			fmt.Printf("\n  - %d:%s", b.Index, b.Name)
-		}
-		fmt.Println("")
-	}
+	infra *exinfra.Infra,
+	conf *exargs.Configuration,
+	bricksToExecute exinfra.Bricks,
+) (
+	statusCode int,
+	err error,
+) {
+	fmt.Printf("Infra:\n%v\n", infra)
+	fmt.Printf("bricksToExecute: [\n%v\n]", bricksToExecute)
 
 	return
 }
