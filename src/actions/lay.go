@@ -59,7 +59,7 @@ func Lay(
 		}
 
 		// lay and manage error
-		exitStatus, err := b.Module.Exec(b, "lay", []string{}, envs)
+		exitStatus, err := b.Module.Exec(b, "lay", conf.OtherOptions, envs)
 		if err != nil {
 			skipFollowing = true
 			report.Error = err

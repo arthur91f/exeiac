@@ -40,7 +40,7 @@ func Plan(
 		}
 
 		// lay and manage error
-		exitStatus, err := b.Module.Exec(b, "plan", []string{}, envs)
+		exitStatus, err := b.Module.Exec(b, "plan", conf.OtherOptions, envs)
 		if err != nil {
 			report.Error = err
 			report.Status = TAG_ERROR
