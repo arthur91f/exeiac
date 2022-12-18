@@ -162,11 +162,18 @@ func (infra Infra) String() string {
 	return sb.String()
 }
 
-func GetModule(name string, modules *[]Module) (*Module, error) {
-	for i, m := range *modules {
+func (infra *Infra) GetModule(name string, b *Brick) (*Module, error) {
+	for i, m := range infra.Modules {
 		if m.Name == name {
-			return &(*modules)[i], nil
+			return &(infra.Modules[i]), nil
 		}
+	}
+	if strings.HasPrefix(name, "./") {
+		infra.Modules = append(infra.Modules, Module{
+			Name: b.Name,
+			Path: b.Path + "/" + strings.TrimPrefix(name, "./"),
+		})
+		return &(infra.Modules[len(infra.Modules)-1:][0]), nil
 	}
 
 	return nil, errors.New("No matching module name")
@@ -407,7 +414,6 @@ func (infra *Infra) EnrichBricks() {
 			if err != nil {
 				infra.Bricks[b.Name].EnrichError = err
 			}
-
 			err = b.Enrich(conf, infra)
 			if err != nil {
 				infra.Bricks[b.Name].EnrichError = err
