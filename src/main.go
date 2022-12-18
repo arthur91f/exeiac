@@ -2,12 +2,13 @@ package main
 
 import (
 	"fmt"
-	flag "github.com/spf13/pflag"
 	"log"
 	"os"
 	exaction "src/exeiac/actions"
 	exargs "src/exeiac/arguments"
 	exinfra "src/exeiac/infra"
+
+	flag "github.com/spf13/pflag"
 )
 
 // The `init()` function runs before everything else.
@@ -27,6 +28,10 @@ func main() {
 
 	// The only remaining arguments are not flags. They match the action and the brickNames
 	nonFlagArgs := flag.Args()
+	if len(nonFlagArgs) == 0 {
+		fmt.Fprintln(os.Stderr, "argument missing: you need at least to specify one action")
+		os.Exit(2)
+	}
 	exargs.Args.Action, exargs.Args.BricksNames = nonFlagArgs[0], nonFlagArgs[1:]
 
 	configuration, err := exargs.FromArguments(exargs.Args)
