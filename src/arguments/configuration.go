@@ -151,6 +151,11 @@ func FromArguments(args Arguments) (configuration Configuration, err error) {
 		rooms[name] = path
 	}
 
+	var other_options = append(conf.OtherOptions, args.OtherOptions...)
+	if args.NonInteractive {
+		other_options = extools.Deduplicate(append(other_options, "--non-interactive"))
+	}
+
 	configuration = Configuration{
 		Action:            args.Action,
 		BricksNames:       args.BricksNames,
@@ -160,7 +165,7 @@ func FromArguments(args Arguments) (configuration Configuration, err error) {
 		Interactive:       !args.NonInteractive,
 		Modules:           modules,
 		Rooms:             rooms,
-		OtherOptions:      extools.Deduplicate(append(conf.OtherOptions, args.OtherOptions...)),
+		OtherOptions:      other_options,
 	}
 
 	return
