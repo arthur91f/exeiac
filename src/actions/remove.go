@@ -69,7 +69,7 @@ func Remove(
 			statusCode = 3
 		} else if exitStatus != 0 {
 			skipFollowing = true
-			report.Error = fmt.Errorf("lay return: %b", exitStatus)
+			report.Error = fmt.Errorf("remove return: %d", exitStatus)
 			report.Status = TAG_ERROR
 			statusCode = 3
 		} else {
