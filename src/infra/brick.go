@@ -145,7 +145,7 @@ func (brick *Brick) Enrich(bcy BrickConfYaml, infra *Infra) error {
 		return errors.New("Cannot enrich a non-elementary brick")
 	}
 
-	module, err := GetModule(bcy.Module, &infra.Modules)
+	module, err := infra.GetModule(bcy.Module, brick)
 	if err != nil {
 		return err
 	}
