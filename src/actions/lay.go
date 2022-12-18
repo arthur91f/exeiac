@@ -67,7 +67,7 @@ func Lay(
 			statusCode = 3
 		} else if exitStatus != 0 {
 			skipFollowing = true
-			report.Error = fmt.Errorf("lay return: %b", exitStatus)
+			report.Error = fmt.Errorf("lay return: %d", exitStatus)
 			report.Status = TAG_ERROR
 			statusCode = 3
 		}
@@ -83,7 +83,7 @@ func Lay(
 		}
 		if exitStatus != 0 {
 			skipFollowing = true
-			report.Error = fmt.Errorf("layed apparently success but output return : %b", exitStatus)
+			report.Error = fmt.Errorf("layed apparently success but output return : %d", exitStatus)
 			report.Status = TAG_ERROR
 			statusCode = 3
 		}

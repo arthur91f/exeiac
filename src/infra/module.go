@@ -115,8 +115,6 @@ func (m *Module) Exec(b *Brick,
 	}
 
 	if err != nil {
-		statusCode = 0
-	} else {
 		if ee, isExitError := err.(*exec.ExitError); isExitError {
 			// NOTE(half-shell): We don't consider an exitError an actual error as far as exeiac goes.
 			// We return it as a separate value to make that distinction obvious.
