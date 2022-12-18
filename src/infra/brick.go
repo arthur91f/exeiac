@@ -264,7 +264,9 @@ func (bcy BrickConfYaml) resolveDependencies(infra *Infra) (inputs []Input, err 
 					Path:     i.Path,
 				})
 			} else {
-				err = errors.New(fmt.Sprintf("Format %s not supported", i.Type))
+				err = errors.New(fmt.Sprintf("Format %s not supported in %s",
+					i.Type,
+					brick.ConfigurationFilePath))
 			}
 		}
 	}
