@@ -37,7 +37,7 @@ func CreateInfra(configuration exargs.Configuration) (Infra, error) {
 
 	// Temporary brick storage to have consistent indexing across rooms
 	// i.e. having an overall ordering as the index
-	bricks := []Brick{}
+	bricks := Bricks{}
 	for name, path := range configuration.Rooms {
 		b, err := GetBricks(name, path)
 		if err != nil {
@@ -48,12 +48,9 @@ func CreateInfra(configuration exargs.Configuration) (Infra, error) {
 	}
 
 	for idx := range bricks {
-		// We do not want to access &b because it uses the same pointer to copy the new element in
-		// meaning we'd reference the same entity over and over
-		// c.f. https://stackoverflow.com/questions/20185511/range-references-instead-values
 		b := bricks[idx]
 		b.Index = idx
-		i.Bricks[b.Name] = &b
+		i.Bricks[b.Name] = b
 	}
 
 	return i, nil
@@ -86,7 +83,8 @@ func GetBricks(roomName string, roomPath string) (bricks Bricks, err error) {
 
 		return
 	}
-	bricks = []Brick{{
+
+	bricks = Bricks{{
 		Name:         roomName,
 		Path:         roomPath,
 		IsElementary: false,
@@ -107,7 +105,7 @@ func GetBricks(roomName string, roomPath string) (bricks Bricks, err error) {
 
 			lastBrick := func() *Brick {
 				if len(bricks) > 0 {
-					return &(bricks)[len(bricks)-1]
+					return (bricks)[len(bricks)-1]
 				}
 
 				return &Brick{}
@@ -120,7 +118,7 @@ func GetBricks(roomName string, roomPath string) (bricks Bricks, err error) {
 
 				// Do not duplicate entries
 				if len(bricks) == 0 || lastBrick.Name != name {
-					bricks = append(bricks, Brick{
+					bricks = append(bricks, &Brick{
 						Name:         name,
 						Path:         path,
 						IsElementary: false,
