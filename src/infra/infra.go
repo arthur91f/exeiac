@@ -187,11 +187,11 @@ func (i *Infra) GetSubBricks(brick *Brick) (subBricks Bricks, err error) {
 	// directly before their subbricks
 	superBrickPath := brick.Path
 	for _, b := range i.Bricks {
-		brickPath := b.Path
-		// We ignore the sub-brick if they're the same; strings.HasPrefix returns true in that case
-		if b.IsElementary && strings.HasPrefix(brickPath, superBrickPath) {
+		// We ignore the sub-brick if they're the same by checking if they have a common prefix
+		if b.IsElementary && strings.HasPrefix(b.Path, superBrickPath) {
 			if b.EnrichError != nil {
 				err = b.EnrichError
+
 				return
 			}
 
