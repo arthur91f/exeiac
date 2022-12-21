@@ -15,6 +15,8 @@ import (
 	"sync"
 )
 
+const BRICK_FILE_NAME = "brick.yml"
+
 type Infra struct {
 	Modules []Module
 	Bricks  BricksMap
@@ -89,9 +91,10 @@ func GetBricks(roomName string, roomPath string) (bricks Bricks, err error) {
 		Path:         roomPath,
 		IsElementary: false,
 	}}
-	_, err = os.Stat(roomPath + "/brick.yml")
-	if err == nil {
-		bricks[0].IsElementary = true
+
+	confFilePath, err := GetConfFilePath(roomPath)
+	if err != nil {
+		bricks[0].SetElementary(confFilePath)
 	}
 
 	err = filepath.WalkDir(
@@ -127,7 +130,7 @@ func GetBricks(roomName string, roomPath string) (bricks Bricks, err error) {
 
 			// An elementary brick has prefixed folder name, and a brick.yml file.
 			// TODO(half-shell): Make the configuration filename more flexible.
-			if d.Type().IsRegular() && d.Name() == "brick.yml" {
+			if d.Type().IsRegular() && d.Name() == BRICK_FILE_NAME {
 				brickName := filepath.Join(roomName, filepath.Dir(brickRelPath))
 				name := SanitizeBrickName(brickName)
 
@@ -442,4 +445,15 @@ func (infra *Infra) ValidateConfiguration(configuration *exargs.Configuration) (
 		}
 	}
 	return nil
+}
+
+func GetConfFilePath(path string) (string, error) {
+	confFilePath := filepath.Join(path + BRICK_FILE_NAME)
+	_, err := os.Stat(confFilePath)
+
+	if err != nil {
+		return confFilePath, nil
+	}
+
+	return confFilePath, fmt.Errorf("No configuration file was found in %s", confFilePath)
 }
