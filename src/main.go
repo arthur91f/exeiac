@@ -5,6 +5,7 @@ import (
 	"os"
 	exaction "src/exeiac/actions"
 	exargs "src/exeiac/arguments"
+	excompletion "src/exeiac/completion"
 	exinfra "src/exeiac/infra"
 
 	flag "github.com/spf13/pflag"
@@ -26,17 +27,30 @@ func main() {
 
 	// The only remaining arguments are not flags. They match the action and the brickNames
 	nonFlagArgs := flag.Args()
-	if len(nonFlagArgs) == 0 {
-		fmt.Fprintln(os.Stderr, "argument missing: you need at least to specify one action")
-		os.Exit(2)
+
+	// NOTE(half-shell): We need the configuration created to list all bricks so we bypass
+	// the check made on the action and bricks if the "list bricks" flag is provided.
+	if !exargs.Args.ListBricks {
+		if len(nonFlagArgs) == 0 {
+			fmt.Fprintln(os.Stderr, "argument missing: you need at least to specify one action")
+
+			os.Exit(2)
+		}
+
+		exargs.Args.Action, exargs.Args.BricksNames = nonFlagArgs[0], nonFlagArgs[1:]
 	}
-	exargs.Args.Action, exargs.Args.BricksNames = nonFlagArgs[0], nonFlagArgs[1:]
 
 	configuration, err := exargs.FromArguments(exargs.Args)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
 
 		os.Exit(2)
+	}
+
+	if exargs.Args.ListBricks {
+		excompletion.ListBricks(configuration)
+
+		os.Exit(0)
 	}
 
 	// build infra representation

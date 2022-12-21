@@ -21,6 +21,7 @@ type Arguments struct {
 	Rooms             map[string]string
 	ConfigurationFile string
 	ShowUsage         bool
+	ListBricks        bool
 }
 
 func (a Arguments) String() string {
