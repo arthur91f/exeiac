@@ -14,6 +14,7 @@ type Arguments struct {
 	BricksNames       []string
 	BricksSpecifiers  []string
 	NonInteractive    bool
+	Interactive       bool
 	Format            string
 	Modules           map[string]string
 	OtherOptions      []string
