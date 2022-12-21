@@ -75,7 +75,7 @@ func SanitizeBrickName(name string) string {
 func GetBricks(roomName string, roomPath string) (bricks Bricks, err error) {
 	_, err = os.Stat(roomPath)
 	if err != nil {
-		if os.IsNotExist(err) {
+		if errors.Is(err, os.ErrNotExist) {
 			err = ErrBrickNotFound{brick: roomPath}
 
 			return
