@@ -73,17 +73,16 @@ func SanitizeBrickName(name string) string {
 }
 
 // Walks the file system from the provided root, gathers all folders containing a `brick.html` file, and build a Brick struct from it.
-func GetBricks(roomName string, roomPath string) ([]Brick, error) {
-	var bricks []Brick
-	var err error
-
+func GetBricks(roomName string, roomPath string) (bricks Bricks, err error) {
 	_, err = os.Stat(roomPath)
 	if err != nil {
 		if os.IsNotExist(err) {
 			err = ErrBrickNotFound{brick: roomPath}
-			return bricks, err
+
+			return
 		}
-		return bricks, err
+
+		return
 	}
 	bricks = []Brick{{
 		Name:         roomName,
@@ -143,7 +142,7 @@ func GetBricks(roomName string, roomPath string) ([]Brick, error) {
 			return err
 		})
 
-	return bricks, err
+	return
 }
 
 func (infra Infra) String() string {
