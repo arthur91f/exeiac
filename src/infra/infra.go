@@ -231,14 +231,16 @@ func (infra *Infra) GetDirectPrevious(brick *Brick) (results Bricks, err error) 
 func (infra *Infra) GetLinkedPrevious(brick *Brick) (results Bricks, err error) {
 	var directPrevious Bricks
 	added, err := infra.GetDirectPrevious(brick)
-
+	if err != nil {
+		return
+	}
 	results = added
 	for {
 		toAdd := Bricks{}
 		for _, b := range added {
 			directPrevious, err = infra.GetDirectPrevious(b)
 			for _, dp := range directPrevious {
-				if !toAdd.BricksContains(dp) {
+				if !results.BricksContains(dp) {
 					toAdd = append(toAdd, dp)
 				}
 			}

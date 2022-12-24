@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"os"
 	exaction "src/exeiac/actions"
 	exargs "src/exeiac/arguments"
@@ -22,7 +21,6 @@ func main() {
 
 	if exargs.Args.ShowUsage {
 		flag.Usage()
-
 		return
 	}
 
@@ -87,7 +85,6 @@ func main() {
 
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
-		log.Fatal(err)
 	}
 
 	os.Exit(statusCode)

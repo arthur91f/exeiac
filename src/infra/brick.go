@@ -123,7 +123,10 @@ func (b Brick) String() string {
 	}
 
 	if len(b.Inputs) > 0 {
-		sb.WriteString(fmt.Sprintf("\n\tInputs: %v", b.Inputs))
+		sb.WriteString(fmt.Sprintf("\n\tInputs:"))
+		for _, input := range b.Inputs {
+			sb.WriteString(fmt.Sprintf("\n\t\t- %v", input))
+		}
 	}
 
 	sb.WriteString("\n")
@@ -173,30 +176,31 @@ func (brick *Brick) Enrich(bcy BrickConfYaml, infra *Infra) error {
 func (b *Brick) CreateFormatters() (fileFormatters map[string]Formatter, env_formatters EnvFormat, err error) {
 	fileFormatters = make(map[string]Formatter)
 
-	// NOTE(half-shell): This is pretty ugly, but there does not seem to be a way to create
-	// a 3-fold nested map otherwise.	// This is a pretty good use case for a tree-like structure!
-	varNameToVal := make(map[string]interface{})
-	pathToVars := make(map[string]map[string]interface{})
 	// Temporary variable holding the values dispatched by format, path and variable name.
 	// e.g. rawInputs[<data_format>][<file_path>][<variable_name>] => <variable_value>
+	// NOTE: This is a pretty good use case for a tree-like structure!
 	rawInputs := make(map[InputFormat]map[string]map[string]interface{})
 
 	for _, i := range b.Inputs {
 		var output interface{}
 		err := json.Unmarshal(i.Brick.Output, &output)
 		if err != nil {
-			log.Fatalf("Could not parse JSON: %v", err)
+			log.Fatalf("Could not parse JSON that correspond to %s output: %v", i.Brick.Name, err)
 		}
 
 		varVal, err := jsonpath.Get(i.JsonPath, output)
 		if err != nil {
-			log.Fatalf("Error happened when solving dependency JSON path %v: %v", i.JsonPath, err)
+			log.Fatalf("Error happened when solving dependency JSON path of brick %v (jsonPath: '%v'): %v", b.Name, i.JsonPath, err)
 		}
 
 		path := filepath.Join(b.Path, i.Path)
-		varNameToVal[i.VarName] = varVal
-		pathToVars[path] = varNameToVal
-		rawInputs[i.Format] = pathToVars
+		if _, exist := rawInputs[i.Format]; !exist {
+			rawInputs[i.Format] = make(map[string]map[string]interface{})
+		}
+		if _, exist := rawInputs[i.Format][path]; !exist {
+			rawInputs[i.Format][path] = make(map[string]interface{})
+		}
+		rawInputs[i.Format][path][i.VarName] = varVal
 	}
 
 	for format, paths := range rawInputs {
@@ -215,11 +219,11 @@ func (b *Brick) CreateFormatters() (fileFormatters map[string]Formatter, env_for
 				// would be to check for a path, and if none is present, just return on for a path of `env`
 				// for instance, which would be handled some other way down the line
 				err = fmt.Errorf("Format %s is not handled", format)
+
 				return
 			}
 		}
 	}
-
 	return
 }
 

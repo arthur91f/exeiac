@@ -45,7 +45,6 @@ func Plan(
 			report.Error = err
 			report.Status = TAG_ERROR
 			statusCode = 3
-			fmt.Println("label5")
 		} else if exitStatus == 0 {
 			report.Status = TAG_NO_CHANGE
 		} else if exitStatus == 1 {
