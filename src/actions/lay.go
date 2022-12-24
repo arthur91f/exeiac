@@ -20,7 +20,7 @@ func Lay(
 		err = exinfra.ErrBadArg{Reason: "Error: you should specify at least a brick for lay action"}
 		return 3, err
 	} else if len(bricksToExecute) > 1 && conf.Interactive {
-		fmt.Print("Here, the bricks list to lay :")
+		fmt.Println("Here, the bricks list to lay :")
 		fmt.Print(bricksToExecute)
 		var confirm bool
 		confirm, err = extools.AskConfirmation("\nDo you want to continue ?")
