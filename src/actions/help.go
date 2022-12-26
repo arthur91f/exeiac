@@ -4,6 +4,7 @@ import (
 	"fmt"
 	exargs "src/exeiac/arguments"
 	exinfra "src/exeiac/infra"
+	extools "src/exeiac/tools"
 )
 
 var defaultHelp = `exeiac ACTIONS (BRICK_PATH|BRICK_NAME)[OPTIONS]
@@ -34,19 +35,42 @@ func Help(
 	statusCode int,
 	err error,
 ) {
-	if len(conf.BricksNames) == 0 {
-		fmt.Println(defaultHelp)
-		return
-	} else {
-		// TODO(arthur91f): let browse the execute plan to check all different bricks help
-		return 3, exinfra.ErrBadArg{
-			Reason: "Help action take 0 or one brick as arg, not more"}
+	if len(bricksToExecute) == 0 {
+		err = exinfra.ErrBadArg{Reason: "Error: you should specify at least a brick for help action" +
+			"\nif you want to display exeiac help use --help option"}
+		return 3, err
 	}
-	/*
-		-- infra-ground/envs/production/network --
-		help: no specific help for this module
-		--  infra-ground/envs/production/bastion --
-		default help with an additionnal action:
-		format: rewrite your file: terraform fmt, go fmt -w...
-	*/
+
+	execSummary := make(ExecSummary, len(bricksToExecute))
+
+	for i, b := range bricksToExecute {
+		extools.DisplaySeparator(b.Name + "(" + b.Module.Name + ")")
+		report := ExecReport{Brick: b}
+		statusCode, err = b.Module.Exec(b, conf.Action, conf.OtherOptions, []string{})
+
+		if err != nil {
+			if _, isActionNotImplemented := err.(exinfra.ActionNotImplementedError); isActionNotImplemented {
+				// NOTE(half-shell): if action if not implemented, we don't take it as an error
+				// and move on with the execution
+				fmt.Printf("help: no specific help for this module: %s\n", b.Module.Name)
+				originalActions := extools.StrSliceXor([]string{"show_implemented_actions", "init", "plan", "lay", "remove", "validate_code", "clean", "output"}, b.Module.Actions)
+				if len(originalActions) != 0 {
+					fmt.Printf("Nethertheless some other actions are implemented for this module:%s\n",
+						extools.StringListOfString(originalActions))
+				}
+				err = nil
+				report.Status = "OK"
+			} else {
+				statusCode = 3
+				report.Status = "ERR"
+				report.Error = err
+			}
+		} else {
+			report.Status = "DONE"
+		}
+		execSummary[i] = report
+	}
+
+	execSummary.Display()
+	return
 }
