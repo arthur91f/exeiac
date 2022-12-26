@@ -4,6 +4,7 @@ import (
 	"fmt"
 	exargs "src/exeiac/arguments"
 	exinfra "src/exeiac/infra"
+	extools "src/exeiac/tools"
 )
 
 // Triggers a module execution for very single brick in `bricksToExecute`
@@ -27,6 +28,8 @@ func PassthroughAction(
 	execSummary := make(ExecSummary, len(bricksToExecute))
 
 	for i, b := range bricksToExecute {
+
+		extools.DisplaySeparator(b.Name)
 		report := ExecReport{Brick: b}
 
 		statusCode, err = b.Module.Exec(b, conf.Action, conf.OtherOptions, []string{})
