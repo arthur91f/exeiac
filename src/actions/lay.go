@@ -18,12 +18,18 @@ func Lay(
 ) {
 	if len(bricksToExecute) == 0 {
 		err = exinfra.ErrBadArg{Reason: "Error: you should specify at least a brick for lay action"}
+
 		return 3, err
-	} else if len(bricksToExecute) > 1 && conf.Interactive {
+	}
+
+	if conf.Interactive {
 		fmt.Println("Here, the bricks list to lay :")
 		fmt.Print(bricksToExecute)
-		var confirm bool
-		confirm, err = extools.AskConfirmation("\nDo you want to continue ?")
+
+		// NOTE(half-shell): We might change this behavior to only ask for a "\n" input
+		// instead of a Y/N choice.
+		confirm, err := extools.AskConfirmation("\nDo you want to continue ?")
+
 		if err != nil {
 			return 3, err
 		} else if !confirm {
