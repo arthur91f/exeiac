@@ -40,7 +40,6 @@ func Lay(
 	execSummary := make(ExecSummary, len(bricksToExecute))
 
 	for i, b := range bricksToExecute {
-
 		extools.DisplaySeparator(b.Name)
 		report := ExecReport{Brick: b}
 
@@ -52,9 +51,9 @@ func Lay(
 		}
 
 		// write env file if needed
-		var envs []string
-		envs, err = writeEnvFilesAndGetEnvs(b)
+		envs, err := writeEnvFilesAndGetEnvs(b)
 		if err != nil {
+
 			return 3, err
 		}
 
