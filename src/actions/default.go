@@ -27,7 +27,6 @@ func PassthroughAction(
 	execSummary := make(ExecSummary, len(bricksToExecute))
 
 	for i, b := range bricksToExecute {
-
 		report := ExecReport{Brick: b}
 
 		statusCode, err = b.Module.Exec(b, conf.Action, conf.OtherOptions, []string{})

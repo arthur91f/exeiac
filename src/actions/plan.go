@@ -17,6 +17,7 @@ func Plan(
 ) {
 	if len(bricksToExecute) == 0 {
 		err = exinfra.ErrBadArg{Reason: "Error: you should specify at least a brick for plan action"}
+
 		return 3, err
 	}
 
