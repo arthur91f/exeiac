@@ -1,0 +1,71 @@
+locals {
+  network_ip_range    = var.network_ip_range
+  private_env_domain  = var.private_domain_name
+  internal_env_domain = var.internal_domain_name
+  tag                 = "${var.env_name}/cluster_k8s"
+  cluster_properties = {
+    node_pool = {
+      multiregion = true
+      min_nodes = 3
+      max_nodes = 8
+      default_node = {
+        cpu    = 4
+        memory = 8192
+        disk   = 30
+      }
+    }
+    namespaces = [
+      var.env_name
+    ]
+  }
+
+  private_domain_name  = "cluster-main.${local.private_env_domain}"
+  internal_domain_name = "cluster-main.${local.internal_env_domain}"
+  instance_id          = "${var.project_id}/instance/${random_uuid.this.id}"
+  private_ip           = cidrhost(local.network_ip_range, 3)
+  public_ip            = "34.${join(".", random_integer.public_ip[*].id)}"
+  template = {
+    needs = {
+      provider_project     = var.project_id
+      network_id           = var.network_id
+      network_ip_range     = local.network_ip_range
+    }
+    created = {
+      tag                  = local.tag
+      cluster_id           = local.instance_id
+      private_ip           = local.private_ip
+      load_balancer_ip     = local.public_ip
+      private_domain_name  = local.private_domain_name
+      internal_domain_name = local.internal_domain_name
+      admin_creds          = {
+        username = "k8s-${var.env_name}-admin"
+        password = random_password.this
+      }
+      properties           = local.cluster_properties
+    }
+  }
+}
+
+resource "random_uuid" "this" {
+}
+
+resource "random_password" "this" {
+  length           = 16
+  special          = true
+}
+
+resource "random_integer" "public_ip" {
+  count = 3
+  keepers = {
+    instance_id = random_uuid.this.id
+  }
+  min = 0
+  max = 255
+}
+
+resource "local_file" "this" {
+  file_permission = "0644"
+  content         = yamlencode(local.template)
+  filename        = "${path.root}/CREATED_cluster_k8s.yml"
+}
+

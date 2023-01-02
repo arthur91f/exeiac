@@ -1,0 +1,6 @@
+"created":
+  "internal_domain_name": "staging.myp.tech"
+  "private_domain_name": "staging.private"
+  "public_domain_name": "staging.public"
+"needs":
+  "provider_project": "mycompany/staging-221219"

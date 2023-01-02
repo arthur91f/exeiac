@@ -1,0 +1,9 @@
+"created":
+  "nat_ip": "34.21.201.77"
+  "network_id": "mycompany/monitoring-221201/network/e618224a-3a96-71bc-0d76-1fb2c75ff793"
+  "network_ip": "10.1.0.0/20"
+  "peerings":
+    "production": "mycompany/monitoring-221201/network/e618224a-3a96-71bc-0d76-1fb2c75ff793-mycompany/production-191222/network/5e5b8daf-c7f8-428d-3c27-d4f0ffa6e801"
+    "staging": "mycompany/monitoring-221201/network/e618224a-3a96-71bc-0d76-1fb2c75ff793-mycompany/production-191222/network/5e5b8daf-c7f8-428d-3c27-d4f0ffa6e801"
+"needs":
+  "provider_project": "mycompany/monitoring-221201"

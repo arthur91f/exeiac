@@ -1,0 +1,23 @@
+"created":
+  "registry":
+    "url": "mycompany/monitoring-221201/container-registry"
+  "user":
+    "userkey":
+      "bcrypt_hash": "$2a$10$koGtlUvNaJau/5zyj8v8ie2I9ppL7AHded/tjU33BRJVbw9aO/2b6"
+      "id": "none"
+      "keepers": null
+      "length": 16
+      "lower": true
+      "min_lower": 0
+      "min_numeric": 0
+      "min_special": 0
+      "min_upper": 0
+      "number": true
+      "numeric": true
+      "override_special": null
+      "result": "DspRZ2LEzgYnI89Y"
+      "special": false
+      "upper": true
+    "username": "registry-user"
+"needs":
+  "monitoring_projects": "mycompany/monitoring-221201"

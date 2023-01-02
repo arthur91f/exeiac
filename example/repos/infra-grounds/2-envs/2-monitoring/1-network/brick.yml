@@ -1,16 +1,15 @@
 version: 0.0.1
-module: test
+module: terraform
 input:
-  - format: env
-    type: file
-    path: .env
+  - type: env_vars
+    format: env
+    path: ""
     data:
-      - name: env_name
-        from: infra-ground/1-init:$.monitoring.name
-      - name: env_project_name
-        from: infra-ground/1-init:$.monitoring.project
-      - name: env_user_name
-        from: infra-ground/1-init:$.monitoring.credentials.user
-      - name: env_credentials
-        from: infra-ground/1-init:$.monitoring.credentials.key
-    
+      - name: TF_VAR_project_id
+        from: infra-ground/init/create_accounts:$.projects.monitoring.project_id
+      - name: TF_VAR_env_name
+        from: infra-ground/init/create_accounts:$.projects.monitoring.env
+      - name: TF_VAR_production_network
+        from: infra-ground/envs/production/network:$.network.network_id
+      - name: TF_VAR_staging_network
+        from: infra-ground/envs/production/network:$.network.network_id

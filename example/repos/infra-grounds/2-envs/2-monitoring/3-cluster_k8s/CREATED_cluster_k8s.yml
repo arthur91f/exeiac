@@ -1,0 +1,40 @@
+"created":
+  "admin_creds":
+    "password":
+      "bcrypt_hash": "$2a$10$OHkB9Agh6.O39qdBG3PXn.Ee/LO2/HhSTSUvbMQ.Yd4ouhpRTYShK"
+      "id": "none"
+      "keepers": null
+      "length": 16
+      "lower": true
+      "min_lower": 0
+      "min_numeric": 0
+      "min_special": 0
+      "min_upper": 0
+      "number": true
+      "numeric": true
+      "override_special": null
+      "result": "9oHinpnkE!v$%B)o"
+      "special": true
+      "upper": true
+    "username": "k8s-monitoring-admin"
+  "cluster_id": "mycompany/monitoring-221201/instance/b00e0fe0-fd48-8fae-623e-d3ea5de1d26b"
+  "internal_domain_name": "cluster-main.monitoring.myp.tech"
+  "load_balancer_ip": "34.243.198.57"
+  "private_domain_name": "cluster-main.monitoring.private"
+  "private_ip": "10.1.0.3"
+  "properties":
+    "namespaces":
+    - "monitoring"
+    "node_pool":
+      "default_node":
+        "cpu": 4
+        "disk": 30
+        "memory": 8192
+      "max_nodes": 8
+      "min_nodes": 3
+      "multiregion": true
+  "tag": "monitoring/cluster_k8s"
+"needs":
+  "network_id": "mycompany/monitoring-221201/network/e618224a-3a96-71bc-0d76-1fb2c75ff793"
+  "network_ip_range": "10.1.0.0/20"
+  "provider_project": "mycompany/monitoring-221201"

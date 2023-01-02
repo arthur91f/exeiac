@@ -1,0 +1,6 @@
+"created":
+  "nat_ip": "34.133.110.225"
+  "network_id": "mycompany/staging-221219/network/bd12fdc5-c942-3ece-7bf1-865fb846880d"
+  "network_ip": "10.3.0.0/20"
+"needs":
+  "provider_project": "mycompany/staging-221219"

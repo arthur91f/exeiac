@@ -1,0 +1,16 @@
+"created":
+  "instance_id": "mycompany/monitoring-221201/instance/2101ee61-7746-54ae-bd28-4bc32e1d5210"
+  "internal_domain_name": "bastion.monitoring.myp.tech"
+  "private_domain_name": "bastion.monitoring.private"
+  "private_ip": "10.1.0.2"
+  "properties":
+    "cpu": 2
+    "disk":
+      "system": 30
+    "memory": 4096
+  "public_ip": "34.103.53.32"
+  "tag": "monitoring/bastion"
+"needs":
+  "network_id": "mycompany/monitoring-221201/network/e618224a-3a96-71bc-0d76-1fb2c75ff793"
+  "network_ip_range": "10.1.0.0/20"
+  "provider_project": "mycompany/monitoring-221201"

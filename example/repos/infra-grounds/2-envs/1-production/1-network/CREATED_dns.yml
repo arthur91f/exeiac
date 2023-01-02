@@ -1,0 +1,6 @@
+"created":
+  "internal_domain_name": "production.myp.tech"
+  "private_domain_name": "production.private"
+  "public_domain_name": "myproduct.com"
+"needs":
+  "provider_project": "mycompany/production-191222"

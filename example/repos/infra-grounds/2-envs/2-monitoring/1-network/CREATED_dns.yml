@@ -1,0 +1,6 @@
+"created":
+  "internal_domain_name": "monitoring.myp.tech"
+  "private_domain_name": "monitoring.private"
+  "public_domain_name": "myproduct.com"
+"needs":
+  "provider_project": "mycompany/monitoring-221201"

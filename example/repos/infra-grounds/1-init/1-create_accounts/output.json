@@ -1,0 +1,31 @@
+{
+    "cloud_providers": {
+        "mycloudprovider": {
+            "name": "mycloudprovider.com",
+            "signup_url": "mycloudprovider.com/sign-up",
+            "organisation": "mycompany"
+        },
+        "git": {
+            "name": "gitasaservice.com",
+            "signup_url": "gitasaservice.com/signup",
+            "organisation": "my-company"
+        }
+    },
+    "projects": {
+        "production": {
+            "env": "production",
+            "cloud_provider": "mycloudprovider",
+            "project_id": "mycompany/production-191222"
+        },
+        "staging": {
+            "env": "staging",
+            "cloud_provider": "mycloudprovider",
+            "project_id": "mycompany/staging-221219"
+        },
+        "monitoring": {
+            "env": "monitoring",
+            "cloud_provider": "mycloudprovider",
+            "project_id": "mycompany/monitoring-221201"
+        }
+    }
+}

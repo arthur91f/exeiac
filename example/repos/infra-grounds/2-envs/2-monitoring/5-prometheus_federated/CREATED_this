@@ -1,0 +1,8 @@
+{
+  "from_cluster": "[map[instance_id:mycompany/monitoring-221201/instance/b00e0fe0-fd48-8fae-623e-d3ea5de1d26b internal_domain_name:cluster-main.monitoring.myp.tech private_domain_name:cluster-main.monitoring.private private_ip:10.1.0.3 public_ip:34.243.198.57]]",
+  "from_env": "staging",
+  "from_network": "[map[internal:monitoring.myp.tech private:monitoring.private public:myproduct.com] map[ip_range:10.1.0.0/20 nat_ip:34.21.201.77 network_id:mycompany/monitoring-221201/network/e618224a-3a96-71bc-0d76-1fb2c75ff793]]",
+  "from_production_monitoring": "[]",
+  "from_project_id": "mycompany/staging-221219",
+  "from_staging_monitoring": "[]"
+}
