@@ -1,0 +1,19 @@
+version: 0.0.1
+module: test
+input:
+  - type: env_vars
+    format: env
+    path: ""
+    data:
+      - name: EXEIAC_TEST_project_id
+        from: infra-ground/init/create_accounts:$.projects.staging.project_id
+      - name: EXEIAC_TEST_env
+        from: infra-ground/init/create_accounts:$.projects.staging.env
+      - name: EXEIAC_TEST_docker_registry
+        from: infra-ground/envs/staging/bastion:$.bastion.internal_domain_name
+      - name: EXEIAC_TEST_bastion
+        from: infra-ground/envs/staging/bastion:$.bastion.internal_domain_name
+      - name: EXEIAC_TEST_cluster_k8s
+        from: infra-ground/envs/staging/cluster_k8s:$*
+      - name: EXEIAC_TEST_database
+        from: infra-ground/envs/staging/database:$.* #cluster.master.private_domain_name

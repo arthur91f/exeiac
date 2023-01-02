@@ -1,0 +1,21 @@
+version: 0.0.1
+module: test
+input:
+  - type: env_vars
+    format: env
+    path: ""
+    data:
+      - name: EXEIAC_TEST_admins_group
+        from: infra-users/users_and_groups:$.groups.admin
+      - name: EXEIAC_TEST_ops_group
+        from: infra-users/users_and_groups:$.groups.ops
+      - name: EXEIAC_TEST_devs_groups
+        from: infra-users/users_and_groups:$.groups.dev
+      - name: EXEIAC_TEST_products_groups
+        from: infra-users/users_and_groups:$.groups.product
+      - name: EXEIAC_TEST_bastion_dns
+        from: infra-ground/envs/monitoring/bastion:$.bastion.internal_domain_name
+        weak_dependency: true
+      - name: EXEIAC_TEST_bastion_instance_id # used to know if we have to re-lay user
+        from: infra-ground/envs/monitoring/bastion:$.bastion.instance_id
+        trigger_dependency: true

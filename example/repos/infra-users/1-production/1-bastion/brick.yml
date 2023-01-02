@@ -1,0 +1,21 @@
+version: 0.0.1
+module: test
+input:
+  - type: env_vars
+    format: env
+    path: ""
+    data:
+      - name: TF_VAR_project_id
+        from: infra-ground/init/create_accounts:$.projects.production.project_id
+      - name: TF_VAR_env_name
+        from: infra-ground/init/create_accounts:$.projects.production.env
+      - name: EXEIAC_TEST_admins_group
+        from: infra-users/users_and_groups:$.groups.admin
+      - name: EXEIAC_TEST_ops_group
+        from: infra-users/users_and_groups:$.groups.ops
+      - name: EXEIAC_TEST_bastion_dns
+        from: infra-ground/envs/production/bastion:$.bastion.internal_domain_name
+        weak_dependency: true
+      - name: EXEIAC_TEST_bastion_instance_id # used to know if we have to re-lay user
+        from: infra-ground/envs/production/bastion:$.bastion.instance_id
+        trigger_dependency: true
