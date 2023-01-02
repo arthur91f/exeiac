@@ -21,7 +21,7 @@ Includes: %v`, AvailableBricksSpecifiers))
 
 	flag.StringVarP(&Args.Format, "format", "f", "all",
 		fmt.Sprintf(`Define the format of the output. It matches the brick's specifiers values
-Includes: %v`, AvailableBricksSpecifiers))
+Includes: %v`, AvailableBricksFormat))
 
 	defaultModules := make(map[string]string)
 	flag.StringToStringVarP(&Args.Modules, "modules", "m", defaultModules,

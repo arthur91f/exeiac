@@ -52,3 +52,8 @@ var AvailableBricksSpecifiers = [...]string{
 	"selected", "s",
 	"direct_next", "dn",
 	"linked_next", "all_next", "ln", "an"}
+
+var AvailableBricksFormat = [...]string{
+	"name", "n",
+	"path", "p",
+	"all", "a"}
