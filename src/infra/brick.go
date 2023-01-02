@@ -156,7 +156,7 @@ func (brick *Brick) Enrich(bcy BrickConfYaml, infra *Infra) error {
 	brick.Module = module
 	dependencies, err := bcy.resolveDependencies(infra)
 	if err != nil {
-		log.Println("An error occured when getting dependencies: ", err)
+		log.Printf("An error occured when getting dependencies of brick %s: %v\n", brick.Name, err)
 	}
 
 	brick.Inputs = dependencies
