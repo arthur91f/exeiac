@@ -1,10 +1,10 @@
 modules:
   - name: test
-    path: /home/ME/git-repos/exeiac-modules/module_test.sh
+    path: /home/ME/git/exeiac/example/repos/modules/module_test.sh
   - name: terraform
-    path: /home/ME/git-repos/exeiac-modules/terraform
-  - name: ansible
-    path: /home/ME/git-repos/exeiac-modules/ansible
+    path: /home/ME/git/exeiac/example/repos/modules/terraform.sh
+  - name: manual-module
+    path: /home/ME/git/exeiac/example/repos/modules/manual-module.sh
 rooms:
   - name: infra-ground
     path: /home/ME/git-repos/infra-ground
