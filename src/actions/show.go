@@ -15,11 +15,10 @@ func Show(
 	statusCode int,
 	err error,
 ) {
-	// a test just to use the interface arguments
-	if infra == nil && conf == nil {
-		statusCode = 3
-		err = exinfra.ErrBadArg{Reason: "Error: infra and args are not setted"}
-		return
+	if len(bricksToExecute) == 0 {
+		err = exinfra.ErrBadArg{Reason: "Error: you should specify at least a brick for plan action"}
+
+		return 3, err
 	}
 
 	switch conf.Format {
@@ -51,7 +50,9 @@ func Show(
 	default:
 		statusCode = 3
 		err = fmt.Errorf("Error: format not valid for show action: %s", conf.Format)
+
 		return
 	}
+
 	return
 }

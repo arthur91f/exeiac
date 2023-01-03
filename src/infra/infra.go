@@ -15,6 +15,8 @@ import (
 	"sync"
 )
 
+const BRICK_FILE_NAME = "brick.yml"
+
 type Infra struct {
 	Modules []Module
 	Bricks  BricksMap
@@ -35,7 +37,7 @@ func CreateInfra(configuration exargs.Configuration) (Infra, error) {
 
 	// Temporary brick storage to have consistent indexing across rooms
 	// i.e. having an overall ordering as the index
-	bricks := []Brick{}
+	bricks := Bricks{}
 	for name, path := range configuration.Rooms {
 		b, err := GetBricks(name, path)
 		if err != nil {
@@ -46,12 +48,9 @@ func CreateInfra(configuration exargs.Configuration) (Infra, error) {
 	}
 
 	for idx := range bricks {
-		// We do not want to access &b because it uses the same pointer to copy the new element in
-		// meaning we'd reference the same entity over and over
-		// c.f. https://stackoverflow.com/questions/20185511/range-references-instead-values
 		b := bricks[idx]
 		b.Index = idx
-		i.Bricks[b.Name] = &b
+		i.Bricks[b.Name] = b
 	}
 
 	return i, nil
@@ -73,26 +72,27 @@ func SanitizeBrickName(name string) string {
 }
 
 // Walks the file system from the provided root, gathers all folders containing a `brick.html` file, and build a Brick struct from it.
-func GetBricks(roomName string, roomPath string) ([]Brick, error) {
-	var bricks []Brick
-	var err error
-
+func GetBricks(roomName string, roomPath string) (bricks Bricks, err error) {
 	_, err = os.Stat(roomPath)
 	if err != nil {
-		if os.IsNotExist(err) {
+		if errors.Is(err, os.ErrNotExist) {
 			err = ErrBrickNotFound{brick: roomPath}
-			return bricks, err
+
+			return
 		}
-		return bricks, err
+
+		return
 	}
-	bricks = []Brick{{
+
+	bricks = Bricks{{
 		Name:         roomName,
 		Path:         roomPath,
 		IsElementary: false,
 	}}
-	_, err = os.Stat(roomPath + "/brick.yml")
-	if err == nil {
-		bricks[0].IsElementary = true
+
+	confFilePath, err := GetConfFilePath(roomPath)
+	if err != nil {
+		bricks[0].SetElementary(confFilePath)
 	}
 
 	err = filepath.WalkDir(
@@ -105,7 +105,7 @@ func GetBricks(roomName string, roomPath string) ([]Brick, error) {
 
 			lastBrick := func() *Brick {
 				if len(bricks) > 0 {
-					return &(bricks)[len(bricks)-1]
+					return (bricks)[len(bricks)-1]
 				}
 
 				return &Brick{}
@@ -118,7 +118,7 @@ func GetBricks(roomName string, roomPath string) ([]Brick, error) {
 
 				// Do not duplicate entries
 				if len(bricks) == 0 || lastBrick.Name != name {
-					bricks = append(bricks, Brick{
+					bricks = append(bricks, &Brick{
 						Name:         name,
 						Path:         path,
 						IsElementary: false,
@@ -128,7 +128,7 @@ func GetBricks(roomName string, roomPath string) ([]Brick, error) {
 
 			// An elementary brick has prefixed folder name, and a brick.yml file.
 			// TODO(half-shell): Make the configuration filename more flexible.
-			if d.Type().IsRegular() && d.Name() == "brick.yml" {
+			if d.Type().IsRegular() && d.Name() == BRICK_FILE_NAME {
 				brickName := filepath.Join(roomName, filepath.Dir(brickRelPath))
 				name := SanitizeBrickName(brickName)
 
@@ -143,7 +143,7 @@ func GetBricks(roomName string, roomPath string) ([]Brick, error) {
 			return err
 		})
 
-	return bricks, err
+	return
 }
 
 func (infra Infra) String() string {
@@ -187,11 +187,11 @@ func (i *Infra) GetSubBricks(brick *Brick) (subBricks Bricks, err error) {
 	// directly before their subbricks
 	superBrickPath := brick.Path
 	for _, b := range i.Bricks {
-		brickPath := b.Path
-		// We ignore the sub-brick if they're the same; strings.HasPrefix returns true in that case
-		if b.IsElementary && strings.HasPrefix(brickPath, superBrickPath) {
+		// We ignore the sub-brick if they're the same by checking if they have a common prefix
+		if b.IsElementary && strings.HasPrefix(b.Path, superBrickPath) {
 			if b.EnrichError != nil {
 				err = b.EnrichError
+
 				return
 			}
 
@@ -443,4 +443,15 @@ func (infra *Infra) ValidateConfiguration(configuration *exargs.Configuration) (
 		}
 	}
 	return nil
+}
+
+func GetConfFilePath(path string) (string, error) {
+	confFilePath := filepath.Join(path + BRICK_FILE_NAME)
+	_, err := os.Stat(confFilePath)
+
+	if err != nil {
+		return confFilePath, nil
+	}
+
+	return confFilePath, fmt.Errorf("No configuration file was found in %s", confFilePath)
 }

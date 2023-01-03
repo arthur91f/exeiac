@@ -151,6 +151,8 @@ func FromArguments(args Arguments) (configuration Configuration, err error) {
 		rooms[name] = path
 	}
 
+	// NOTE(half-shell): Ideally, we wouldn't want to mix exeiac injected flags and the
+	// ones provided by the user. However, distinction is not needed for now.
 	var other_options = append(conf.OtherOptions, args.OtherOptions...)
 	if args.NonInteractive {
 		other_options = extools.Deduplicate(append(other_options, "--non-interactive"))
