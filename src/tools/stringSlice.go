@@ -20,3 +20,20 @@ func Deduplicate(ss []string) (output []string) {
 
 	return
 }
+
+func StrSliceXor(references []string, strings []string) []string {
+	var notIn []string
+	for _, str := range strings {
+		exist := false
+		for _, s := range references {
+			if str == s {
+				exist = true
+				break
+			}
+		}
+		if !exist {
+			notIn = append(notIn, str)
+		}
+	}
+	return notIn
+}
