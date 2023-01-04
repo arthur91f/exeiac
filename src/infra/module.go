@@ -47,7 +47,7 @@ func (module *Module) LoadAvailableActions() error {
 
 	path, err := exec.LookPath(module.Path)
 	if err != nil {
-		return err
+		return fmt.Errorf("unable to load available actions for module %s: %v", module.Name, err)
 	}
 
 	cmd := exec.Cmd{
@@ -60,7 +60,7 @@ func (module *Module) LoadAvailableActions() error {
 
 	output, err := cmd.Output()
 	if err != nil {
-		return err
+		return fmt.Errorf("unable to load available actions for module %s: %v", module.Name, err)
 	}
 
 	for _, action := range bytes.Split(output, []byte("\n")) {
