@@ -33,7 +33,7 @@ type ErrBadArg struct {
 }
 
 func (err ActionNotImplementedError) Error() string {
-	return fmt.Sprintf("Module %s does not implement action %s", err.Module.Name, err.Action)
+	return fmt.Sprintf(`Module "%s" does not implement action "%s"`, err.Module.Name, err.Action)
 }
 
 func (e ErrBadArg) Error() string {
