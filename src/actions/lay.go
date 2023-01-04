@@ -103,5 +103,6 @@ func Lay(
 	}
 
 	execSummary.Display()
+
 	return
 }

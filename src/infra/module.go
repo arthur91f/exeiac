@@ -72,10 +72,15 @@ func (module *Module) LoadAvailableActions() error {
 	return nil
 }
 
-func (m *Module) exec(brick *Brick,
-	args []string, env []string,
-	stdout io.Writer, stderr io.Writer) (err error) {
-
+func (m *Module) exec(
+	brick *Brick,
+	args []string,
+	env []string,
+	stdout io.Writer,
+	stderr io.Writer,
+) (
+	err error,
+) {
 	cmd := exec.Cmd{
 		Path:   m.Path,
 		Args:   append([]string{m.Path}, args...),
