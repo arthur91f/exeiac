@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 ACTION="$1"
 ALL_ARGS="$@"
 CURRENT_PATH="$(pwd)"
