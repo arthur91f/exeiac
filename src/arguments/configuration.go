@@ -164,7 +164,7 @@ func FromArguments(args Arguments) (configuration Configuration, err error) {
 		BricksSpecifiers:  extools.Deduplicate(append(conf.BricksSpecifiers, args.BricksSpecifiers...)),
 		ConfigurationFile: args.ConfigurationFile,
 		Format:            args.Format,
-		Interactive:       !args.NonInteractive,
+		Interactive:       (conf.Interactive && !args.NonInteractive) || args.Interactive,
 		Modules:           modules,
 		Rooms:             rooms,
 		OtherOptions:      other_options,
