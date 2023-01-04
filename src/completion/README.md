@@ -4,6 +4,11 @@ A small package to provide an auto-completion to different shells (`bash`, `zsh`
 It justs references all brick's in a configuration file's "Rooms" section, and return them.
 
 ## Bash
+To enable the bash auto-completion, you can just copy the `./scripts/exeiac.sh` file
+to `/usr/share/bash-completion/completions/`.
+```bash
+$ cp ./scripts/exeiac.sh /usr/share/bash-completion/completions/exeiac
+```
 
 ## Zsh
 To enable zsh's auto-completion, the script needs to be stored under the
