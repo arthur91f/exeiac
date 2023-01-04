@@ -39,10 +39,10 @@ func (m Module) String() string {
 // *Actions* slice.
 // If the *Actions* slice is not empty, bypass the call the the command.
 // NOTE(half-shell): Do we have a use to force the call to be triggered again here?
-func (module *Module) LoadAvailableActions() error {
+func (module *Module) LoadAvailableActions() (err error) {
 	// Actions are already loaded; no need to reprocess it
 	if len(module.Actions) > 0 {
-		return nil
+		return
 	}
 
 	path, err := exec.LookPath(module.Path)
@@ -50,26 +50,26 @@ func (module *Module) LoadAvailableActions() error {
 		return fmt.Errorf("unable to load available actions for module %s: %v", module.Name, err)
 	}
 
+	stdout := StoreStdout{}
 	cmd := exec.Cmd{
-		Path: path,
-		// NOTE(half-shell): We have to manually add something as a first element in args
-		// because Cmd **seems** to poorly overwrite it, making any first argument provided disappear
-		// e.g. Args:   []string{ACTION_SHOW_AVAILABLE_ACTIONS} won't work
-		Args: []string{path, ACTION_SHOW_AVAILABLE_ACTIONS},
+		Path:   path,
+		Args:   []string{path, ACTION_SHOW_AVAILABLE_ACTIONS},
+		Stdout: &stdout,
+		Stderr: os.Stderr,
 	}
 
-	output, err := cmd.Output()
+	err = cmd.Run()
 	if err != nil {
 		return fmt.Errorf("unable to load available actions for module %s: %v", module.Name, err)
 	}
 
-	for _, action := range bytes.Split(output, []byte("\n")) {
+	for _, action := range bytes.Split(stdout.Output, []byte("\n")) {
 		if len(action) > 0 {
 			module.Actions = append(module.Actions, string(action))
 		}
 	}
 
-	return nil
+	return
 }
 
 func (m *Module) exec(
