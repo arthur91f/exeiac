@@ -418,11 +418,13 @@ func (infra *Infra) EnrichBricks() {
 				infra.Bricks[b.Name].EnrichError =
 					fmt.Errorf("unable to enrich brick(%s): %v", b.Name, err)
 			}
+
 			err = b.Enrich(conf, infra)
 			if err != nil {
 				infra.Bricks[b.Name].EnrichError =
 					fmt.Errorf("unable to enrich brick(%s): %v", b.Name, err)
 			}
+
 			err = b.Module.LoadAvailableActions()
 			if err != nil {
 				infra.Bricks[b.Name].EnrichError =

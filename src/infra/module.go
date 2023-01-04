@@ -39,10 +39,10 @@ func (m Module) String() string {
 // *Actions* slice.
 // If the *Actions* slice is not empty, bypass the call the the command.
 // NOTE(half-shell): Do we have a use to force the call to be triggered again here?
-func (module *Module) LoadAvailableActions() error {
+func (module *Module) LoadAvailableActions() (err error) {
 	// Actions are already loaded; no need to reprocess it
 	if len(module.Actions) > 0 {
-		return nil
+		return
 	}
 
 	path, err := exec.LookPath(module.Path)
@@ -50,32 +50,37 @@ func (module *Module) LoadAvailableActions() error {
 		return fmt.Errorf("unable to load available actions for module %s: %v", module.Name, err)
 	}
 
+	stdout := StoreStdout{}
 	cmd := exec.Cmd{
-		Path: path,
-		// NOTE(half-shell): We have to manually add something as a first element in args
-		// because Cmd **seems** to poorly overwrite it, making any first argument provided disappear
-		// e.g. Args:   []string{ACTION_SHOW_AVAILABLE_ACTIONS} won't work
-		Args: []string{path, ACTION_SHOW_AVAILABLE_ACTIONS},
+		Path:   path,
+		Args:   []string{path, ACTION_SHOW_AVAILABLE_ACTIONS},
+		Stdout: &stdout,
+		Stderr: os.Stderr,
 	}
 
-	output, err := cmd.Output()
+	err = cmd.Run()
 	if err != nil {
 		return fmt.Errorf("unable to load available actions for module %s: %v", module.Name, err)
 	}
 
-	for _, action := range bytes.Split(output, []byte("\n")) {
+	for _, action := range bytes.Split(stdout.Output, []byte("\n")) {
 		if len(action) > 0 {
 			module.Actions = append(module.Actions, string(action))
 		}
 	}
 
-	return nil
+	return
 }
 
-func (m *Module) exec(brick *Brick,
-	args []string, env []string,
-	stdout io.Writer, stderr io.Writer) (err error) {
-
+func (m *Module) exec(
+	brick *Brick,
+	args []string,
+	env []string,
+	stdout io.Writer,
+	stderr io.Writer,
+) (
+	err error,
+) {
 	cmd := exec.Cmd{
 		Path:   m.Path,
 		Args:   append([]string{m.Path}, args...),
@@ -91,12 +96,26 @@ func (m *Module) exec(brick *Brick,
 	return
 }
 
-func (m *Module) Exec(b *Brick,
-	action string, args []string, env []string,
-	writers ...io.Writer) (statusCode int, err error) {
-
+// Executes a module's action over a brick, the provided CLI arguments and environment
+// variables. It takes between 0 and 2 writers; they are used to process the module's
+// `stdout` and `stderr`. They'll *usually* match one of infra's writers.
+//
+// Returns a statusCode returned by the module, and an error if any.
+// Note that `err` here is not an error thrown from the external module, but only coming
+// from the go execution. Module errors are displayed in `stderr`.
+func (m *Module) Exec(
+	b *Brick,
+	action string,
+	args []string,
+	env []string,
+	writers ...io.Writer,
+) (
+	statusCode int,
+	err error,
+) {
 	if !extools.ContainsString(m.Actions, action) {
 		err = ActionNotImplementedError{Action: action, Module: m}
+
 		return
 	}
 
@@ -126,7 +145,8 @@ func (m *Module) Exec(b *Brick,
 
 	if err != nil {
 		if ee, isExitError := err.(*exec.ExitError); isExitError {
-			// NOTE(half-shell): We don't consider an exitError an actual error as far as exeiac goes.
+			// NOTE(half-shell): We don't consider an exitError an actual error as far as
+			// exeiac goes.
 			// We return it as a separate value to make that distinction obvious.
 			statusCode = ee.ExitCode()
 			err = nil
