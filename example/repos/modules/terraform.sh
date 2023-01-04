@@ -94,11 +94,15 @@ function output {
 }
 
 function clean {
-    rm -r ./.terraform || 
+    if [ -e ./.terraform ]; then
+        rm -r ./.terraform || 
         internal_quit "clean:error when 'rm -r .terraform'" 2
-    rm ./.terraform.lock.hcl ||
+    fi
+    if [ -e ./.terraform.lock.hcl ]; then
+        rm ./.terraform.lock.hcl ||
         internal_quit "clean:error when 'rm -r .terraform.lock.hcl'" 2
-    if [ "$(output)" == "{}" ]; then
+    fi
+    if [ "$(output)" == "{}" ] && [ -e /terraform.tfstate ] ; then
         rm ./terraform.tfstate || 
             internal_quit "clean:error when 'rm terraform.tfstate'" 2
     fi
