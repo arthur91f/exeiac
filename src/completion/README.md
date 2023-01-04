@@ -6,6 +6,11 @@ It justs references all brick's in a configuration file's "Rooms" section, and r
 ## Bash
 
 ## Zsh
+To enable zsh's auto-completion, the script needs to be stored under the
+`/usr/share/zsh/site-functions/` directory under the name `_exeiac`.
+```zsh
+$ cp ./scripts/exeiac.zsh /usr/share/zsh/site-functions/_exeiac
+```
 
 ## Fish
 To enable the fish auto-completion, you can just copy the `./scripts/exeiac.fish` file
