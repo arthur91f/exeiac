@@ -166,3 +166,23 @@ func writeEnvFilesAndGetEnvs(brick *exinfra.Brick) (envs []string, err error) {
 	envs = envFormatter.Environ()
 	return
 }
+
+func cleanEnvFiles(brick *exinfra.Brick) error {
+	formatters, _, err := brick.CreateFormatters()
+	if err != nil {
+		return fmt.Errorf("error when searching input files to delete of brick %s: %v", brick.Name, err)
+	}
+
+	if len(formatters) > 0 {
+		for path := range formatters {
+			if _, err := os.Stat(path); err == nil {
+				err = os.Remove(path)
+				if err != nil {
+					return fmt.Errorf("error when deleting %s an input files of brick %s: %v", path, brick.Name, err)
+				}
+			}
+		}
+	}
+
+	return err
+}
