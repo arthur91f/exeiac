@@ -96,12 +96,26 @@ func (m *Module) exec(
 	return
 }
 
-func (m *Module) Exec(b *Brick,
-	action string, args []string, env []string,
-	writers ...io.Writer) (statusCode int, err error) {
-
+// Executes a module's action over a brick, the provided CLI arguments and environment
+// variables. It takes between 0 and 2 writers; they are used to process the module's
+// `stdout` and `stderr`. They'll *usually* match one of infra's writers.
+//
+// Returns a statusCode returned by the module, and an error if any.
+// Note that `err` here is not an error thrown from the external module, but only coming
+// from the go execution. Module errors are displayed in `stderr`.
+func (m *Module) Exec(
+	b *Brick,
+	action string,
+	args []string,
+	env []string,
+	writers ...io.Writer,
+) (
+	statusCode int,
+	err error,
+) {
 	if !extools.ContainsString(m.Actions, action) {
 		err = ActionNotImplementedError{Action: action, Module: m}
+
 		return
 	}
 
@@ -121,7 +135,8 @@ func (m *Module) Exec(b *Brick,
 
 	if err != nil {
 		if ee, isExitError := err.(*exec.ExitError); isExitError {
-			// NOTE(half-shell): We don't consider an exitError an actual error as far as exeiac goes.
+			// NOTE(half-shell): We don't consider an exitError an actual error as far as
+			// exeiac goes.
 			// We return it as a separate value to make that distinction obvious.
 			statusCode = ee.ExitCode()
 			err = nil
