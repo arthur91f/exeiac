@@ -38,8 +38,8 @@ func (err ActionNotImplementedError) Error() string {
 
 func (e ErrBadArg) Error() string {
 	if e.Value == "" {
-		return fmt.Sprintf("! Bad argument: %s", e.Reason)
+		return fmt.Sprintf("Error(Bad argument): %s", e.Reason)
 	} else {
-		return fmt.Sprintf("! Bad argument: %s: %s", e.Reason, e.Value)
+		return fmt.Sprintf("Error(Bad argument): %s: %s", e.Reason, e.Value)
 	}
 }
