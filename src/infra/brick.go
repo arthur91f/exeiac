@@ -40,6 +40,8 @@ type Brick struct {
 	Name string
 	// The absolute path of the brick's directory
 	Path string
+	// The brick pointer of the room. Is set to nil if the brick is a room
+	Room *Brick
 	// The absolute path of the `brick.yml` file
 	ConfigurationFilePath string
 	// Wheither or not the brick contains a `brick.yml` file.

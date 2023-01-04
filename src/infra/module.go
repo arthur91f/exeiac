@@ -100,10 +100,20 @@ func (m *Module) Exec(b *Brick,
 		return
 	}
 
+	defaultEnvs := []string{
+		fmt.Sprintf("EXEIAC_brick_path=%s", b.Path),
+		fmt.Sprintf("EXEIAC_brick_name=%s", b.Name),
+		fmt.Sprintf("EXEIAC_room_path=%s", b.Room.Path),
+		fmt.Sprintf("EXEIAC_room_name=%s", b.Room.Name),
+		fmt.Sprintf("EXEIAC_module_path=%s", m.Path),
+		fmt.Sprintf("EXEIAC_module_name=%s", m.Name),
+	}
+
 	if len(env) != 0 {
+		env = append(os.Environ(), defaultEnvs...)
 		env = append(os.Environ(), env...)
 	} else {
-		env = os.Environ()
+		env = append(os.Environ(), defaultEnvs...)
 	}
 
 	if len(writers) > 1 {

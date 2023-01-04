@@ -89,6 +89,7 @@ func GetBricks(roomName string, roomPath string) (bricks Bricks, err error) {
 		Path:         roomPath,
 		IsElementary: false,
 	}}
+	bricks[0].Room = bricks[0]
 
 	confFilePath, err := GetConfFilePath(roomPath)
 	if err != nil {
@@ -122,6 +123,7 @@ func GetBricks(roomName string, roomPath string) (bricks Bricks, err error) {
 						Name:         name,
 						Path:         path,
 						IsElementary: false,
+						Room:         bricks[0],
 					})
 				}
 			}
