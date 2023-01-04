@@ -191,7 +191,6 @@ func (i *Infra) GetSubBricks(brick *Brick) (subBricks Bricks, err error) {
 		if b.IsElementary && strings.HasPrefix(b.Path, superBrickPath) {
 			if b.EnrichError != nil {
 				err = b.EnrichError
-
 				return
 			}
 
@@ -414,15 +413,18 @@ func (infra *Infra) EnrichBricks() {
 		if b.IsElementary {
 			conf, err := BrickConfYaml{}.New(b.ConfigurationFilePath)
 			if err != nil {
-				infra.Bricks[b.Name].EnrichError = err
+				infra.Bricks[b.Name].EnrichError =
+					fmt.Errorf("unable to enrich brick(%s): %v", b.Name, err)
 			}
 			err = b.Enrich(conf, infra)
 			if err != nil {
-				infra.Bricks[b.Name].EnrichError = err
+				infra.Bricks[b.Name].EnrichError =
+					fmt.Errorf("unable to enrich brick(%s): %v", b.Name, err)
 			}
 			err = b.Module.LoadAvailableActions()
 			if err != nil {
-				infra.Bricks[b.Name].EnrichError = err
+				infra.Bricks[b.Name].EnrichError =
+					fmt.Errorf("unable to enrich brick(%s): %v", b.Name, err)
 			}
 		}
 	}
