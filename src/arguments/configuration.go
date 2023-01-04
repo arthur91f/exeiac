@@ -66,7 +66,7 @@ func (a Configuration) String() string {
 	return sb.String()
 }
 
-func createConfiguration(confFilePath string) (configuration Configuration, err error) {
+func CreateConfiguration(confFilePath string) (configuration Configuration, err error) {
 	file, err := os.ReadFile(confFilePath)
 	if err != nil {
 		return
@@ -113,13 +113,13 @@ func FromArguments(args Arguments) (configuration Configuration, err error) {
 	var conf Configuration
 
 	if args.ConfigurationFile != "" {
-		conf, err = createConfiguration(args.ConfigurationFile)
+		conf, err = CreateConfiguration(args.ConfigurationFile)
 	} else {
 		var configFilePath string
 
 		configFilePath, err = xdg.SearchConfigFile(CONFIG_FILE)
 		if err == nil {
-			conf, err = createConfiguration(configFilePath)
+			conf, err = CreateConfiguration(configFilePath)
 		}
 	}
 

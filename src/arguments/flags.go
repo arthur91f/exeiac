@@ -48,6 +48,8 @@ to it. Flag with arguments need to be enclosed in double quotes
 
 	flag.BoolVarP(&Args.ShowUsage, "help", "h", false, "Show exeiac's help")
 
+	flag.BoolVarP(&Args.ListBricks, "list-bricks", "l", false, "List all the bricks from all rooms")
+
 	flag.Usage = func() {
 		fmt.Println("Usage: exeiac ACTION (BRICK_PATH|BRICK_NAME) [OPTION...]")
 		fmt.Println()
