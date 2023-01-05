@@ -36,7 +36,12 @@ function internal_get_created {
 
 function internal_display_diff {
     diff --color -y <(echo "$1" | jq --sort-keys .) <(echo "$2" | jq --sort-keys .)
-    return $?
+    err=$?
+    case "$err" in
+        1) return 2 ;;
+        2) return 1 ;;
+        *) return $err ;;
+    esac
 }
 
 function show_implemented_actions {
@@ -49,10 +54,11 @@ function show_implemented_actions {
 function init {
     if which jq >/dev/null ; then
         echo "test-module:init: jq installed"
+        return 0
     else
         echo "test-module:init: jq not installed"
         echo "  https://stedolan.github.io/jq/download/"
-        status_code=1
+        return 21
     fi
 }
 
@@ -70,7 +76,7 @@ function lay {
     
     if ! grep -q ".*--non-interactive" <<<"$ALL_ARGS" ; then
         if ! internal_ask_confirmation "Do you want to continue ? " ; then
-            return 1
+            return 21
         fi
     fi
     echo "$to_create" > CREATED_this

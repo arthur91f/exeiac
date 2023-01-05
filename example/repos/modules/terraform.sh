@@ -38,74 +38,81 @@ function init {
     if [ "$?" != 0 ]; then
         echo "terraform:init: terraform not installed"
         echo "  https://developer.hashicorp.com/terraform/downloads"
-        return 1
+        status_code=1
     fi
     if which jq >/dev/null ; then
         echo "terraform:init: jq installed"
     else
         echo "terraform:init: jq not installed"
         echo "  https://stedolan.github.io/jq/download/"
-        status_code=1
+        status_code=$(($status_code+2))
     fi
 
     terraform init
+    err=$?
+    if [ "$err" != 0 ]; then
+        return $err
+    else
+        status_code=$(($status_code+20))
+        return $status_code
+    fi
 }
-
-#function internal_ask_confirmation {
-#     echo -e "\033[1m$1\033[0m\033[3m(only yes accepted): \033[0m"
-#     read answer
-#     if [ "$answer" == "yes" ]; then
-#         return 0
-#     else
-#         return 1
-#     fi
-# }
 
 function plan {
     terraform plan -detailed-exitcode
-    case "$?" in
-    1)
-        return 2 ;;
-    2)
-        return 1 ;;
-    *)
-        return $? ;;
-    esac
+    return $?
 }
 
 function lay {
     if grep -q ".*--non-interactive" <<<"$ALL_ARGS" ; then
         terraform apply -auto-approve
+        return $?
     else
         terraform apply
+        return $?
     fi
 }
 
 function remove {
     if grep -q ".*--non-interactive" <<<"$ALL_ARGS" ; then
         terraform destroy -auto-approve
+        return $?
     else
         terraform destroy
+        return $?
     fi
 }
 
 function output {
-    terraform output -json | jq 'map_values(.value)'
+    json="$(terraform output -json)"
+    err="$?"
+    if [ "$err" != 0 ]; then
+        echo "{}"
+        return $err
+    fi
+    echo "$json" | jq 'map_values(.value)'
+    err="$?"
+    if [ "$err" != 0 ]; then
+        echo "{}"
+        return $err
+    fi
+    return 0
 }
 
 function clean {
     if [ -e ./.terraform ]; then
         rm -r ./.terraform || 
-        internal_quit "clean:error when 'rm -r .terraform'" 2
+        internal_quit "clean:error when 'rm -r .terraform'" 21
     fi
     if [ -e ./.terraform.lock.hcl ]; then
         rm ./.terraform.lock.hcl ||
-        internal_quit "clean:error when 'rm -r .terraform.lock.hcl'" 2
+        internal_quit "clean:error when 'rm -r .terraform.lock.hcl'" 22
     fi
     if [ "$(output)" == "{}" ] && [ -e /terraform.tfstate ] ; then
         rm ./terraform.tfstate || 
-            internal_quit "clean:error when 'rm terraform.tfstate'" 2
+            internal_quit "clean:error when 'rm terraform.tfstate'" 23
     fi
+    return 0
 }
 
 if grep -q "^$ACTION$" <(show_implemented_actions) ; then
@@ -113,7 +120,7 @@ if grep -q "^$ACTION$" <(show_implemented_actions) ; then
     exitcode="$?"
 else
     echo "action not implemented: $ACTION"
-    exitcode=3
+    exitcode=21
 fi
 
 exit "$exitcode"

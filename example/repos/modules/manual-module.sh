@@ -18,14 +18,14 @@ function init {
     python3 --version 2>/dev/null
     if [ "$?" != 0 ]; then
         echo "manual-module:init: python3 not installed"
-        return 1
+        return 22
     fi
     if which jq >/dev/null ; then
         echo "manual-module:init: jq installed"
     else
         echo "manual-module:init: jq not installed"
         echo "  https://stedolan.github.io/jq/download/"
-        status_code=1
+        return 23
     fi
 }
 
@@ -45,7 +45,7 @@ function internal_get_file_basename {
 
 function plan {
     if ! validate_code; then
-        return 3
+        return 21
     fi
     if grep -q ".*--non-interactive" <<<"$ALL_ARGS" ; then
         echo "manual-module:plan: as the lay is a manual and the non-interactive mode is enabled, assume everything is ok"
@@ -56,7 +56,7 @@ function plan {
 
 function lay {
     if ! validate_code; then
-        return 3
+        return 21
     fi
     if grep -q ".*--non-interactive" <<<"$ALL_ARGS" ; then
         echo "manual-module:lay: as the lay is a manual and the non-interactive mode is enabled, assume everything is ok"
@@ -108,7 +108,7 @@ function validate_code {
         for item in $list ; do
             grep "$item" <<<"$FILES_LIST"
         done
-        return 1
+        return 21
     fi
 }
 
