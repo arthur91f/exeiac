@@ -36,8 +36,8 @@ func Help(
 	err error,
 ) {
 	if len(bricksToExecute) == 0 {
-		err = exinfra.ErrBadArg{Reason: "Error: you should specify at least a brick for help action" +
-			"\nif you want to display exeiac help use --help option"}
+		err = exinfra.ErrBadArg{Reason: `you should specify at least one brick for the "help" action if you want to display exeiac help use the --help option.`}
+
 		return 3, err
 	}
 
@@ -72,5 +72,6 @@ func Help(
 	}
 
 	execSummary.Display()
+
 	return
 }
