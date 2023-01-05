@@ -7,6 +7,7 @@ import (
 	exargs "src/exeiac/arguments"
 	excompletion "src/exeiac/completion"
 	exinfra "src/exeiac/infra"
+	exstatuscode "src/exeiac/statuscode"
 
 	flag "github.com/spf13/pflag"
 )
@@ -34,7 +35,7 @@ func main() {
 		if len(nonFlagArgs) == 0 {
 			fmt.Fprintln(os.Stderr, "argument missing: you need at least to specify one action")
 
-			os.Exit(2)
+			os.Exit(exstatuscode.INIT_ERROR)
 		}
 
 		exargs.Args.Action, exargs.Args.BricksNames = nonFlagArgs[0], nonFlagArgs[1:]
@@ -44,7 +45,7 @@ func main() {
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
 
-		os.Exit(2)
+		os.Exit(exstatuscode.INIT_ERROR)
 	}
 
 	if exargs.Args.ListBricks {
@@ -58,14 +59,14 @@ func main() {
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
 
-		os.Exit(1)
+		os.Exit(exstatuscode.INIT_ERROR)
 	}
 
 	err = infra.ValidateConfiguration(&configuration)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
 
-		os.Exit(1)
+		os.Exit(exstatuscode.INIT_ERROR)
 	}
 
 	// enrich bricks that we will execute
@@ -77,7 +78,7 @@ func main() {
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
 
-		os.Exit(1)
+		os.Exit(exstatuscode.INIT_ERROR)
 	}
 
 	// get bricks specified by parameters
@@ -86,7 +87,7 @@ func main() {
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
 
-		os.Exit(1)
+		os.Exit(exstatuscode.INIT_ERROR)
 	}
 
 	// executeAction
