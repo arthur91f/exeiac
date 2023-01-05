@@ -103,22 +103,15 @@ action. You can also implement other personal action.
     if it's not implemented: will always assume that there is a drift
     exit_code:
     - success with no drift: 0
-    - success with drift: 1
-    - fail: 2-255
+    - success with drift: 2
+    - success when module can't decide between 0 and 2: 3
+    - fail: 1,4-255
   - lay:
     if it's not implemented: will always assume that the deploy has failed
-    exit_code:
-    - success with no drift: 0
-    - success with drift: 1
-    - fail: 2-255
   - remove:
     if it's not implemented: will always assume that the destroy has failed
-    exit_code:
-    - success with nothing to do: 0
-    - success with something to do: 1
-    - fail: 2-255
   - output:
-    if it's not implemented: the ouput will be null
+    if it's not implemented: the ouput will be null: {}
     format: json
 - classic action you can overload, if not, they will simply do nothing:
   - init: install or check tools dependencies (terraform binary, provider,
