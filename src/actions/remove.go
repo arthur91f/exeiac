@@ -5,6 +5,7 @@ import (
 	"sort"
 	exargs "src/exeiac/arguments"
 	exinfra "src/exeiac/infra"
+	exstatuscode "src/exeiac/statuscode"
 	extools "src/exeiac/tools"
 )
 
@@ -19,7 +20,7 @@ func Remove(
 	if len(bricksToExecute) == 0 {
 		err = exinfra.ErrBadArg{Reason: "Error: you should specify at least a brick for \"remove\" action"}
 
-		return 3, err
+		return exstatuscode.INIT_ERROR, err
 	}
 
 	if conf.Interactive {
@@ -31,7 +32,7 @@ func Remove(
 		confirm, err := extools.AskConfirmation("\nDo you want to continue ?")
 
 		if err != nil {
-			return 3, err
+			return exstatuscode.RUN_ERROR, err
 		} else if !confirm {
 			return 0, nil
 		}
@@ -39,7 +40,7 @@ func Remove(
 
 	err = enrichDatas(bricksToExecute, infra)
 	if err != nil {
-		return 3, err
+		return exstatuscode.ENRICH_ERROR, err
 	}
 
 	skipFollowing := false
@@ -63,7 +64,10 @@ func Remove(
 		var envs []string
 		envs, err = writeEnvFilesAndGetEnvs(b)
 		if err != nil {
-			return 3, err
+			statusCode = exstatuscode.Update(statusCode, exstatuscode.RUN_ERROR)
+			report.Error = fmt.Errorf("not able to get env file and vars before execute: %v", err)
+			report.Status = TAG_ERROR
+			continue
 		}
 
 		// lay and manage error
@@ -72,12 +76,12 @@ func Remove(
 			skipFollowing = true
 			report.Error = err
 			report.Status = TAG_ERROR
-			statusCode = 3
+			statusCode = exstatuscode.Update(statusCode, exstatuscode.MODULE_ERROR)
 		} else if exitStatus != 0 {
 			skipFollowing = true
 			report.Error = fmt.Errorf("remove return: %d", exitStatus)
 			report.Status = TAG_ERROR
-			statusCode = 3
+			statusCode = exstatuscode.Update(statusCode, exstatuscode.MODULE_ERROR)
 		} else {
 			report.Status = TAG_OK
 		}

@@ -33,6 +33,7 @@ const TAG_DONE = "DONE"
 const TAG_ERROR = "ERR"
 const TAG_SKIP = "SKIP"
 const TAG_DRIFT = "DRIFT"
+const TAG_MAY_DRIFT = "DRIFT?"
 
 type ExecSummary []ExecReport
 
@@ -58,17 +59,19 @@ func (es ExecSummary) Display() {
 				report.Brick.Name,
 				extools.Indent(report.Error.Error()))
 		case TAG_SKIP:
-			sb.WriteString(color.BlueString("SKIP  "))
+			sb.WriteString(color.BlueString("SKIP    "))
 		case TAG_OK:
-			sb.WriteString(color.GreenString("OK    "))
+			sb.WriteString(color.GreenString("OK      "))
 		case TAG_NO_CHANGE:
-			sb.WriteString(color.GreenString("OK    "))
+			sb.WriteString(color.GreenString("OK      "))
 		case TAG_DONE:
-			sb.WriteString(color.CyanString("DONE  "))
+			sb.WriteString(color.CyanString("DONE    "))
 		case TAG_DRIFT:
-			sb.WriteString(color.CyanString("DRIFT "))
+			sb.WriteString(color.CyanString("DRIFT   "))
+		case TAG_MAY_DRIFT:
+			sb.WriteString(color.CyanString("?DRIFT? "))
 		case "":
-			sb.WriteString(color.RedString("NO FLAG"))
+			sb.WriteString(color.RedString("NO FLAG  "))
 		default:
 			sb.WriteString(color.YellowString(report.Status))
 		}

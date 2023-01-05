@@ -4,6 +4,7 @@ import (
 	"fmt"
 	exargs "src/exeiac/arguments"
 	exinfra "src/exeiac/infra"
+	exstatuscode "src/exeiac/statuscode"
 	extools "src/exeiac/tools"
 )
 
@@ -18,7 +19,7 @@ func Show(
 	if len(bricksToExecute) == 0 {
 		err = exinfra.ErrBadArg{Reason: "Error: you should specify at least a brick for plan action"}
 
-		return 3, err
+		return exstatuscode.INIT_ERROR, err
 	}
 
 	switch conf.Format {
@@ -37,7 +38,7 @@ func Show(
 	case "output", "outputs", "o":
 		err = enrichDatas(bricksToExecute, infra)
 		if err != nil {
-			return 3, err
+			return exstatuscode.ENRICH_ERROR, err
 		}
 		if len(bricksToExecute) == 1 {
 			fmt.Println(string(bricksToExecute[0].Output))
@@ -48,8 +49,9 @@ func Show(
 			}
 		}
 	default:
-		statusCode = 3
-		err = fmt.Errorf("Error: format not valid for show action: %s", conf.Format)
+		statusCode = exstatuscode.INIT_ERROR
+		err = exinfra.ErrBadArg{Reason: fmt.Sprintf(
+			"Error: format not valid for show action: %s", conf.Format)}
 
 		return
 	}

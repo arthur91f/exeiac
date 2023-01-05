@@ -4,6 +4,7 @@ import (
 	"fmt"
 	exargs "src/exeiac/arguments"
 	exinfra "src/exeiac/infra"
+	exstatuscode "src/exeiac/statuscode"
 	extools "src/exeiac/tools"
 )
 
@@ -19,10 +20,9 @@ func PassthroughAction(
 	statusCode int,
 	err error,
 ) {
-	if infra == nil && conf == nil {
-		err = exinfra.ErrBadArg{Reason: "Error: infra and args are not set"}
-
-		return
+	if len(bricksToExecute) == 0 {
+		return exstatuscode.INIT_ERROR,
+			exinfra.ErrBadArg{Reason: fmt.Sprintf("Error: you should specify at least a brick for %s action", conf.Action)}
 	}
 
 	execSummary := make(ExecSummary, len(bricksToExecute))
@@ -32,7 +32,9 @@ func PassthroughAction(
 		extools.DisplaySeparator(b.Name)
 		report := ExecReport{Brick: b}
 
-		statusCode, err = b.Module.Exec(b, conf.Action, conf.OtherOptions, []string{})
+		// NOTE(arthur91f): we may need to add:    envs, err := writeEnvFilesAndGetEnvs(b)
+		// it seems not necessary for init and validate code but who knows for other actions
+		exitStatus, err := b.Module.Exec(b, conf.Action, conf.OtherOptions, []string{})
 
 		if err != nil {
 			if actionNotImplementedError, isActionNotImplemented := err.(exinfra.ActionNotImplementedError); isActionNotImplemented {
@@ -42,12 +44,16 @@ func PassthroughAction(
 				err = nil
 				report.Status = "OK"
 			} else {
-				statusCode = 3
+				statusCode = exstatuscode.Update(statusCode, exstatuscode.MODULE_ERROR)
 				report.Status = "ERR"
 				report.Error = err
 			}
-		} else {
+		} else if exitStatus == 0 {
 			report.Status = "DONE"
+		} else {
+			statusCode = exstatuscode.Update(statusCode, exstatuscode.MODULE_ERROR)
+			report.Status = "ERR"
+			report.Error = fmt.Errorf("module exit with status code %d", exitStatus)
 		}
 
 		execSummary[i] = report

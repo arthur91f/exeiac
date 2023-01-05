@@ -4,6 +4,7 @@ import (
 	"fmt"
 	exargs "src/exeiac/arguments"
 	exinfra "src/exeiac/infra"
+	exstatuscode "src/exeiac/statuscode"
 	extools "src/exeiac/tools"
 )
 
@@ -38,7 +39,7 @@ func Help(
 	if len(bricksToExecute) == 0 {
 		err = exinfra.ErrBadArg{Reason: "Error: you should specify at least a brick for help action" +
 			"\nif you want to display exeiac help use --help option"}
-		return 3, err
+		return exstatuscode.INIT_ERROR, err
 	}
 
 	execSummary := make(ExecSummary, len(bricksToExecute))
@@ -46,7 +47,7 @@ func Help(
 	for i, b := range bricksToExecute {
 		extools.DisplaySeparator(b.Name + "(" + b.Module.Name + ")")
 		report := ExecReport{Brick: b}
-		statusCode, err = b.Module.Exec(b, conf.Action, conf.OtherOptions, []string{})
+		exitStatus, err := b.Module.Exec(b, conf.Action, conf.OtherOptions, []string{})
 
 		if err != nil {
 			if _, isActionNotImplemented := err.(exinfra.ActionNotImplementedError); isActionNotImplemented {
@@ -61,12 +62,16 @@ func Help(
 				err = nil
 				report.Status = "OK"
 			} else {
-				statusCode = 3
+				statusCode = exstatuscode.Update(statusCode, exstatuscode.RUN_ERROR)
 				report.Status = "ERR"
 				report.Error = err
 			}
-		} else {
+		} else if exitStatus == 0 {
 			report.Status = "DONE"
+		} else {
+			statusCode = exstatuscode.Update(statusCode, exstatuscode.MODULE_ERROR)
+			report.Status = "ERR"
+			report.Error = fmt.Errorf("module exit with status code %d", exitStatus)
 		}
 		execSummary[i] = report
 	}

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	exargs "src/exeiac/arguments"
 	exinfra "src/exeiac/infra"
+	exstatuscode "src/exeiac/statuscode"
 	extools "src/exeiac/tools"
 )
 
@@ -18,12 +19,12 @@ func Plan(
 	if len(bricksToExecute) == 0 {
 		err = exinfra.ErrBadArg{Reason: "Error: you should specify at least a brick for plan action"}
 
-		return 3, err
+		return exstatuscode.INIT_ERROR, err
 	}
 
 	err = enrichDatas(bricksToExecute, infra)
 	if err != nil {
-		return 3, err
+		return exstatuscode.ENRICH_ERROR, err
 	}
 
 	execSummary := make(ExecSummary, len(bricksToExecute))
@@ -35,7 +36,10 @@ func Plan(
 		// write env file if needed
 		envs, err := writeEnvFilesAndGetEnvs(b)
 		if err != nil {
-			return 3, err
+			statusCode = exstatuscode.Update(statusCode, exstatuscode.RUN_ERROR)
+			report.Error = fmt.Errorf("not able to get env file and vars before execute: %v", err)
+			report.Status = TAG_ERROR
+			continue
 		}
 
 		// lay and manage error
@@ -43,18 +47,19 @@ func Plan(
 		if err != nil {
 			report.Error = err
 			report.Status = TAG_ERROR
-			statusCode = 3
+			statusCode = exstatuscode.Update(statusCode, exstatuscode.MODULE_ERROR)
 		} else if exitStatus == 0 {
 			report.Status = TAG_NO_CHANGE
-		} else if exitStatus == 1 {
+		} else if exitStatus == 2 {
 			report.Status = TAG_DRIFT
-			if statusCode == 0 {
-				statusCode = 1
-			}
+			statusCode = exstatuscode.Update(statusCode, exstatuscode.MODULE_DRIFT)
+		} else if exitStatus == 3 {
+			report.Status = TAG_MAY_DRIFT
+			statusCode = exstatuscode.Update(statusCode, exstatuscode.MODULE_DRIFT_OR_NOT)
 		} else {
 			report.Error = fmt.Errorf("plan return: %d", exitStatus)
 			report.Status = TAG_ERROR
-			statusCode = 3
+			statusCode = exstatuscode.Update(statusCode, exstatuscode.MODULE_ERROR)
 		}
 
 		execSummary[i] = report
