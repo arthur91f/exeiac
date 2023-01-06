@@ -63,7 +63,7 @@ func Plan(
 		}
 
 		execSummary[i] = report
-
+		fmt.Println("")
 	}
 
 	execSummary.Display()

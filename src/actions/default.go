@@ -57,6 +57,7 @@ func PassthroughAction(
 		}
 
 		execSummary[i] = report
+		fmt.Println("")
 	}
 
 	execSummary.Display()

@@ -46,18 +46,18 @@ type ExecReport struct {
 func (es ExecSummary) Display() {
 	var sb strings.Builder
 
-	sb.WriteString(color.New(color.Bold).Sprint("\nSummary:\n"))
+	sb.WriteString(color.New(color.Bold).Sprint("Summary:\n"))
 	for _, report := range es {
-		str := report.Brick.Name
+		var str string
 		if report.Error != nil {
-			report.Status = TAG_ERROR
+			str = fmt.Sprintf("%s : %s", report.Brick.Name,
+				extools.IndentIfMultiline(report.Error.Error()))
+		} else {
+			str = report.Brick.Name
 		}
 		switch report.Status {
 		case TAG_ERROR:
-			sb.WriteString(color.RedString("ERR   "))
-			str = fmt.Sprintf("%s : %s\n",
-				report.Brick.Name,
-				extools.Indent(report.Error.Error()))
+			sb.WriteString(color.RedString("ERR     "))
 		case TAG_SKIP:
 			sb.WriteString(color.BlueString("SKIP    "))
 		case TAG_OK:

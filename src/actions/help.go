@@ -74,6 +74,7 @@ func Help(
 			report.Error = fmt.Errorf("module exit with status code %d", exitStatus)
 		}
 		execSummary[i] = report
+		fmt.Println("")
 	}
 
 	execSummary.Display()

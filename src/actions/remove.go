@@ -57,6 +57,7 @@ func Remove(
 		if skipFollowing {
 			report.Status = "SKIP"
 			execSummary[i] = report
+			fmt.Printf("remove skipped\n\n")
 			continue
 		}
 
@@ -87,6 +88,7 @@ func Remove(
 		}
 
 		execSummary[i] = report
+		fmt.Println("")
 	}
 
 	execSummary.Display()

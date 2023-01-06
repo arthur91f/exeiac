@@ -99,6 +99,7 @@ func Clean(
 		}
 
 		execSummary[i] = report
+		fmt.Println("")
 	}
 
 	execSummary.Display()

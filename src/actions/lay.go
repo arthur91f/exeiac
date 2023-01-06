@@ -54,6 +54,7 @@ func Lay(
 		if skipFollowing {
 			report.Status = TAG_SKIP
 			execSummary[i] = report
+			fmt.Printf("lay skipped\n\n")
 			continue
 		}
 
@@ -113,6 +114,7 @@ func Lay(
 		}
 
 		execSummary[i] = report
+		fmt.Println("")
 	}
 
 	execSummary.Display()
