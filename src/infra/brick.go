@@ -235,15 +235,39 @@ func (b *Brick) CreateFormatters() (fileFormatters map[string]Formatter, env_for
 // Returns an error if something wrong happened during `Brick's` name-to-reference resolution,
 // or when checking that the `JsonPath` is a valid JSONPath.
 func (bcy BrickConfYaml) resolveDependencies(infra *Infra) (inputs []Input, err error) {
-	parseFromField := func(from string) (brickName string, dataKey string) {
+	parseFromField := func(from string) (brickName string, dataKey string, err error) {
+		if from == "" {
+			return "", "", fmt.Errorf("field from is empty or doesn't exist")
+		}
+
 		fields := strings.Split(from, ":")
 
-		return fields[0], fields[1]
+		if len(fields) != 2 {
+			return "", "", fmt.Errorf(
+				"field from \"%s\" is not of from: <brick name>:<json path>",
+				from)
+
+		}
+
+		return fields[0], fields[1], nil
 	}
 
 	for _, i := range bcy.Input {
 		for _, d := range i.Data {
-			brickName, keyPath := parseFromField(d.From)
+			if d.Name == "" {
+				err = fmt.Errorf("data item hasn't any field \"name\"")
+
+				return
+			}
+
+			var brickName string
+			var keyPath string
+			brickName, keyPath, err = parseFromField(d.From)
+			if err != nil {
+				err = fmt.Errorf("data %s: %v", d.Name, err)
+
+				return
+			}
 			// NOTE(half-shell): We sanitize the brick name here in case they turn
 			// out to be brick paths
 			brick, ok := infra.Bricks[SanitizeBrickName(brickName)]
