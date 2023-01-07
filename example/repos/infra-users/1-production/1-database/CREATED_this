@@ -1,0 +1,5 @@
+{
+  "from_admins_group": "[arthur91f halfshell]",
+  "from_database": "[map[instance_id:mycompany/production-191222/instance/c4170873-145c-040d-a0f8-031e1e7f13cd internal_domain_name:cluster-main.production.myp.tech private_domain_name:cluster-main.production.private private_ip:10.2.0.3 public_ip:34.64.76.186]]",
+  "from_ops_group": "[arthur91f]"
+}

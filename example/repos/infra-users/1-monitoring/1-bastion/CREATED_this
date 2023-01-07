@@ -1,0 +1,8 @@
+{
+  "from_admins_group": "[arthur91f halfshell]",
+  "from_bastion_dns": "bastion.monitoring.myp.tech",
+  "from_bastion_instance_id": "mycompany/monitoring-221201/instance/2101ee61-7746-54ae-bd28-4bc32e1d5210",
+  "from_devs_groups": "[halfshell toto titi]",
+  "from_ops_group": "[arthur91f]",
+  "from_products_groups": "[tata]"
+}

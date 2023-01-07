@@ -1,0 +1,7 @@
+{
+  "from_admins_group": "[arthur91f halfshell]",
+  "from_database": "[staging [map[internal:staging.myp.tech private:staging.private public:staging.public] map[ip_range:10.3.0.0/20 nat_ip:34.133.110.225 network_id:mycompany/staging-221219/network/bd12fdc5-c942-3ece-7bf1-865fb846880d]] mycompany/staging-221219]",
+  "from_devs_groups": "[halfshell toto titi]",
+  "from_ops_group": "[arthur91f]",
+  "from_products_groups": "[tata]"
+}

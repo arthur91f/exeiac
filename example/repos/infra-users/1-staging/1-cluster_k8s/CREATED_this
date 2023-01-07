@@ -1,0 +1,6 @@
+{
+  "from_admins_group": "[arthur91f halfshell]",
+  "from_cluster_id": "mycompany/staging-221219/instance/a94420e2-d413-b2ee-7773-a92edac5492e",
+  "from_devs_groups": "[halfshell toto titi]",
+  "from_ops_group": "[arthur91f]"
+}

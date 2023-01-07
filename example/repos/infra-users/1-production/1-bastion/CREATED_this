@@ -1,0 +1,6 @@
+{
+  "from_admins_group": "[arthur91f halfshell]",
+  "from_bastion_dns": "bastion.production.myp.tech",
+  "from_bastion_instance_id": "mycompany/production-191222/instance/ecc717a9-9671-1e09-5ce7-29e511939754",
+  "from_ops_group": "[arthur91f]"
+}
