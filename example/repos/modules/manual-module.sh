@@ -2,7 +2,10 @@
 ACTION="$1"
 ALL_ARGS="$@"
 CURRENT_PATH="$(pwd)"
-FILES_LIST="$EXEIAC_files_list"
+#FILES_LIST="$EXEIAC_files_list" until we support value data
+FILES_LIST="users.yml
+groups.yml"
+
 
 function show_implemented_actions {
     grep "^function " $0 |
