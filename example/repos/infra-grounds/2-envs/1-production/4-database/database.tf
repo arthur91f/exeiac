@@ -42,10 +42,9 @@ locals {
       }
     }
   }
-
   private_domain_name  = "cluster-main.${local.private_env_domain}"
   internal_domain_name = "cluster-main.${local.internal_env_domain}"
-  instance_id          = "${var.project_id}/instance/${random_uuid.this.id}"
+  instance_id          = "${var.project_id}/instance/${random_uuid.cluster.id}"
   private_ip           = cidrhost(local.network_ip_range, 3)
   public_ip            = "34.${join(".", random_integer.public_ip[*].id)}"
   template = {
@@ -61,8 +60,9 @@ locals {
       load_balancer_ip     = local.public_ip
       private_domain_name  = local.private_domain_name
       internal_domain_name = local.internal_domain_name
+      nodes                = random_uuid.nodes
       admin_creds          = {
-        username = "k8s-${var.env_name}-admin"
+        username = "${var.env_name}-admin"
         password = random_password.this
       }
       properties           = local.cluster_properties
@@ -72,14 +72,11 @@ locals {
 
 resource "random_uuid" "cluster" {
 }
-
-resource "random_uuid" "master_node" {
-}
-
-resource "random_uuid" "failover_node" {
-}
-
-resource "random_uuid" "reader1_node" {
+resource "random_uuid" "nodes" {
+  for_each = local.cluster_properties.nodes
+  keepers = {
+    cluster_id = random_uuid.cluster.id
+  }
 }
 
 resource "random_password" "this" {
@@ -90,7 +87,7 @@ resource "random_password" "this" {
 resource "random_integer" "public_ip" {
   count = 3
   keepers = {
-    instance_id = random_uuid.this.id
+    instance_id = random_uuid.cluster.id
   }
   min = 0
   max = 255
@@ -99,6 +96,5 @@ resource "random_integer" "public_ip" {
 resource "local_file" "this" {
   file_permission = "0644"
   content         = yamlencode(local.template)
-  filename        = "${path.root}/CREATED_cluster_k8s.yml"
+  filename        = "${path.root}/CREATED_cluster_database.yml"
 }
-

@@ -1,0 +1,6 @@
+{
+  "from_cluster": "[map[instance_id:mycompany/staging-221219/instance/a94420e2-d413-b2ee-7773-a92edac5492e internal_domain_name:cluster-main.staging.myp.tech private_domain_name:cluster-main.staging.private private_ip:10.3.0.3 public_ip:34.65.163.29]]",
+  "from_database": "[staging [map[internal:staging.myp.tech private:staging.private public:staging.public] map[ip_range:10.3.0.0/20 nat_ip:34.133.110.225 network_id:mycompany/staging-221219/network/bd12fdc5-c942-3ece-7bf1-865fb846880d]] mycompany/staging-221219]",
+  "from_env": "staging",
+  "from_project_id": "mycompany/staging-221219"
+}

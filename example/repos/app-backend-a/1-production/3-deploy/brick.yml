@@ -14,6 +14,6 @@ input:
       - name: EXEIAC_TEST_bastion
         from: infra-ground/envs/production/bastion:$.bastion.internal_domain_name
       - name: EXEIAC_TEST_cluster_k8s
-        from: infra-ground/envs/production/cluster_k8s:$*
+        from: infra-ground/envs/production/cluster_k8s:$.*
       - name: EXEIAC_TEST_database
         from: infra-ground/envs/production/database:$.* #cluster.master.private_domain_name

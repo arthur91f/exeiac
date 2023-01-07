@@ -1,8 +1,8 @@
 {
   "from_cluster": "[map[instance_id:mycompany/monitoring-221201/instance/b00e0fe0-fd48-8fae-623e-d3ea5de1d26b internal_domain_name:cluster-main.monitoring.myp.tech private_domain_name:cluster-main.monitoring.private private_ip:10.1.0.3 public_ip:34.243.198.57]]",
-  "from_env": "staging",
+  "from_env": "monitoring",
   "from_network": "[map[internal:monitoring.myp.tech private:monitoring.private public:myproduct.com] map[ip_range:10.1.0.0/20 nat_ip:34.21.201.77 network_id:mycompany/monitoring-221201/network/e618224a-3a96-71bc-0d76-1fb2c75ff793]]",
-  "from_production_monitoring": "[]",
-  "from_project_id": "mycompany/staging-221219",
-  "from_staging_monitoring": "[]"
+  "from_production_monitoring": "[[map[instance_id:mycompany/production-191222/instance/c4170873-145c-040d-a0f8-031e1e7f13cd internal_domain_name:cluster-main.production.myp.tech private_domain_name:cluster-main.production.private private_ip:10.2.0.3 public_ip:34.64.76.186]] staging mycompany/staging-221219 [map[instance_id:mycompany/production-191222/instance/ecc717a9-9671-1e09-5ce7-29e511939754 internal_domain_name:cluster-main.production.myp.tech private_domain_name:cluster-main.production.private private_ip:10.2.0.3 public_ip:34.90.70.34]]]",
+  "from_project_id": "mycompany/monitoring-221201",
+  "from_staging_monitoring": "[[map[instance_id:mycompany/staging-221219/instance/a94420e2-d413-b2ee-7773-a92edac5492e internal_domain_name:cluster-main.staging.myp.tech private_domain_name:cluster-main.staging.private private_ip:10.3.0.3 public_ip:34.65.163.29]] [staging [map[internal:staging.myp.tech private:staging.private public:staging.public] map[ip_range:10.3.0.0/20 nat_ip:34.133.110.225 network_id:mycompany/staging-221219/network/bd12fdc5-c942-3ece-7bf1-865fb846880d]] mycompany/staging-221219] staging mycompany/staging-221219]"
 }

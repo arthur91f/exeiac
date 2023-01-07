@@ -52,9 +52,11 @@ function init {
     err=$?
     if [ "$err" != 0 ]; then
         return $err
-    else
+    elif [ "$status_code" != 0 ]; then
         status_code=$(($status_code+20))
         return $status_code
+    else
+        return 0
     fi
 }
 
