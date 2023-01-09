@@ -107,7 +107,7 @@ func (m *Module) Exec(
 	b *Brick,
 	action string,
 	args []string,
-	env []string,
+	confEnv []string,
 	writers ...io.Writer,
 ) (
 	statusCode int,
@@ -119,20 +119,17 @@ func (m *Module) Exec(
 		return
 	}
 
-	defaultEnvs := []string{
-		fmt.Sprintf("EXEIAC_brick_path=%s", b.Path),
-		fmt.Sprintf("EXEIAC_brick_name=%s", b.Name),
-		fmt.Sprintf("EXEIAC_room_path=%s", b.Room.Path),
-		fmt.Sprintf("EXEIAC_room_name=%s", b.Room.Name),
-		fmt.Sprintf("EXEIAC_module_path=%s", m.Path),
-		fmt.Sprintf("EXEIAC_module_name=%s", m.Name),
-	}
-
-	if len(env) != 0 {
-		env = append(os.Environ(), defaultEnvs...)
-		env = append(os.Environ(), env...)
-	} else {
-		env = append(os.Environ(), defaultEnvs...)
+	// set envs vars
+	env := append(os.Environ(), []string{
+		fmt.Sprintf("EXEIAC_BRICK_PATH=%s", b.Path),
+		fmt.Sprintf("EXEIAC_BRICK_NAME=%s", b.Name),
+		fmt.Sprintf("EXEIAC_ROOM_PATH=%s", b.Room.Path),
+		fmt.Sprintf("EXEIAC_ROOM_NAME=%s", b.Room.Name),
+		fmt.Sprintf("EXEIAC_MODULE_PATH=%s", m.Path),
+		fmt.Sprintf("EXEIAC_MODULE_NAME=%s", m.Name),
+	}...)
+	if len(confEnv) != 0 {
+		env = append(env, confEnv...)
 	}
 
 	if len(writers) > 1 {
