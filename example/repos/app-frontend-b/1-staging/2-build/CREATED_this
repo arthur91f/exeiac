@@ -1,0 +1,5 @@
+{
+  "from_docker_registry": "bastion.staging.myp.tech",
+  "from_env": "staging",
+  "from_project_id": "mycompany/staging-221219"
+}

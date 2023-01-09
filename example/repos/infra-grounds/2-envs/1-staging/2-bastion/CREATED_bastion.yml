@@ -1,0 +1,16 @@
+"created":
+  "instance_id": "mycompany/staging-221219/instance/a3f78b6f-375d-5a1c-b441-9ce621a05297"
+  "internal_domain_name": "bastion.staging.myp.tech"
+  "private_domain_name": "bastion.staging.private"
+  "private_ip": "10.3.0.2"
+  "properties":
+    "cpu": 2
+    "disk":
+      "system": 30
+    "memory": 4096
+  "public_ip": "34.160.102.76"
+  "tag": "staging/bastion"
+"needs":
+  "network_id": "mycompany/staging-221219/network/bd12fdc5-c942-3ece-7bf1-865fb846880d"
+  "network_ip_range": "10.3.0.0/20"
+  "provider_project": "mycompany/staging-221219"

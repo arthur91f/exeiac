@@ -1,16 +1,11 @@
 version: 0.0.1
-module: test
+module: terraform
 input:
-  - type: file
+  - type: env_vars
     format: env
-    path: .env
+    path: ""
     data:
-      - name: env_name
-        from: infra-ground/1-init:$.staging.name
-      - name: env_project_name
-        from: infra-ground/1-init:$.staging.project
-      - name: env_user_name
-        from: infra-ground/1-init:$.staging.credentials.user
-      - name: env_credentials
-        from: infra-ground/1-init:$.staging.credentials.key
-    
+      - name: TF_VAR_project_id
+        from: infra-ground/init/create_accounts:$.projects.staging.project_id
+      - name: TF_VAR_env_name
+        from: infra-ground/init/create_accounts:$.projects.staging.env

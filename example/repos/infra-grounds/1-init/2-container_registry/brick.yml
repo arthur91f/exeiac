@@ -1,0 +1,11 @@
+version: 0.0.1
+module: terraform
+input:
+  - type: file
+    format: json
+    path: from_exeiac.auto.tfvars.json
+    data:
+      - name: cloud_providers
+        from: infra-ground/init/create_accounts:$.cloud_providers
+      - name: projects
+        from: infra-ground/init/create_accounts:$.projects

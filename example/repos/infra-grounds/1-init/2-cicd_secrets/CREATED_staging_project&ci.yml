@@ -1,0 +1,48 @@
+"created":
+  "ci":
+    "env": "staging"
+    "secrets":
+    - "name": "TF_VAR_username"
+      "value": "ci-staging"
+    - "name": "TF_VAR_userkey"
+      "value":
+        "bcrypt_hash": "$2a$10$ytijSoubR5NEtpnZYU8ybOnQAQLEbdekHno9jH3aIEZjLHC3jfJe6"
+        "id": "none"
+        "keepers": null
+        "length": 16
+        "lower": true
+        "min_lower": 0
+        "min_numeric": 0
+        "min_special": 0
+        "min_upper": 0
+        "number": true
+        "numeric": true
+        "override_special": null
+        "result": "kZMt2C1H8oEEFnsw"
+        "special": false
+        "upper": true
+  "cloud":
+    "monitoring_access": []
+    "project_access":
+    - "all/rw"
+    "user_key":
+      "bcrypt_hash": "$2a$10$ytijSoubR5NEtpnZYU8ybOnQAQLEbdekHno9jH3aIEZjLHC3jfJe6"
+      "id": "none"
+      "keepers": null
+      "length": 16
+      "lower": true
+      "min_lower": 0
+      "min_numeric": 0
+      "min_special": 0
+      "min_upper": 0
+      "number": true
+      "numeric": true
+      "override_special": null
+      "result": "kZMt2C1H8oEEFnsw"
+      "special": false
+      "upper": true
+    "user_name": "ci-staging"
+"needs":
+  "ci_provider": "my-company"
+  "monitoring_projects": "mycompany/monitoring-221201"
+  "staging_projects": "mycompany/staging-221219"

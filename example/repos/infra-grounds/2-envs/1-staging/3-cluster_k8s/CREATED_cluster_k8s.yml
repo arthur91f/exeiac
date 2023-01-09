@@ -1,0 +1,41 @@
+"created":
+  "admin_creds":
+    "password":
+      "bcrypt_hash": "$2a$10$DrGrqsxZiWIHBLLT77Q6fOHewMu0EXDu6SOYXFY5R8NOEqP7bgqvO"
+      "id": "none"
+      "keepers": null
+      "length": 16
+      "lower": true
+      "min_lower": 0
+      "min_numeric": 0
+      "min_special": 0
+      "min_upper": 0
+      "number": true
+      "numeric": true
+      "override_special": null
+      "result": "VwPoguMlf_L<IeOd"
+      "special": true
+      "upper": true
+    "username": "k8s-staging-admin"
+  "cluster_id": "mycompany/staging-221219/instance/a94420e2-d413-b2ee-7773-a92edac5492e"
+  "internal_domain_name": "cluster-main.staging.myp.tech"
+  "load_balancer_ip": "34.65.163.29"
+  "private_domain_name": "cluster-main.staging.private"
+  "private_ip": "10.3.0.3"
+  "properties":
+    "namespaces":
+    - "staging"
+    - "monitoring"
+    "node_pool":
+      "default_node":
+        "cpu": 4
+        "disk": 30
+        "memory": 4096
+      "max_nodes": 3
+      "min_nodes": 1
+      "multiregion": false
+  "tag": "staging/cluster_k8s"
+"needs":
+  "network_id": "mycompany/staging-221219/network/bd12fdc5-c942-3ece-7bf1-865fb846880d"
+  "network_ip_range": "10.3.0.0/20"
+  "provider_project": "mycompany/staging-221219"

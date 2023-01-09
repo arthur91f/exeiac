@@ -1,0 +1,17 @@
+admin:
+  - arthur91f
+  - halfshell
+ops:
+  - arthur91f
+dev:
+  - halfshell
+  - toto
+  - titi
+product:
+  - tata
+front:
+  - toto
+  - tata
+back:
+  - titi
+  - tata

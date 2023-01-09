@@ -1,0 +1,15 @@
+- default: arthur91f
+  mail: arthur91f@gmail.com
+  github: arthur91f
+  ssh: ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQDb/CWdGRB9pt2EDmqzCYsg/pAvPy99BWz6dzUhJ/MQmL56UVNNrrl8d4GH1z8GRmYcOZIQ8973wn9Amk3wJV/I8LFjSexZKzI0485tFWkjG89cKmnPcv3EtKqQu7+40L2LT6NqOjTmdnT95yu7nbVmk/x1aT5JzoZF3Jvj8yyVOND+hop7pZ9eVXZCzkajjUp5OwU78FEXUnr+689EQSRuPuacwvY6UXmj8nNLg9ND0QsZZa/lugf5wzXSLqiFAdlI7KwzY8454j1V68Bwr+amm2XaqTqcnKZOMrQNGJfEFe3+e4CyG2m+fhIp5BBtjeLCtz8BiUH7tLbeMyCU97QMilx1+7lg09HtOliYm9tLNlpLV/o2gi71BFHEOQFaqcMpeuP29IQKMdMvbThdW+r9OGrFgMdJXF8j5JfzPjIuDwzlYhlwPY6ND5/bMbgC2VBydGQht5B3/QzxEmAtRmNu9HW/2Oyfbo3mrDDir4Nm7kyV8XIJNbkBOEklBmbZpuNeF9cApoV2AV9lAcaSNJlGRtGaYwLkRvF9qktGj+A0RO+MRaNMmway6kQ8lCsY9f9ffLeTe5xnvvdDD46nGjlc02Ne16yXco9cVx3Ui0ElKzwKbKeM30D33OFdP02eLtpbYGDxTrQMzXW/eh3iHpFaIrUOMTf8qNSOT0iAn3jOsw== arthur91f@hpK3
+- default: halfshell
+  mail: mmaubert@protonmail.com
+  github: half-shell
+- default: titi
+  mail: titi@myproduct.co
+  github: grosminet
+- default: tata
+  mail: tata@myproduct.co
+- default: toto
+  mail: toto@myproduct.co
+  github: deltatxdeltat

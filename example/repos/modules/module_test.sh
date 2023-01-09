@@ -3,6 +3,47 @@ ACTION="$1"
 ALL_ARGS="$@"
 CURRENT_PATH="$(pwd)"
 
+function internal_ask_confirmation {
+    echo -e "\033[1m$1\033[0m\033[3m(only yes accepted): \033[0m"
+    read answer
+    if [ "$answer" == "yes" ]; then
+        return 0
+    else
+        return 1
+    fi
+}
+
+function internal_get_toCreate {
+    (echo -n "{"
+    compgen -v | grep "^EXEIAC_TEST_" | while read varname ; do
+        field="$(sed 's/^EXEIAC_TEST_//g' <<<"$varname")"
+        value="$(eval echo \"\$$varname\")"
+        if grep -q "^{" <<<"$value" ; then
+            echo -n "\"from_$field\": $value,"
+        else
+            echo -n "\"from_$field\": \"$value\","
+        fi
+    done | sed 's/,$//g' ; echo "}") | jq --sort-keys .
+}
+
+function internal_get_created {
+    if [ -f CREATED_this ]; then
+        cat CREATED_this | jq --sort-keys .
+    else
+        echo "{}"
+    fi
+}
+
+function internal_display_diff {
+    diff --color -y <(echo "$1" | jq --sort-keys .) <(echo "$2" | jq --sort-keys .)
+    err=$?
+    case "$err" in
+        1) return 2 ;;
+        2) return 1 ;;
+        *) return $err ;;
+    esac
+}
+
 function show_implemented_actions {
     grep "^function " $0 |
         sed 's|^function \([^ ]*\) .*$|\1|g' |
@@ -11,115 +52,47 @@ function show_implemented_actions {
 }
 
 function init {
-    echo "execute init: install tools and deps for $PWD"
-}
-
-function internal_interactive {
-    echo "execute $ACTION: for test you can choose what's happen"
-    read -p "choose: ok|drift|fail: " answer
-    if [ "$answer" == "ok" ]; then
-        echo "no drift"
+    if which jq >/dev/null ; then
+        echo "test-module:init: jq installed"
         return 0
-    elif [ "$answer" == "drift" ]; then
-        echo "some diff have been found"
-        return 1
     else
-        echo "fail"
-        return $(( $RANDOM % 255 + 2 ))
+        echo "test-module:init: jq not installed"
+        echo "  https://stedolan.github.io/jq/download/"
+        return 21
     fi
 }
 
 function plan {
-    # for the test the result will depends of the presence of word in path
-    if grep -q "drift$" <<<"$BRICK_PATH"; then
-        echo "execute $ACTION: some diff have been found, need to be layed"
-        return 1
-    elif grep -q "fail$" <<<"$BRICK_PATH"; then
-        echo "execute $ACTION: the $ACTION have failed"
-        echo "remove the ending \"fail\" of the brick name" >&2
-        return $(( $RANDOM % 255 + 2 ))
-    elif grep -q ".*--non-interactive" <<<"$ALL_ARGS"; then
-        echo "execute $ACTION: ok no drift"
-        return 0
-    elif grep -q "interactive" <<<"$BRICK_PATH"; then
-        internal_interactive
-        return $?
-    else
-        echo echo "execute plan: ok no drift"
-        return 0
-    fi
+    internal_display_diff "$(internal_get_created)" "$(internal_get_toCreate)"
+    return $?
 }
 
 function lay {
-    # for the test the result will depends of the presence of word in path
-    if grep -q "drift$" <<<"$BRICK_PATH"; then
-        echo "execute $ACTION: some diff have been found, need to be layed"
-        echo "  - null_resource: test"
-        echo "Do you want to lay (only \"yes\" accepted):"
-        read answer
-        if [ "$answer" == "yes" ]; then
-            echo "lay ok"
-            return 1
-        else
-            return 2
-        fi
-    elif grep -q "fail$" <<<"$BRICK_PATH"; then
-        echo "execute $ACTION: the $ACTION have failed"
-        echo "remove the ending \"fail\" of the brick name" >&2
-        return $(( $RANDOM % 255 + 2 ))
-    elif grep -q ".* --non-interactive" <<<"$ALL_ARGS"; then
-        echo "execute $ACTION: ok no drift"
-        return 0
-    elif grep -q "interactive" <<<"$BRICK_PATH"; then
-        internal_interactive
-        return $?
-    else
-        echo echo "execute plan: ok no drift"
+    to_create="$(internal_get_toCreate)"
+    internal_display_diff "$(internal_get_created)" "$to_create"
+    if [ "$?" == 0 ]; then
         return 0
     fi
+    
+    if ! grep -q ".*--non-interactive" <<<"$ALL_ARGS" ; then
+        if ! internal_ask_confirmation "Do you want to continue ? " ; then
+            return 21
+        fi
+    fi
+    echo "$to_create" > CREATED_this
+
 }
 
 function remove {
-    lay
+    if [ "$?" == 0 ]; then
+        return 0
+    fi
+    internal_display_diff "$(internal_get_created)" "{}"
+    echo "{}" > CREATED_this
 }
 
 function output {
-    # for test we display all outputs here it's simpler
-    echo '{
-    "production": {
-        "name": "production",
-        "project": "prod-120822",
-        "credentials": {
-            "user": "ci-prod",
-            "key": "-----BEGIN PRIVATE KEY-----\nproductionfjh6qnrS4z3qPOrOthu9hVJiM9sXPISuIMWCQUVDhA7cKwuZ3ErN3Mue2GBt\nKYuINui3SbsyfuAJlF/3FcUVfbwbioRWMKEs4rTPeU9Nz06Ipj2wZnRUpQ0njgptzxyrzH\nNblRVU1Skj9xNTzNbj02bWoOYSOgq3YIF+901gbQuZdE8JPxcKZMUXSxTvhgq5zA5bpKrj\nZm3Gja0rYjNM6NEFCRfVW4Fg==\n-----END PRIVATE KEY-----"
-        }
-    },
-    "staging": {
-        "name": "staging",
-        "project": "stage-120822",
-        "credentials": {
-            "user": "ci-staging",
-            "key": "-----BEGIN PRIVATE KEY-----\nstagingfjh6qnrS4z3qPOrOthu9hVJiM9sXPISuIMWCQUVDhA7cKwuZ3ErN3Mue2GBt\nKYuINui3SbsyfuAJlF/3FcUVfbwbioRWMKEs4rTPeU9Nz06Ipj2wZnRUpQ0njgptzxyrzH\nNblRVU1Skj9xNTzNbj02bWoOYSOgq3YIF+901gbQuZdE8JPxcKZMUXSxTvhgq5zA5bpKrj\nZm3Gja0rYjNM6NEFCRfVW4Fg==\n-----END PRIVATE KEY-----"
-        }
-    },
-    "monitoring": {
-        "name": "monitoring",
-        "project": "monit-120822",
-        "credentials": {
-            "user": "ci-monitoring",
-            "key": "-----BEGIN PRIVATE KEY-----\nmonitoringfjh6qnrS4z3qPOrOthu9hVJiM9sXPISuIMWCQUVDhA7cKwuZ3ErN3Mue2GBt\nKYuINui3SbsyfuAJlF/3FcUVfbwbioRWMKEs4rTPeU9Nz06Ipj2wZnRUpQ0njgptzxyrzH\nNblRVU1Skj9xNTzNbj02bWoOYSOgq3YIF+901gbQuZdE8JPxcKZMUXSxTvhgq5zA5bpKrj\nZm3Gja0rYjNM6NEFCRfVW4Fg==\n-----END PRIVATE KEY-----"
-        }
-    },
-    "domain_name": {
-        "internal": "internal.mycompany.co",
-        "private": "priv.mycompany.co",
-        "public": "mycompany.com"
-    },
-    "network": {
-        "ip_range": "10.0.0.0/20",
-        "network_id": "myaccount/myproject/network/123456-7890"
-    }
-}'
+    internal_get_created
 }
 
 $ACTION

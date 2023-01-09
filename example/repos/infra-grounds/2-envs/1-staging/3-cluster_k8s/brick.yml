@@ -1,0 +1,23 @@
+version: 0.0.1
+module: terraform
+input:
+  - type: env_vars
+    format: env
+    path: ""
+    data:
+      - name: TF_VAR_project_id
+        from: infra-ground/init/create_accounts:$.projects.staging.project_id
+      - name: TF_VAR_env_name
+        from: infra-ground/init/create_accounts:$.projects.staging.env
+  - type: file
+    format: json
+    path: from_exeiac.auto.tfvars.json
+    data:
+      - name: network_id
+        from: infra-ground/envs/staging/network:$.network.network_id
+      - name: network_ip_range
+        from: infra-ground/envs/staging/network:$.network.ip_range
+      - name: private_domain_name
+        from: infra-ground/envs/staging/network:$.domain_name.private
+      - name: internal_domain_name
+        from: infra-ground/envs/staging/network:$.domain_name.internal

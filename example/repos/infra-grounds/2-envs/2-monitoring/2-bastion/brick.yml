@@ -1,23 +1,23 @@
 version: 0.0.1
-module: test
+module: terraform
 input:
-  - type: file
+  - type: env_vars
     format: env
-    path: .env
+    path: ""
     data:
-      - name: env_name
-        from: infra-ground/1-init:$.monitoring.name
-      - name: env_project_name
-        from: infra-ground/1-init:$.monitoring.project
-      - name: env_user_name
-        from: infra-ground/1-init:$.monitoring.credentials.user
-      - name: env_credentials
-        from: infra-ground/1-init:$.monitoring.credentials.key
-      - name: network_ip_range
-        from: infra-ground/2-envs/2-monitoring/1-network:$.network.ip_range
+      - name: TF_VAR_project_id
+        from: infra-ground/init/create_accounts:$.projects.monitoring.project_id
+      - name: TF_VAR_env_name
+        from: infra-ground/init/create_accounts:$.projects.monitoring.env
+  - type: file
+    format: json
+    path: from_exeiac.auto.tfvars.json
+    data:
       - name: network_id
-        from: infra-ground/2-envs/2-monitoring/1-network:$.network.network_id
-      - name: internal_domain
-        from: infra-ground/2-envs/2-monitoring/1-network:$.domain_name.internal
-      - name: private_domain
-        from: infra-ground/2-envs/2-monitoring/1-network:$.domain_name.private
+        from: infra-ground/envs/monitoring/network:$.network.network_id
+      - name: network_ip_range
+        from: infra-ground/envs/monitoring/network:$.network.ip_range
+      - name: private_domain_name
+        from: infra-ground/envs/monitoring/network:$.domain_name.private
+      - name: internal_domain_name
+        from: infra-ground/envs/monitoring/network:$.domain_name.internal
