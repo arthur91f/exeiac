@@ -17,7 +17,7 @@ func Show(
 	err error,
 ) {
 	if len(bricksToExecute) == 0 {
-		err = exinfra.ErrBadArg{Reason: "Error: you should specify at least a brick for plan action"}
+		err = exinfra.ErrBadArg{Reason: "Error: you should specify at least a brick for show action"}
 
 		return exstatuscode.INIT_ERROR, err
 	}
