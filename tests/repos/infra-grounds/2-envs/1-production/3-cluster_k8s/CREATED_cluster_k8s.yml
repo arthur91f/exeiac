@@ -26,6 +26,7 @@
     "namespaces":
     - "production"
     - "monitoring"
+    - "DRIFT_NAME_SPACE"
     "node_pool":
       "default_node":
         "cpu": 8
