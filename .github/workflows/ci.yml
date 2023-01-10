@@ -25,4 +25,39 @@ jobs:
             echo "$failed_files"
             exit 1
           fi
-
+  gotest:
+    name: gotest
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Setup go
+        uses: actions/setup-go@v3
+        with:
+          go-version: '=1.19.2'
+      - name: Setup terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: 1.1.7
+      - name: 'Setup jq'
+        uses: dcarbone/install-jq-action@v1.0.1
+        with:
+          version: 1.6
+      - name: install exeiac
+        run: go install src/exeiac
+      - name: setup exeiac
+        run: |
+          mkdir -p "$HOME/.config/exeiac" &&
+          cp tests/exeiac.yml "$HOME/.config/exeiac/exeiac.yml" &&
+          sed -i "s|/home/ME/git/exeiac|$PWD|g" "$HOME/.config/exeiac/exeiac.yml" &&
+          echo -e "env:\n  USER=\"$USER\"\n  HOME=\"$HOME\"\n  PWD=\"$(pwd)\""
+      - name: test exeiac
+        run: |
+          exeiac show infra-ground -f n && 
+          exeiac show infra-ground/envs/production/network -f n -s dn &&
+          exeiac show infra-ground/envs/production/network -f n -s ln &&
+          exeiac show app-a/production/deploy -f n -s dp &&
+          exeiac show app-a/production/deploy -f n -s lp

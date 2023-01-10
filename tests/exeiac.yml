@@ -1,19 +1,19 @@
 modules:
   - name: test
-    path: /home/ME/git/exeiac/example/repos/modules/module_test.sh
+    path: /home/ME/git/exeiac/tests/repos/modules/module_test.sh
   - name: terraform
-    path: /home/ME/git/exeiac/example/repos/modules/terraform.sh
+    path: /home/ME/git/exeiac/tests/repos/modules/terraform.sh
   - name: manual-module
-    path: /home/ME/git/exeiac/example/repos/modules/manual-module.sh
+    path: /home/ME/git/exeiac/tests/repos/modules/manual-module.sh
 rooms:
   - name: infra-ground
-    path: /home/ME/git/exeiac/example/repos/infra-grounds
+    path: /home/ME/git/exeiac/tests/repos/infra-grounds
   - name: app-a
-    path: /home/ME/git/exeiac/example/repos/app-backend-a
+    path: /home/ME/git/exeiac/tests/repos/app-backend-a
   - name: app-b
-    path: /home/ME/git/exeiac/example/repos/app-frontend-b
+    path: /home/ME/git/exeiac/tests/repos/app-frontend-b
   - name: users
-    path: /home/ME/git/exeiac/example/repos/infra-users
+    path: /home/ME/git/exeiac/tests/repos/infra-users
 default_arguments:
   other_options:
     - "--test-args 0+0=toto"
