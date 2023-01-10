@@ -1,0 +1,57 @@
+- title: already init
+  cmd: exeiac init infra-ground/envs/production | tail -n 6
+  status: 0
+  stdout: |
+    Summary:
+    DONE    infra-ground/envs/production/network
+    DONE    infra-ground/envs/production/bastion
+    DONE    infra-ground/envs/production/cluster_k8s
+    DONE    infra-ground/envs/production/database
+    DONE    infra-ground/envs/production/prometheus
+- title: plan no drift
+  cmd: exeiac plan infra-ground/envs/production/database infra-ground/envs/production/prometheus | tail -n3
+  status: 0
+  stdout: |
+    Summary:
+    OK      infra-ground/envs/production/database
+    OK      infra-ground/envs/production/prometheus
+- title: plan drift output
+  cmd: exeiac plan infra-ground/envs/production | tail -n6
+  stdout: |
+    Summary:
+    OK      infra-ground/envs/production/network
+    DRIFT   infra-ground/envs/production/bastion
+    DRIFT   infra-ground/envs/production/cluster_k8s
+    OK      infra-ground/envs/production/database
+    OK      infra-ground/envs/production/prometheus
+- title: plan drift status
+  cmd: exeiac plan infra-ground/envs/production
+  status: 2
+- title: plan brick with a module that can't decide if their is a drift
+  cmd: exeiac plan users/users_and_groups --non-interactive
+  status: 3
+  # NOTE(arthur91f): to correct: manage color code
+  # stdout: |
+  #   \e[01;36m-- users/users_and_groups ------------------------------------------------\e[0;0m
+  #   manual-module:plan: as the lay is a manual and the non-interactive mode is enabled, can't determine if there is a drift
+
+  #   Summary:
+  #   ?DRIFT? users/users_and_groups
+- title: lay an already layed brick
+  cmd: exeiac lay infra-ground/envs/production/network --non-interactive  | tail -n2
+  status: 0
+  stdout: |
+    Summary:
+    OK      infra-ground/envs/production/network
+- title: output
+  cmd: exeiac output infra-ground/envs/production/network
+  status: 0
+- title: validate_code
+  cmd: exeiac validate_code infra-ground/envs/production/network
+  status: 0
+- title: help
+  cmd: exeiac help infra-ground/envs/production/network
+  status: 0
+- title: show
+  cmd: exeiac show infra-ground/envs/production/network -f n
+  status: 0

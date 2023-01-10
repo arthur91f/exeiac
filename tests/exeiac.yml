@@ -14,6 +14,7 @@ rooms:
     path: ./repos/app-frontend-b
   - name: users
     path: ./repos/infra-users
+
 default_arguments:
   other_options:
     - "--test-args 0+0=toto"

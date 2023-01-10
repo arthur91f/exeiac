@@ -51,9 +51,15 @@ function plan {
         return 21
     fi
     if grep -q ".*--non-interactive" <<<"$ALL_ARGS" ; then
-        echo "manual-module:plan: as the lay is a manual and the non-interactive mode is enabled, assume everything is ok"
+        echo "manual-module:plan: as the lay is a manual and the non-interactive mode is enabled, can't determine if there is a drift"
+        return 3
     else
-        echo "manual-module:plan: as the lay is a manual and the non-interactive mode is enabled, assume everything is ok"
+        output
+        if internal_ask_confirmation "Is it correct ?" ; then
+            return 0
+        else
+            return 2
+        fi
     fi
 }
 
