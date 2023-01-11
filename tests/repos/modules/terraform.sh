@@ -92,7 +92,7 @@ function output {
         echo "{}"
         return $err
     fi
-    echo "$json" | jq 'map_values(.value)'
+    jq 'map_values(.value)' <<<"$json"
     err="$?"
     if [ "$err" != 0 ]; then
         echo "{}"

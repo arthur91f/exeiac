@@ -41,11 +41,18 @@ jobs:
       - name: Setup terraform
         uses: hashicorp/setup-terraform@v2
         with:
-          terraform_version: 1.1.7
+          terraform_version: 1.3.6
+          terraform_wrapper: false
       - name: 'Setup jq'
         uses: dcarbone/install-jq-action@v1.0.1
         with:
           version: 1.6
+      - uses: actions/setup-python@v4 
+        with:
+          python-version: '3.9'
+          cache: 'pip'
+      - name: install python deps
+        run: pip install -r tests/requirements.txt
       - name: install exeiac
         run: go install src/exeiac
       - name: setup exeiac
