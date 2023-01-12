@@ -3,6 +3,7 @@ package arguments
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 	"reflect"
 	"strings"
 
@@ -115,7 +116,11 @@ func FromArguments(args Arguments) (configuration Configuration, err error) {
 	var configurationFilePath string
 
 	if args.ConfigurationFilePath != "" {
-		configurationFilePath = args.ConfigurationFilePath
+		if filepath.IsAbs(args.ConfigurationFilePath) {
+			configurationFilePath = args.ConfigurationFilePath
+		} else {
+			configurationFilePath, err = filepath.Abs(args.ConfigurationFilePath)
+		}
 	} else {
 		configurationFilePath, err = xdg.SearchConfigFile(CONFIG_FILE)
 		if err != nil {
@@ -137,8 +142,37 @@ func FromArguments(args Arguments) (configuration Configuration, err error) {
 	rooms := make(map[string]string)
 
 	if err == nil {
-		modules = conf.Modules
-		rooms = conf.Rooms
+		for name, path := range conf.Modules {
+			var absPath string
+
+			if filepath.IsAbs(path) {
+				absPath = path
+			} else {
+				if !args.ListBricks {
+					fmt.Printf("Warning: module path \"%s\" for module \"%s\" is relative. Favor using an absolute path.\n", path, name)
+				}
+
+				absPath = filepath.Join(filepath.Dir(conf.Path), path)
+			}
+
+			modules[name] = absPath
+		}
+
+		for name, path := range conf.Rooms {
+			var absPath string
+
+			if filepath.IsAbs(path) {
+				absPath = path
+			} else {
+				if !args.ListBricks {
+					fmt.Printf("Warning: room path \"%s\" for room \"%s\" is relative. Favor using an absolute path.\n", path, name)
+				}
+
+				absPath = filepath.Join(filepath.Dir(conf.Path), path)
+			}
+
+			rooms[name] = absPath
+		}
 	} else {
 		// NOTE(half-shell): We avoid propagating the error up the call stack
 		// since we're handling it.
@@ -146,11 +180,27 @@ func FromArguments(args Arguments) (configuration Configuration, err error) {
 	}
 
 	for name, path := range args.Modules {
-		modules[name] = path
+		var absPath string
+
+		if filepath.IsAbs(path) {
+			absPath = path
+		} else {
+			absPath = filepath.Join(filepath.Dir(conf.Path), path)
+		}
+
+		modules[name] = absPath
 	}
 
 	for name, path := range args.Rooms {
-		rooms[name] = path
+		var absPath string
+
+		if filepath.IsAbs(path) {
+			absPath = path
+		} else {
+			absPath = filepath.Join(filepath.Dir(conf.Path), path)
+		}
+
+		rooms[name] = absPath
 	}
 
 	// NOTE(half-shell): Ideally, we wouldn't want to mix exeiac injected flags and the
