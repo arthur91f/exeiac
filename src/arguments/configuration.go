@@ -38,15 +38,15 @@ type ConfigurationFile struct {
 // NOTE(half-shell): Should be able to embed the ` Arguments` struct.
 // We replicate the `Arguments` since it does not seem to work out of the box for some reason.
 type Configuration struct {
-	Action            string
-	BricksNames       []string
-	BricksSpecifiers  []string
-	Interactive       bool
-	Format            string
-	Modules           map[string]string
-	OtherOptions      []string
-	Rooms             map[string]string
-	ConfigurationFile string
+	Action                string
+	BricksNames           []string
+	BricksSpecifiers      []string
+	Format                string
+	Interactive           bool
+	Modules               map[string]string
+	OtherOptions          []string
+	Rooms                 map[string]string
+	ConfigurationFilePath string
 }
 
 func (a Configuration) String() string {
@@ -66,8 +66,8 @@ func (a Configuration) String() string {
 	return sb.String()
 }
 
-func CreateConfiguration(confFilePath string) (configuration Configuration, err error) {
-	file, err := os.ReadFile(confFilePath)
+func CreateConfiguration(configurationFilePath string) (configuration Configuration, err error) {
+	file, err := os.ReadFile(configurationFilePath)
 	if err != nil {
 		return
 	}
@@ -90,11 +90,12 @@ func CreateConfiguration(confFilePath string) (configuration Configuration, err 
 	}
 
 	configuration = Configuration{
-		Rooms:            rooms,
-		Modules:          modules,
-		Interactive:      confFile.DefaultArgs.NonInteractive,
-		BricksSpecifiers: confFile.DefaultArgs.BricksSpecifiers,
-		OtherOptions:     confFile.DefaultArgs.OtherOptions,
+		ConfigurationFilePath: configurationFilePath,
+		Rooms:                 rooms,
+		Modules:               modules,
+		Interactive:           confFile.DefaultArgs.NonInteractive,
+		BricksSpecifiers:      confFile.DefaultArgs.BricksSpecifiers,
+		OtherOptions:          confFile.DefaultArgs.OtherOptions,
 	}
 
 	return
@@ -111,17 +112,18 @@ func CreateConfiguration(confFilePath string) (configuration Configuration, err 
 // Current behaviour is "merging" them
 func FromArguments(args Arguments) (configuration Configuration, err error) {
 	var conf Configuration
+	var configurationFilePath string
 
-	if args.ConfigurationFile != "" {
-		conf, err = CreateConfiguration(args.ConfigurationFile)
+	if args.ConfigurationFilePath != "" {
+		configurationFilePath = args.ConfigurationFilePath
 	} else {
-		var configFilePath string
-
-		configFilePath, err = xdg.SearchConfigFile(CONFIG_FILE)
-		if err == nil {
-			conf, err = CreateConfiguration(configFilePath)
+		configurationFilePath, err = xdg.SearchConfigFile(CONFIG_FILE)
+		if err != nil {
+			return
 		}
 	}
+
+	conf, err = CreateConfiguration(configurationFilePath)
 
 	if err != nil {
 		// NOTE(half-shell): We only report an error on configuration reading if the command line
@@ -159,15 +161,15 @@ func FromArguments(args Arguments) (configuration Configuration, err error) {
 	}
 
 	configuration = Configuration{
-		Action:            args.Action,
-		BricksNames:       args.BricksNames,
-		BricksSpecifiers:  extools.Deduplicate(append(conf.BricksSpecifiers, args.BricksSpecifiers...)),
-		ConfigurationFile: args.ConfigurationFile,
-		Format:            args.Format,
-		Interactive:       (conf.Interactive && !args.NonInteractive) || args.Interactive,
-		Modules:           modules,
-		Rooms:             rooms,
-		OtherOptions:      other_options,
+		Action:                args.Action,
+		BricksNames:           args.BricksNames,
+		BricksSpecifiers:      extools.Deduplicate(append(conf.BricksSpecifiers, args.BricksSpecifiers...)),
+		Format:                args.Format,
+		Interactive:           (conf.Interactive && !args.NonInteractive) || args.Interactive,
+		Modules:               modules,
+		Rooms:                 rooms,
+		OtherOptions:          other_options,
+		ConfigurationFilePath: configurationFilePath,
 	}
 
 	return

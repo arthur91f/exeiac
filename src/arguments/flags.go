@@ -13,7 +13,7 @@ func init() {
 		fmt.Sprintf(`A list of comma separated specifiers.
 Includes: %v`, AvailableBricksSpecifiers))
 
-	flag.StringVarP(&Args.ConfigurationFile, "configuration-file", "c", "",
+	flag.StringVarP(&Args.ConfigurationFilePath, "configuration-file", "c", "",
 		"A path the a valid configuration file")
 
 	flag.BoolVarP(&Args.NonInteractive, "non-interactive", "I", false,

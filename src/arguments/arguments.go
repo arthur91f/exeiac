@@ -10,18 +10,18 @@ import (
 // Used only to gather the command line arguments once parsed, and to be used as
 // a parameter to build a `Configuration` struct.
 type Arguments struct {
-	Action            string
-	BricksNames       []string
-	BricksSpecifiers  []string
-	NonInteractive    bool
-	Interactive       bool
-	Format            string
-	Modules           map[string]string
-	OtherOptions      []string
-	Rooms             map[string]string
-	ConfigurationFile string
-	ShowUsage         bool
-	ListBricks        bool
+	Action                string
+	BricksNames           []string
+	BricksSpecifiers      []string
+	NonInteractive        bool
+	Interactive           bool
+	Format                string
+	Modules               map[string]string
+	OtherOptions          []string
+	Rooms                 map[string]string
+	ConfigurationFilePath string
+	ShowUsage             bool
+	ListBricks            bool
 }
 
 func (a Arguments) String() string {
