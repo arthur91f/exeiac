@@ -1,16 +1,25 @@
-# exeiac
+# Exeiac
 
-execute infra code smartly by :
-- trying to solve dependency issues
-- being transparent on how to deploy a part of your infra (no matter if you
-  use terraform or ansible or... you will use the same interface)
-- permit proper shortcut that don't break dependency tree even if it's not
-  easily managed by your tool
+## Description
+`exeiac` is a tool that enables infrastructure folks to handle several
+different provisionning IaC (Infrastructure as Code) tools, under a
+single CLI, and helps solving some recurrent paintpoints with IaC.
 
-exeiac use the brick metaphor. It describes infra as a set of bricks. A brick
-is a part of infra (the real infra element, the code that describes it, the code
-that permits to execute it). It can be a terraform state, an ansible playbook,
-a helm chart...
+It follows the brick convention, which describes an infrastructure as
+a set of bricks. A brick is a piece of infrastructure, it
+simultaneously is the actual infrastructure element, the code that
+describes it and a piece code that allows its execution; be it a
+terraform state, an ansible playbook or a helm chart for instance.
+
+This project was born from the following needs:
+- solve dependencies issues
+- increase transparency as to how a piece of infrastructure should be
+    deployed. No matter the provisionning tool you use, if there's a
+    module for it, `exeiac` will handle it
+- allow for a clean way to interact with only a part of your
+  infrastructure in a safe way, without breaking the dependency tree,
+  even if your infrastructure management tool doesn't provide that
+  feature
 
 ## DOCUMENTATION
 
@@ -26,9 +35,23 @@ a helm chart...
   respect the convention and best practices
 - examples: examples of simple infra code and module
 
-## HOW TO
+## Get started
 
-For using exeiac you will have to:
+### Installation
+
+Clone the git repository and build:
+``` bash
+$ git clone github.com/arthur91f/exeiac/src/exeiac
+$ cd exeiac
+$ go install src/exeiac
+```
+
+There is no release process yet, but on Go version 1.16 or later you can:
+``` bash
+# Install at tree head:
+$ go install github.com/arthur91f/exeiac/src/exeiac/src/exeiac@main
+```
+
 - get the exeiac binary
 - have an infra code that follow some conventions (see below for more details)
   - each brick is a directory prefixed by a number to make the apply order
@@ -48,15 +71,6 @@ For using exeiac you will have to:
     - $HOME/git-repos/applications
     - $HOME/git-repos/users
   ```
-
-### Compile
-
-Once cloned and in the repo directory, you'll be able to compile the project by
-running the following command:
-```bash
-go build src/exeiac
-```
-
 ### Simple command line examples
 
 - display a brick output
@@ -125,9 +139,9 @@ action. You can also implement other personal action.
     needed for execute the brick
   - show --format direct-next: display the list of bricks that needs the output
     of the specified bricks
-  - show --format linked-previous: display the list of bricks that needs to be 
+  - show --format linked-previous: display the list of bricks that needs to be
     layed to lay your brick (as their outputs are needed directly or not)
-  - show --format linked-next: display the list of bricks that can be impacted 
+  - show --format linked-next: display the list of bricks that can be impacted
     recursively by a change in your brick
-  - show --children: display elementary bricks 
+  - show --children: display elementary bricks
   - ... others exeiac command in general
