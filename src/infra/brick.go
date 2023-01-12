@@ -239,7 +239,9 @@ func (b *Brick) CreateFormatters() (fileFormatters map[string]Formatter, env_for
 func (bcy BrickConfYaml) resolveDependencies(infra *Infra) (inputs []Input, err error) {
 	parseFromField := func(from string) (brickName string, dataKey string, err error) {
 		if from == "" {
-			return "", "", fmt.Errorf("field from is empty or doesn't exist")
+			err = fmt.Errorf("field from is empty or doesn't exist")
+
+			return
 		}
 
 		fields := strings.Split(from, ":")
