@@ -1,0 +1,39 @@
+- title: no arg
+  cmd: exeiac 2>/dev/null
+  status: 11
+- title: no arg (only option)
+  cmd: exeiac --format name 2>/dev/null
+  status: 11
+- title: no action specified
+  cmd: exeiac infra-ground/envs/production/network 2>/dev/null
+  status: 11
+- title: no brick specified init
+  cmd: exeiac init 2>/dev/null
+  status: 11
+- title: no brick specified plan
+  cmd: exeiac plan 2>/dev/null
+  status: 11
+- title: no brick specified lay
+  cmd: exeiac lay 2>/dev/null
+  status: 11
+- title: no brick specified remove
+  cmd: exeiac remove 2>/dev/null
+  status: 11
+- title: no brick specified output
+  cmd: exeiac output 2>/dev/null
+  status: 11
+- title: no brick specified validate_code
+  cmd: exeiac validate_code 2>/dev/null
+  status: 11
+- title: no brick specified help 
+  cmd: exeiac help 2>/dev/null
+  status: 11
+- title: no brick specified show
+  cmd: exeiac show 2>/dev/null
+  status: 11
+- title: no brick specified clean
+  cmd: exeiac clean 2>/dev/null
+  status: 11
+- title: no brick specified with options
+  cmd: exeiac init --format name 2>/dev/null
+  status: 11

@@ -25,4 +25,41 @@ jobs:
             echo "$failed_files"
             exit 1
           fi
-
+  gotest:
+    name: gotest
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Setup go
+        uses: actions/setup-go@v3
+        with:
+          go-version: '=1.19.2'
+      - name: Setup terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: 1.3.6
+          terraform_wrapper: false
+      - name: 'Setup jq'
+        uses: dcarbone/install-jq-action@v1.0.1
+        with:
+          version: 1.6
+      - uses: actions/setup-python@v4 
+        with:
+          python-version: '3.9'
+          cache: 'pip'
+      - name: install python deps
+        run: pip install -r tests/requirements.txt
+      - name: install exeiac
+        run: go install src/exeiac
+      - name: setup exeiac
+        run: |
+          mkdir -p "$HOME/.config/exeiac" &&
+          cp tests/exeiac.yml "$HOME/.config/exeiac/exeiac.yml" &&
+          sed -i "s|./repos/|$PWD/tests/repos/|g" "$HOME/.config/exeiac/exeiac.yml" &&
+          echo -e "env:\n  USER=\"$USER\"\n  HOME=\"$HOME\"\n  current_path=\"$(pwd)\""
+      - name: e2e exeiac tests
+        run: ./tests/tests/run-e2e-test.sh

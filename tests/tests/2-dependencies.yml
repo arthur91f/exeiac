@@ -1,0 +1,63 @@
+- title: child
+  cmd: exeiac show infra-ground -f n
+  status: 0
+  stdout: |
+    infra-ground/init/create_accounts
+    infra-ground/init/cicd_secrets
+    infra-ground/init/container_registry
+    infra-ground/envs/production/network
+    infra-ground/envs/production/bastion
+    infra-ground/envs/production/cluster_k8s
+    infra-ground/envs/production/database
+    infra-ground/envs/production/prometheus
+    infra-ground/envs/staging/network
+    infra-ground/envs/staging/bastion
+    infra-ground/envs/staging/cluster_k8s
+    infra-ground/envs/staging/database
+    infra-ground/envs/staging/prometheus
+    infra-ground/envs/monitoring/network
+    infra-ground/envs/monitoring/bastion
+    infra-ground/envs/monitoring/cluster_k8s
+    infra-ground/envs/monitoring/prometheus_federated
+    infra-ground/envs/monitoring/grafana
+- title: direct next
+  cmd: exeiac show infra-ground/envs/production/network -f n -s dn
+  status: 0
+  stdout: |
+    infra-ground/envs/production/bastion
+    infra-ground/envs/production/cluster_k8s
+    infra-ground/envs/production/database
+    infra-ground/envs/monitoring/network
+- title: linked next
+  cmd: exeiac show infra-ground/envs/production/network -f n -s ln
+  status: 0
+  # NOTE(arthur91f): to correct order in output not stable
+  # stdout: |
+  #   infra-ground/envs/production/bastion
+  #   infra-ground/envs/production/cluster_k8s
+  #   infra-ground/envs/production/database
+  #   infra-ground/envs/production/prometheus
+  #   infra-ground/envs/monitoring/network
+  #   infra-ground/envs/monitoring/bastion
+  #   infra-ground/envs/monitoring/cluster_k8s
+  #   infra-ground/envs/monitoring/prometheus_federated
+  #   infra-ground/envs/monitoring/grafana
+  #   app-a/production/infra
+  #   app-a/production/build
+  #   app-a/production/deploy
+  #   app-b/production/infra
+  #   app-b/production/build
+  #   app-b/production/deploy
+  #   users/monitoring/bastion
+  #   users/monitoring/grafana
+  #   users/production/bastion
+  #   users/production/cluster_k8s
+  #   users/production/database
+- title: direct previous
+  cmd: exeiac show app-a/production/deploy -f n -s dp
+  status: 0
+  stdout: |
+    infra-ground/init/create_accounts
+    infra-ground/envs/production/bastion
+    infra-ground/envs/production/cluster_k8s
+    infra-ground/envs/production/database
