@@ -59,7 +59,7 @@ jobs:
         run: |
           mkdir -p "$HOME/.config/exeiac" &&
           cp tests/exeiac.yml "$HOME/.config/exeiac/exeiac.yml" &&
-          sed -i "s|./repos/|$PWD/repos/|g" "$HOME/.config/exeiac/exeiac.yml" &&
-          echo -e "env:\n  USER=\"$USER\"\n  HOME=\"$HOME\"\n  PWD=\"$(pwd)\""
+          sed -i "s|./repos/|$PWD/tests/repos/|g" "$HOME/.config/exeiac/exeiac.yml" &&
+          echo -e "env:\n  USER=\"$USER\"\n  HOME=\"$HOME\"\n  current_path=\"$(pwd)\""
       - name: e2e exeiac tests
         run: ./tests/tests/run-e2e-test.sh
