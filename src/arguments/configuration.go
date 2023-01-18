@@ -152,7 +152,7 @@ func FromArguments(args Arguments) (configuration Configuration, err error) {
 					fmt.Printf("Warning: module path \"%s\" for module \"%s\" is relative. Favor using an absolute path.\n", path, name)
 				}
 
-				absPath = filepath.Join(filepath.Dir(conf.Path), path)
+				absPath = filepath.Join(filepath.Dir(conf.ConfigurationFilePath), path)
 			}
 
 			modules[name] = absPath
@@ -168,7 +168,7 @@ func FromArguments(args Arguments) (configuration Configuration, err error) {
 					fmt.Printf("Warning: room path \"%s\" for room \"%s\" is relative. Favor using an absolute path.\n", path, name)
 				}
 
-				absPath = filepath.Join(filepath.Dir(conf.Path), path)
+				absPath = filepath.Join(filepath.Dir(conf.ConfigurationFilePath), path)
 			}
 
 			rooms[name] = absPath
@@ -185,7 +185,7 @@ func FromArguments(args Arguments) (configuration Configuration, err error) {
 		if filepath.IsAbs(path) {
 			absPath = path
 		} else {
-			absPath = filepath.Join(filepath.Dir(conf.Path), path)
+			absPath = filepath.Join(filepath.Dir(conf.ConfigurationFilePath), path)
 		}
 
 		modules[name] = absPath
@@ -197,7 +197,7 @@ func FromArguments(args Arguments) (configuration Configuration, err error) {
 		if filepath.IsAbs(path) {
 			absPath = path
 		} else {
-			absPath = filepath.Join(filepath.Dir(conf.Path), path)
+			absPath = filepath.Join(filepath.Dir(conf.ConfigurationFilePath), path)
 		}
 
 		rooms[name] = absPath
