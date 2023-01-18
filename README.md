@@ -61,7 +61,7 @@ $ go install github.com/arthur91f/exeiac/src/exeiac/src/exeiac@main
   - each elementary brick should reference in brick.yml an executable or module
     to execute itself. (a module is simply an executable that is not in the
     brick directory and that can be called by many bricks)
-- create a conf file in /etc/exeiac.conf or $HOME/.exeiac.conf
+- create a conf file in /etc/exeiac/exeiac.yml or $HOME/.config/exeiac.yml
   ```yaml
   modules_path:
     terraform: $HOME/git-repos/exeiac-modules/terraform
