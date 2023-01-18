@@ -41,7 +41,7 @@ func CreateInfra(configuration exargs.Configuration) (Infra, error) {
 	for name, path := range configuration.Rooms {
 		b, err := GetBricks(name, path)
 		if err != nil {
-			fmt.Printf(`Cannot add "%s" (path: %s) room's bricks: %s`, name, path, err)
+			fmt.Printf("Cannot add \"%s\" (path: %s) room's bricks: %v\n", name, path, err)
 		}
 
 		bricks = append(bricks, b...)
