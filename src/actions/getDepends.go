@@ -2,6 +2,7 @@ package actions
 
 import (
 	"fmt"
+	"sort"
 	exargs "src/exeiac/arguments"
 	exinfra "src/exeiac/infra"
 	exstatuscode "src/exeiac/statuscode"
@@ -41,6 +42,8 @@ func GetDepends(
 
 		return // TODO(arthur91f): check display
 	}
+
+	sort.Sort(depends)
 
 	switch conf.Format {
 	case "name", "n":
