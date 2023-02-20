@@ -55,9 +55,15 @@ func GetDepends(
 			fmt.Println(b.Path)
 		}
 	case "all", "a": // brick:var_name <- jsonPath
-		return exstatuscode.INIT_ERROR,
-			exinfra.ErrBadArg{Reason: fmt.Sprintf(
-				"Error: format \"%s\" not available for get-depends", conf.Format)}
+		for _, b := range depends {
+			inputs := b.GetInputsThatCallthisOutput(bricks[0], conf.JsonPath)
+			for _, i := range inputs {
+				fmt.Printf(
+					"%s:%s = %s\n",
+					b.Name, i.VarName, i.JsonPath,
+				)
+			}
+		}
 	default:
 		return exstatuscode.INIT_ERROR,
 			exinfra.ErrBadArg{Reason: fmt.Sprintf(
