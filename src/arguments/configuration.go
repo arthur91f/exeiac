@@ -9,6 +9,7 @@ import (
 
 	extools "src/exeiac/tools"
 
+	"github.com/PaesslerAG/jsonpath"
 	"github.com/adrg/xdg"
 	"gopkg.in/yaml.v2"
 )
@@ -41,6 +42,7 @@ type ConfigurationFile struct {
 type Configuration struct {
 	Action                string
 	BricksNames           []string
+	JsonPath              string
 	BricksSpecifiers      []string
 	Format                string
 	Interactive           bool
@@ -203,6 +205,11 @@ func FromArguments(args Arguments) (configuration Configuration, err error) {
 		rooms[name] = absPath
 	}
 
+	_, err = jsonpath.New(args.JsonPath)
+	if err != nil {
+		return configuration, fmt.Errorf("%s is not valid", args.JsonPath)
+	}
+
 	// NOTE(half-shell): Ideally, we wouldn't want to mix exeiac injected flags and the
 	// ones provided by the user. However, distinction is not needed for now.
 	var other_options = append(conf.OtherOptions, args.OtherOptions...)
@@ -220,6 +227,7 @@ func FromArguments(args Arguments) (configuration Configuration, err error) {
 		Rooms:                 rooms,
 		OtherOptions:          other_options,
 		ConfigurationFilePath: configurationFilePath,
+		JsonPath:              args.JsonPath,
 	}
 
 	return

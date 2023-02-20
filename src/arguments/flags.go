@@ -50,6 +50,8 @@ to it. Flag with arguments need to be enclosed in double quotes
 
 	flag.BoolVarP(&Args.ListBricks, "list-bricks", "l", false, "List all the bricks from all rooms")
 
+	flag.StringVarP(&Args.JsonPath, "json-path", "j", "$.*", "Specify a brick's output jsonpath. Usually used with get-depends")
+
 	flag.Usage = func() {
 		fmt.Println("Usage: exeiac ACTION (BRICK_PATH|BRICK_NAME) [OPTION...]")
 		fmt.Println()

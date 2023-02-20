@@ -22,6 +22,7 @@ type Arguments struct {
 	ConfigurationFilePath string
 	ShowUsage             bool
 	ListBricks            bool
+	JsonPath              string
 }
 
 func (a Arguments) String() string {
