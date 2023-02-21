@@ -73,30 +73,3 @@ func GetDepends(
 	return
 
 }
-
-// getOutput from/brick/name
-// {
-// 	database: {
-// 		credentials: {
-// 			username: toto
-// 			password: tataTttt
-// 		}
-// 	}
-// 	app: {
-// 		...
-// 	}
-// }
-
-// GetDepends from/brick/name:$.database.credentials.*
-
-// i/brick1 creds from/brick/name:$.database.credentials
-// i/brick2 creds from/brick/name:$.database.credentials.username
-// i/brick2 creds from/brick/name:$.database.credentials.whatever
-// i/brick3 mysql from/brick/name:$.database
-// i/brick4 bricko from/brick/name:$.*
-
-// $.*
-
-// don't depends
-// i/brick5 app from/brick/name:$.app
-// i/brick6 we  from/brick/name:$.whatever

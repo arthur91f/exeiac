@@ -34,19 +34,6 @@ func (i Input) String() string {
 		i.Path, i.Type, i.VarName, i.Brick.Name, i.JsonPath)
 }
 
-/*type InputBrickBinding struct {
-	// used by get-depends
-	Brick Brick
-	Input Input
-}
-
-func (i InputBrickBinding) String() string {
-	return fmt.Sprintf("%s:%s = %s:%s",
-		i.Brick.Name, i.Input.Name,
-		i.Input.Brick.Name, i.Input.JsonPath
-		)
-}*/
-
 func (b *Brick) GetInputsThatCallthisOutput(
 	brick *Brick,
 	jsonpath string,
