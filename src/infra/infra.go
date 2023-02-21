@@ -101,7 +101,8 @@ func GetBricks(roomName string, roomPath string) (bricks Bricks, err error) {
 		func(path string, d fs.DirEntry, err error) error {
 			brickRelPath, err := filepath.Rel(roomPath, path)
 			if err != nil {
-				log.Fatal(err)
+				log.Fatalf("Fatal: can't find relative path %s from room: %s\n  -> %v",
+					path, roomPath, err)
 			}
 
 			lastBrick := func() *Brick {
