@@ -5,7 +5,7 @@ _exeiac_completions()
     COMPREPLY=()
     cur="${COMP_WORDS[COMP_CWORD]}"
     prev="${COMP_WORDS[COMP_CWORD-1]}"
-    actions="init plan lay remove help validate_code show clean"
+    actions="init plan lay remove help validate_code show clean get-depends"
 
     # We auto-complete with brick names if we already have a first argument
     if [ "$prev" != "exeiac" ]; then
