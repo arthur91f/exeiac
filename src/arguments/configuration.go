@@ -156,9 +156,11 @@ func FromArguments(args Arguments) (configuration Configuration, err error) {
 			if filepath.IsAbs(path) {
 				absPath = path
 			} else {
-				// if !args.ListBricks {
-				// fmt.Printf("Warning: module path \"%s\" for module \"%s\" is relative. Favor using an absolute path.\n", path, name)
-				// }
+				if !args.ListBricks {
+					fmt.Fprintf(os.Stderr,
+						"Warning: module path \"%s\" for module \"%s\" is relative. "+
+							"Favor using an absolute path.\n", path, name)
+				}
 
 				absPath = filepath.Join(filepath.Dir(conf.ConfigurationFilePath), path)
 			}
@@ -172,9 +174,12 @@ func FromArguments(args Arguments) (configuration Configuration, err error) {
 			if filepath.IsAbs(room.Path) {
 				absPath = room.Path
 			} else {
-				// if !args.ListBricks {
-				// fmt.Printf("Warning: room path \"%s\" for room \"%s\" is relative. Favor using an absolute path.\n", path, name)
-				// }
+				if !args.ListBricks {
+					fmt.Fprintf(os.Stderr,
+						"Warning: room path \"%s\" for room \"%s\" is relative. "+
+							"Favor using an absolute path.\n",
+						room.Path, room.Name)
+				}
 
 				absPath = filepath.Join(filepath.Dir(conf.ConfigurationFilePath), room.Path)
 			}
