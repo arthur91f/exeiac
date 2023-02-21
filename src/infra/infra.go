@@ -56,9 +56,9 @@ func CreateInfra(configuration exargs.Configuration) (Infra, error) {
 	return i, nil
 }
 
-var hasDigitPrefixRegexp = regexp.MustCompile(`.*/\d+-\w+$`) // TODO(arthur91f): change regex
+var hasDigitPrefixRegexp = regexp.MustCompile(`.*/\d+-[^/]+$`) // TODO(arthur91f): change regex
 // .../1-database2-eu_confAdmin is a valid brick dirname
-var prefixRegexp = regexp.MustCompile(`\d+-`) // TODO(arthur91f): replace regex
+var prefixRegexp = regexp.MustCompile(`/\d+-`) // TODO(arthur91f): replace regex
 // `^\d+-` or `/\d+-` but we want to change
 // OK  rooms/1-database2-eu -> rooms/database2-eu
 // NOK rooms/1-database2-eu -> rooms/databaseeu
@@ -68,7 +68,7 @@ func validateDirName(path string) bool {
 }
 
 func SanitizeBrickName(name string) string {
-	return prefixRegexp.ReplaceAllString(name, "")
+	return prefixRegexp.ReplaceAllString(name, "/")
 }
 
 // Walks the file system from the provided root, gathers all folders containing a `brick.html` file, and build a Brick struct from it.
