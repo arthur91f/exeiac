@@ -50,6 +50,8 @@ to it. Flag with arguments need to be enclosed in double quotes
 
 	flag.BoolVarP(&Args.ListBricks, "list-bricks", "l", false, "List all the bricks from all rooms")
 
+	flag.StringVarP(&Args.JsonPath, "json-path", "j", "$.*", "Specify a brick's output jsonpath. Usually used with get-depends")
+
 	flag.Usage = func() {
 		fmt.Println("Usage: exeiac ACTION (BRICK_PATH|BRICK_NAME) [OPTION...]")
 		fmt.Println()
@@ -62,6 +64,7 @@ to it. Flag with arguments need to be enclosed in double quotes
 		fmt.Println("  help: display this help or the specified help for the brick")
 		fmt.Println("  show: display brick attributes (depends of the format option choosen)")
 		fmt.Println("  clean: remove all files created by exeiac")
+		fmt.Println("  get-depends: give you all bricks that use the BRICK_NAME's outputs specified by --json-path")
 		fmt.Println()
 		fmt.Println("OPTION:")
 		flag.PrintDefaults()

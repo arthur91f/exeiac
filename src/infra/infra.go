@@ -461,3 +461,25 @@ func GetConfFilePath(path string) (string, error) {
 
 	return confFilePath, fmt.Errorf("No configuration file was found in %s", confFilePath)
 }
+
+func (infra *Infra) GetBricksThatCallthisOutput(brick *Brick, jsonpath string) (depends Bricks, err error) {
+
+	var linkedBricks Bricks
+
+	linkedBricks, err = infra.GetDirectNext(brick)
+	if err != nil {
+		return
+	}
+
+	for _, b := range linkedBricks {
+		for _, i := range b.Inputs {
+			if i.Brick == brick {
+				if extools.AreJsonPathsLinked(jsonpath, i.JsonPath) {
+					depends = append(depends, b)
+					break
+				}
+			}
+		}
+	}
+	return
+}

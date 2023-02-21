@@ -1,4 +1,4 @@
-set -l actions init plan lay remove help validate_code show clean
+set -l actions init plan lay remove help validate_code show clean get-depends
 
 # Prevent file auto completion
 complete -c exeiac -f

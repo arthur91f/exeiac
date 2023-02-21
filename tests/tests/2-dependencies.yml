@@ -61,3 +61,23 @@
     infra-ground/envs/production/bastion
     infra-ground/envs/production/cluster_k8s
     infra-ground/envs/production/database
+- title: get-depends format name
+  cmd: exeiac get-depends infra-ground/envs/production/network -j $.network -f n
+  status: 0
+  stdout: |
+    infra-ground/envs/production/bastion
+    infra-ground/envs/production/cluster_k8s
+    infra-ground/envs/production/database
+    infra-ground/envs/monitoring/network
+- title: get-depends format all
+  cmd: exeiac get-depends infra-ground/envs/production/network -j $.network
+  status: 0
+  stdout: |
+    infra-ground/envs/production/bastion:network_id = $.network.network_id
+    infra-ground/envs/production/bastion:network_ip_range = $.network.ip_range
+    infra-ground/envs/production/cluster_k8s:network_id = $.network.network_id
+    infra-ground/envs/production/cluster_k8s:network_ip_range = $.network.ip_range
+    infra-ground/envs/production/database:network_id = $.network.network_id
+    infra-ground/envs/production/database:network_ip_range = $.network.ip_range
+    infra-ground/envs/monitoring/network:TF_VAR_production_network = $.network.network_id
+    infra-ground/envs/monitoring/network:TF_VAR_staging_network = $.network.network_id

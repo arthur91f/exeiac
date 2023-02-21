@@ -25,6 +25,7 @@ var BehaviourMap = map[string]func(*exinfra.Infra, *exargs.Configuration, exinfr
 	"debug_args":    DebugArgs,
 	"debug_infra":   DebugInfra,
 	"default":       PassthroughAction,
+	"get-depends":   GetDepends,
 }
 
 const TAG_OK = "OK"

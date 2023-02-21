@@ -18,6 +18,7 @@ function _exeiac {
         validate_code
         show
         clean
+        get-depends
     )
 
     _arguments -C \

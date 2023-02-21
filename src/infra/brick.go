@@ -7,6 +7,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	extools "src/exeiac/tools"
 	"strings"
 
 	"github.com/PaesslerAG/jsonpath"
@@ -31,6 +32,27 @@ type Input struct {
 func (i Input) String() string {
 	return fmt.Sprintf("%s(%s):%s -> %s:%v",
 		i.Path, i.Type, i.VarName, i.Brick.Name, i.JsonPath)
+}
+
+func (b *Brick) GetInputsThatCallthisOutput(
+	brick *Brick,
+	jsonpath string,
+) (
+	inputs []Input,
+) {
+	for _, i := range b.Inputs {
+		if i.Brick == brick {
+			if extools.AreJsonPathsLinked(jsonpath, i.JsonPath) {
+				inputs = append(inputs, i)
+			}
+		}
+	}
+	return
+}
+
+func (i Input) StringCompact() string {
+	return fmt.Sprintf("%s -> %s:%v",
+		i.VarName, i.Brick.Name, i.JsonPath)
 }
 
 type Brick struct {
@@ -229,6 +251,20 @@ func (b *Brick) CreateFormatters() (fileFormatters map[string]Formatter, env_for
 		}
 	}
 	return
+}
+
+func ParseOutputName(from string) (brickName string, dataKey string, err error) {
+	if from == "" {
+		return "", "", fmt.Errorf("EMPTY")
+	}
+
+	fields := strings.Split(from, ":")
+
+	if len(fields) != 2 {
+		return "", "", fmt.Errorf("BAD FORMAT")
+	}
+
+	return fields[0], fields[1], nil
 }
 
 // Loops through a `Brick`'s configuration file's `Input` and builds a slice of `Input`s
