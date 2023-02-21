@@ -20,6 +20,20 @@
     infra-ground/envs/monitoring/cluster_k8s
     infra-ground/envs/monitoring/prometheus_federated
     infra-ground/envs/monitoring/grafana
+- title: child (tricky name with number)
+  cmd: go run src/main.go show app-admin -f n
+  status: 0
+  stdout: |
+    app-admin/production1-eu/infra
+    app-admin/production1-eu/build
+    app-admin/production1-eu/deploy
+    app-admin/production2-us/infra
+    app-admin/production2-us/build
+    app-admin/production2-us/deploy1-us-east1
+    app-admin/production2-us/deploy2-us-west3
+    app-admin/staging/infra
+    app-admin/staging/build
+    app-admin/staging/deploy
 - title: direct next
   cmd: exeiac show infra-ground/envs/production/network -f n -s dn
   status: 0

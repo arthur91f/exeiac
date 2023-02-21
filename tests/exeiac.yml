@@ -12,6 +12,8 @@ rooms:
     path: ./repos/app-backend-a
   - name: app-b
     path: ./repos/app-frontend-b
+  - name: app-admin
+    path: ./repos/app-admin2-world
   - name: users
     path: ./repos/infra-users
 
