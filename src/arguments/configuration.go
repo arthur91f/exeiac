@@ -34,6 +34,11 @@ type ConfigurationFile struct {
 	} `yaml:"default_arguments"`
 }
 
+type Room struct {
+	Path string
+	Name string
+}
+
 // A structure matching the `Arguments` type one. It is used to merge the values defined both
 // in the command lien with flags, and in the exeiac configuration file.
 //
@@ -48,7 +53,7 @@ type Configuration struct {
 	Interactive           bool
 	Modules               map[string]string
 	OtherOptions          []string
-	Rooms                 map[string]string
+	Rooms                 []Room
 	ConfigurationFilePath string
 }
 
@@ -81,11 +86,14 @@ func CreateConfiguration(configurationFilePath string) (configuration Configurat
 		return
 	}
 
-	rooms := make(map[string]string)
+	rooms := make([]Room, len(confFile.Rooms))
 	modules := make(map[string]string)
 
-	for _, room := range confFile.Rooms {
-		rooms[room.Name] = room.Path
+	for index, room := range confFile.Rooms {
+		rooms[index] = Room{
+			Name: room.Name,
+			Path: room.Path,
+		}
 	}
 
 	for _, module := range confFile.Modules {
@@ -141,7 +149,7 @@ func FromArguments(args Arguments) (configuration Configuration, err error) {
 	}
 
 	modules := make(map[string]string)
-	rooms := make(map[string]string)
+	rooms := conf.Rooms
 
 	if err == nil {
 		for name, path := range conf.Modules {
@@ -151,7 +159,9 @@ func FromArguments(args Arguments) (configuration Configuration, err error) {
 				absPath = path
 			} else {
 				if !args.ListBricks {
-					fmt.Printf("Warning: module path \"%s\" for module \"%s\" is relative. Favor using an absolute path.\n", path, name)
+					fmt.Fprintf(os.Stderr,
+						"Warning: module path \"%s\" for module \"%s\" is relative. "+
+							"Favor using an absolute path.\n", path, name)
 				}
 
 				absPath = filepath.Join(filepath.Dir(conf.ConfigurationFilePath), path)
@@ -160,20 +170,26 @@ func FromArguments(args Arguments) (configuration Configuration, err error) {
 			modules[name] = absPath
 		}
 
-		for name, path := range conf.Rooms {
+		for _, room := range conf.Rooms {
 			var absPath string
 
-			if filepath.IsAbs(path) {
-				absPath = path
+			if filepath.IsAbs(room.Path) {
+				absPath = room.Path
 			} else {
 				if !args.ListBricks {
-					fmt.Printf("Warning: room path \"%s\" for room \"%s\" is relative. Favor using an absolute path.\n", path, name)
+					fmt.Fprintf(os.Stderr,
+						"Warning: room path \"%s\" for room \"%s\" is relative. "+
+							"Favor using an absolute path.\n",
+						room.Path, room.Name)
 				}
 
-				absPath = filepath.Join(filepath.Dir(conf.ConfigurationFilePath), path)
+				absPath = filepath.Join(filepath.Dir(conf.ConfigurationFilePath), room.Path)
 			}
 
-			rooms[name] = absPath
+			rooms = append(rooms, Room{
+				Path: absPath,
+				Name: room.Name,
+			})
 		}
 	} else {
 		// NOTE(half-shell): We avoid propagating the error up the call stack
@@ -202,7 +218,10 @@ func FromArguments(args Arguments) (configuration Configuration, err error) {
 			absPath = filepath.Join(filepath.Dir(conf.ConfigurationFilePath), path)
 		}
 
-		rooms[name] = absPath
+		rooms = append(rooms, Room{
+			Path: absPath,
+			Name: name,
+		})
 	}
 
 	_, err = jsonpath.New(args.JsonPath)

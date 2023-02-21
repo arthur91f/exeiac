@@ -38,10 +38,10 @@ func CreateInfra(configuration exargs.Configuration) (Infra, error) {
 	// Temporary brick storage to have consistent indexing across rooms
 	// i.e. having an overall ordering as the index
 	bricks := Bricks{}
-	for name, path := range configuration.Rooms {
-		b, err := GetBricks(name, path)
+	for _, room := range configuration.Rooms {
+		b, err := GetBricks(room.Name, room.Path)
 		if err != nil {
-			fmt.Printf("Cannot add \"%s\" (path: %s) room's bricks: %v\n", name, path, err)
+			fmt.Printf("Cannot add \"%s\" (path: %s) room's bricks: %v\n", room.Name, room.Path, err)
 		}
 
 		bricks = append(bricks, b...)
