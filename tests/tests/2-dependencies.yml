@@ -31,28 +31,27 @@
 - title: linked next
   cmd: exeiac show infra-ground/envs/production/network -f n -s ln
   status: 0
-  # NOTE(arthur91f): to correct order in output not stable
-  # stdout: |
-  #   infra-ground/envs/production/bastion
-  #   infra-ground/envs/production/cluster_k8s
-  #   infra-ground/envs/production/database
-  #   infra-ground/envs/production/prometheus
-  #   infra-ground/envs/monitoring/network
-  #   infra-ground/envs/monitoring/bastion
-  #   infra-ground/envs/monitoring/cluster_k8s
-  #   infra-ground/envs/monitoring/prometheus_federated
-  #   infra-ground/envs/monitoring/grafana
-  #   app-a/production/infra
-  #   app-a/production/build
-  #   app-a/production/deploy
-  #   app-b/production/infra
-  #   app-b/production/build
-  #   app-b/production/deploy
-  #   users/monitoring/bastion
-  #   users/monitoring/grafana
-  #   users/production/bastion
-  #   users/production/cluster_k8s
-  #   users/production/database
+  stdout: |
+     infra-ground/envs/production/bastion
+     infra-ground/envs/production/cluster_k8s
+     infra-ground/envs/production/database
+     infra-ground/envs/production/prometheus
+     infra-ground/envs/monitoring/network
+     infra-ground/envs/monitoring/bastion
+     infra-ground/envs/monitoring/cluster_k8s
+     infra-ground/envs/monitoring/prometheus_federated
+     infra-ground/envs/monitoring/grafana
+     app-a/production/infra
+     app-a/production/build
+     app-a/production/deploy
+     app-b/production/infra
+     app-b/production/build
+     app-b/production/deploy
+     users/monitoring/bastion
+     users/monitoring/grafana
+     users/production/bastion
+     users/production/cluster_k8s
+     users/production/database
 - title: direct previous
   cmd: exeiac show app-a/production/deploy -f n -s dp
   status: 0

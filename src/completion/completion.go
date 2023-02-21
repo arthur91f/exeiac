@@ -9,8 +9,8 @@ import (
 
 func ListBricks(configuration exargs.Configuration) {
 	var bricks infra.Bricks
-	for roomName, roomPath := range configuration.Rooms {
-		bs, err := infra.GetBricks(roomName, roomPath)
+	for _, room := range configuration.Rooms {
+		bs, err := infra.GetBricks(room.Name, room.Path)
 		if err == nil {
 			bricks = append(bricks, bs...)
 		}
