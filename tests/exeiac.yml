@@ -16,7 +16,11 @@ rooms:
     path: ./repos/app-admin2-world
   - name: users
     path: ./repos/infra-users
-
 default_arguments:
   other_options:
     - "--test-args 0+0=toto"
+  inputs_needed_for:
+    - plan
+    - lay
+    - remove
+  default_is_input_needed: false

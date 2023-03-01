@@ -38,7 +38,13 @@ func Remove(
 		}
 	}
 
-	err = enrichDatas(bricksToExecute, infra)
+	var bricksToOutput exinfra.Bricks
+	bricksToOutput, err = getBricksToOutput(bricksToExecute, infra, conf.Action)
+	if err != nil {
+		return exstatuscode.ENRICH_ERROR, err
+	}
+
+	err = enrichOutputs(bricksToOutput)
 	if err != nil {
 		return exstatuscode.ENRICH_ERROR, err
 	}
@@ -63,7 +69,7 @@ func Remove(
 
 		// write env file if needed
 		var envs []string
-		envs, err = writeEnvFilesAndGetEnvs(b)
+		envs, err = writeEnvFilesAndGetEnvs(b, conf.Action)
 		if err != nil {
 			statusCode = exstatuscode.Update(statusCode, exstatuscode.RUN_ERROR)
 			report.Error = fmt.Errorf("not able to get env file and vars before execute: %v", err)

@@ -28,9 +28,12 @@ type ConfigurationFile struct {
 		Path string `yaml:"path"`
 	} `yaml:"modules,flow"`
 	DefaultArgs struct {
-		NonInteractive   bool     `yaml:"non_interactive"`
-		BricksSpecifiers []string `yaml:"bricks_specifiers"`
-		OtherOptions     []string `yaml:"other_options"`
+		NonInteractive       bool      `yaml:"non_interactive"`
+		BricksSpecifiers     []string  `yaml:"bricks_specifiers"`
+		OtherOptions         []string  `yaml:"other_options"`
+		InputNeededFor       *[]string `yaml:"inputs_needed_for"`       // NOTE1: why use pointer: https://stackoverflow.com/questions/54765161/how-to-test-for-default-values-in-golang-when-yaml-has-already-initialized-the-v
+		InputNotNeededFor    *[]string `yaml:"inputs_not_needed_for"`   // see NOTE1
+		DefaultIsInputNeeded *bool     `yaml:"default_is_input_needed"` // see NOTE1
 	} `yaml:"default_arguments"`
 }
 
@@ -45,16 +48,18 @@ type Room struct {
 // NOTE(half-shell): Should be able to embed the ` Arguments` struct.
 // We replicate the `Arguments` since it does not seem to work out of the box for some reason.
 type Configuration struct {
-	Action                string
-	BricksNames           []string
-	JsonPath              string
-	BricksSpecifiers      []string
-	Format                string
-	Interactive           bool
-	Modules               map[string]string
-	OtherOptions          []string
-	Rooms                 []Room
-	ConfigurationFilePath string
+	Action                 string
+	BricksNames            []string
+	JsonPath               string
+	BricksSpecifiers       []string
+	Format                 string
+	Interactive            bool
+	ExceptionIsInputNeeded []string
+	DefaultIsInputNeeded   bool
+	Modules                map[string]string
+	OtherOptions           []string
+	Rooms                  []Room
+	ConfigurationFilePath  string
 }
 
 func (a Configuration) String() string {
@@ -100,13 +105,38 @@ func CreateConfiguration(configurationFilePath string) (configuration Configurat
 		modules[module.Name] = module.Path
 	}
 
+	// input need options
+	var defaultIsInputNeeded bool
+	var exceptionIsInputNeeded []string
+	if confFile.DefaultArgs.DefaultIsInputNeeded != nil {
+		defaultIsInputNeeded = *confFile.DefaultArgs.DefaultIsInputNeeded
+	} else {
+		defaultIsInputNeeded = false
+	}
+
+	if defaultIsInputNeeded {
+		if confFile.DefaultArgs.InputNotNeededFor != nil {
+			exceptionIsInputNeeded = *confFile.DefaultArgs.InputNotNeededFor
+		} else {
+			exceptionIsInputNeeded = []string{"output", "init", "validate_code", "help"} // show, clean and get-depends aren't module action
+		}
+	} else {
+		if confFile.DefaultArgs.InputNeededFor != nil {
+			exceptionIsInputNeeded = *confFile.DefaultArgs.InputNeededFor
+		} else {
+			exceptionIsInputNeeded = []string{"plan", "lay", "remove"}
+		}
+	}
+
 	configuration = Configuration{
-		ConfigurationFilePath: configurationFilePath,
-		Rooms:                 rooms,
-		Modules:               modules,
-		Interactive:           confFile.DefaultArgs.NonInteractive,
-		BricksSpecifiers:      confFile.DefaultArgs.BricksSpecifiers,
-		OtherOptions:          confFile.DefaultArgs.OtherOptions,
+		ConfigurationFilePath:  configurationFilePath,
+		Rooms:                  rooms,
+		Modules:                modules,
+		Interactive:            confFile.DefaultArgs.NonInteractive,
+		ExceptionIsInputNeeded: exceptionIsInputNeeded,
+		DefaultIsInputNeeded:   defaultIsInputNeeded,
+		BricksSpecifiers:       confFile.DefaultArgs.BricksSpecifiers,
+		OtherOptions:           confFile.DefaultArgs.OtherOptions,
 	}
 
 	return
@@ -237,16 +267,18 @@ func FromArguments(args Arguments) (configuration Configuration, err error) {
 	}
 
 	configuration = Configuration{
-		Action:                args.Action,
-		BricksNames:           args.BricksNames,
-		BricksSpecifiers:      extools.Deduplicate(append(conf.BricksSpecifiers, args.BricksSpecifiers...)),
-		Format:                args.Format,
-		Interactive:           (conf.Interactive && !args.NonInteractive) || args.Interactive,
-		Modules:               modules,
-		Rooms:                 rooms,
-		OtherOptions:          other_options,
-		ConfigurationFilePath: configurationFilePath,
-		JsonPath:              args.JsonPath,
+		Action:                 args.Action,
+		BricksNames:            args.BricksNames,
+		BricksSpecifiers:       extools.Deduplicate(append(conf.BricksSpecifiers, args.BricksSpecifiers...)),
+		Format:                 args.Format,
+		Interactive:            (conf.Interactive && !args.NonInteractive) || args.Interactive,
+		Modules:                modules,
+		Rooms:                  rooms,
+		OtherOptions:           other_options,
+		ConfigurationFilePath:  configurationFilePath,
+		JsonPath:               args.JsonPath,
+		ExceptionIsInputNeeded: conf.ExceptionIsInputNeeded,
+		DefaultIsInputNeeded:   conf.DefaultIsInputNeeded,
 	}
 
 	return

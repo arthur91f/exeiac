@@ -99,30 +99,65 @@ func (es ExecSummary) String() string {
 	return sb.String()
 }
 
-func enrichDatas(bricksToExecute exinfra.Bricks, infra *exinfra.Infra) error {
-	// find all bricks that we need to ask output
-	var neededBricksForTheirOutputs exinfra.Bricks
+func getBricksToOutput(
+	bricksToExecute exinfra.Bricks,
+	infra *exinfra.Infra,
+	action string,
+) (
+	bricksToOutput exinfra.Bricks,
+	err error,
+) {
+	// 1. search needed inputs corresponding bricks
+	var neededBricksForOutput exinfra.Bricks
 	for _, b := range bricksToExecute {
-		/* we can assume it's true if it's the bricksToExecute from main
 		if b.EnrichError != nil {
-			return b.EnrichError
-		}*/
-		bricks, err := infra.GetCorrespondingBricks(exinfra.Bricks{b}, []string{"selected", "linked_previous"})
-		if err != nil {
-			return err
+			err = fmt.Errorf("%s can't be enriched: %v", b.Name, b.EnrichError)
+
+			return
 		}
-		neededBricksForTheirOutputs = append(neededBricksForTheirOutputs, bricks...)
+		for _, i := range b.Inputs {
+			if i.IsInputNeeded(action) {
+				neededBricksForOutput = append(neededBricksForOutput, i.Brick)
+			}
+		}
 	}
-	sort.Sort(neededBricksForTheirOutputs)
-	neededBricksForTheirOutputs = exinfra.RemoveDuplicates(neededBricksForTheirOutputs)
+	neededBricksForOutput = exinfra.RemoveDuplicates(neededBricksForOutput)
+	bricksToOutput = neededBricksForOutput
 
-	// check we don't have any enrich error on brick we will execute output
-	for _, b := range neededBricksForTheirOutputs {
+	// 2. add recursively all bricks that are needed for their output
+	for _, b := range neededBricksForOutput {
+		var bricksToAdd exinfra.Bricks
+		bricksToAdd, err = infra.GetLinkedPreviousFor(b, "output")
+		if err != nil {
+
+			return
+		}
+		bricksToOutput = append(bricksToOutput, bricksToAdd...)
+	}
+
+	// 3. sort
+	bricksToOutput = exinfra.RemoveDuplicates(bricksToOutput)
+	sort.Sort(bricksToOutput)
+
+	// 4. return
+	return
+}
+
+func enrichOutputs(bricksToOutput exinfra.Bricks) error {
+	// 1. check any enrich error
+	for _, b := range bricksToOutput {
 		if b.EnrichError != nil {
+
 			return b.EnrichError
 		}
+	}
 
-		envs, err := writeEnvFilesAndGetEnvs(b)
+	// 2. execute all output and register output in brick
+	for _, b := range bricksToOutput {
+		// 2.1. create input
+		envs, err := writeEnvFilesAndGetEnvs(b, "output")
+
+		// 2.2. execute output
 		if err != nil {
 			return err
 		}
@@ -137,15 +172,17 @@ func enrichDatas(bricksToExecute exinfra.Bricks, infra *exinfra.Infra) error {
 			return fmt.Errorf("unable to get output of %s", b.Name)
 		}
 
+		// 2.3. set brick.Outputs
 		b.Output = stdout.Output
+
 	}
 
 	return nil
 }
 
-func writeEnvFilesAndGetEnvs(brick *exinfra.Brick) (envs []string, err error) {
+func writeEnvFilesAndGetEnvs(brick *exinfra.Brick, action string) (envs []string, err error) {
 
-	formatters, envFormatter, err := brick.CreateFormatters()
+	formatters, envFormatter, err := brick.CreateFormatters(action)
 	if err != nil {
 		return
 	}
@@ -172,21 +209,23 @@ func writeEnvFilesAndGetEnvs(brick *exinfra.Brick) (envs []string, err error) {
 }
 
 func cleanEnvFiles(brick *exinfra.Brick) error {
-	formatters, _, err := brick.CreateFormatters()
-	if err != nil {
-		return fmt.Errorf("error when searching input files to delete of brick %s: %v", brick.Name, err)
-	}
 
-	if len(formatters) > 0 {
-		for path := range formatters {
-			if _, err := os.Stat(path); err == nil {
-				err = os.Remove(path)
-				if err != nil {
-					return fmt.Errorf("error when deleting %s an input files of brick %s: %v", path, brick.Name, err)
-				}
+	var pathsToClean []string
+	for _, i := range brick.Inputs {
+		if i.Type == "file" {
+			pathsToClean = append(pathsToClean, i.Path)
+		}
+	}
+	pathsToClean = extools.Deduplicate(pathsToClean)
+
+	for _, path := range pathsToClean {
+		if _, err := os.Stat(path); err == nil {
+			err = os.Remove(path)
+			if err != nil {
+				return fmt.Errorf("error when deleting %s an input files of brick %s: %v", path, brick.Name, err)
 			}
 		}
 	}
 
-	return err
+	return nil
 }

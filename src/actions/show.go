@@ -2,6 +2,7 @@ package actions
 
 import (
 	"fmt"
+	"sort"
 	exargs "src/exeiac/arguments"
 	exinfra "src/exeiac/infra"
 	exstatuscode "src/exeiac/statuscode"
@@ -32,14 +33,42 @@ func Show(
 			fmt.Println(brick.Name)
 		}
 	case "all", "a":
+		var bricksToOutput exinfra.Bricks
+
+		bricksToOutput, err = getBricksToOutput(bricksToExecute, infra, conf.Action)
+		if err != nil {
+			return exstatuscode.ENRICH_ERROR, err
+		}
+
+		bricksToOutput = append(bricksToOutput, bricksToExecute...)
+		bricksToOutput = exinfra.RemoveDuplicates(bricksToOutput)
+		sort.Sort(bricksToOutput)
+
+		err = enrichOutputs(bricksToOutput)
+		if err != nil {
+			return exstatuscode.ENRICH_ERROR, err
+		}
+
 		for _, brick := range bricksToExecute {
 			fmt.Println(brick)
 		}
 	case "output", "outputs", "o":
-		err = enrichDatas(bricksToExecute, infra)
+		var bricksToOutput exinfra.Bricks
+
+		bricksToOutput, err = getBricksToOutput(bricksToExecute, infra, conf.Action)
 		if err != nil {
 			return exstatuscode.ENRICH_ERROR, err
 		}
+
+		bricksToOutput = append(bricksToOutput, bricksToExecute...)
+		bricksToOutput = exinfra.RemoveDuplicates(bricksToOutput)
+		sort.Sort(bricksToOutput)
+
+		err = enrichOutputs(bricksToOutput)
+		if err != nil {
+			return exstatuscode.ENRICH_ERROR, err
+		}
+
 		if len(bricksToExecute) == 1 {
 			fmt.Println(string(bricksToExecute[0].Output))
 		} else {

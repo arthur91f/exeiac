@@ -21,7 +21,7 @@
     infra-ground/envs/monitoring/prometheus_federated
     infra-ground/envs/monitoring/grafana
 - title: child (tricky name with number)
-  cmd: go run src/main.go show app-admin -f n
+  cmd: exeiac show app-admin -f n
   status: 0
   stdout: |
     app-admin/production1-eu/infra
@@ -46,26 +46,33 @@
   cmd: exeiac show infra-ground/envs/production/network -f n -s ln
   status: 0
   stdout: |
-     infra-ground/envs/production/bastion
-     infra-ground/envs/production/cluster_k8s
-     infra-ground/envs/production/database
-     infra-ground/envs/production/prometheus
-     infra-ground/envs/monitoring/network
-     infra-ground/envs/monitoring/bastion
-     infra-ground/envs/monitoring/cluster_k8s
-     infra-ground/envs/monitoring/prometheus_federated
-     infra-ground/envs/monitoring/grafana
-     app-a/production/infra
-     app-a/production/build
-     app-a/production/deploy
-     app-b/production/infra
-     app-b/production/build
-     app-b/production/deploy
-     users/monitoring/bastion
-     users/monitoring/grafana
-     users/production/bastion
-     users/production/cluster_k8s
-     users/production/database
+    infra-ground/envs/production/bastion
+    infra-ground/envs/production/cluster_k8s
+    infra-ground/envs/production/database
+    infra-ground/envs/production/prometheus
+    infra-ground/envs/monitoring/network
+    infra-ground/envs/monitoring/bastion
+    infra-ground/envs/monitoring/cluster_k8s
+    infra-ground/envs/monitoring/prometheus_federated
+    infra-ground/envs/monitoring/grafana
+    app-a/production/infra
+    app-a/production/build
+    app-a/production/deploy
+    app-b/production/infra
+    app-b/production/build
+    app-b/production/deploy
+    app-admin/production1-eu/infra
+    app-admin/production1-eu/build
+    app-admin/production1-eu/deploy
+    app-admin/production2-us/infra
+    app-admin/production2-us/build
+    app-admin/production2-us/deploy1-us-east1
+    app-admin/production2-us/deploy2-us-west3
+    users/monitoring/bastion
+    users/monitoring/grafana
+    users/production/bastion
+    users/production/cluster_k8s
+    users/production/database
 - title: direct previous
   cmd: exeiac show app-a/production/deploy -f n -s dp
   status: 0
