@@ -27,14 +27,31 @@ func PassthroughAction(
 
 	execSummary := make(ExecSummary, len(bricksToExecute))
 
+	var bricksToOutput exinfra.Bricks
+	bricksToOutput, err = getBricksToOutput(bricksToExecute, infra, conf.Action)
+	if err != nil {
+		return exstatuscode.ENRICH_ERROR, err
+	}
+
+	err = enrichOutputs(bricksToOutput)
+	if err != nil {
+		return exstatuscode.ENRICH_ERROR, err
+	}
+
 	for i, b := range bricksToExecute {
 
 		extools.DisplaySeparator(b.Name)
 		report := ExecReport{Brick: b}
 
-		// NOTE(arthur91f): we may need to add:    envs, err := writeEnvFilesAndGetEnvs(b)
-		// it seems not necessary for init and validate code but who knows for other actions
-		exitStatus, err := b.Module.Exec(b, conf.Action, conf.OtherOptions, []string{})
+		envs, err := writeEnvFilesAndGetEnvs(b, conf.Action)
+		if err != nil {
+			statusCode = exstatuscode.Update(statusCode, exstatuscode.RUN_ERROR)
+			report.Error = fmt.Errorf("not able to get env file and vars before execute: %v", err)
+			report.Status = TAG_ERROR
+			continue
+		}
+
+		exitStatus, err := b.Module.Exec(b, conf.Action, conf.OtherOptions, envs)
 
 		if err != nil {
 			if actionNotImplementedError, isActionNotImplemented := err.(exinfra.ActionNotImplementedError); isActionNotImplemented {

@@ -44,6 +44,17 @@ func Help(
 
 	execSummary := make(ExecSummary, len(bricksToExecute))
 
+	var bricksToOutput exinfra.Bricks
+	bricksToOutput, err = getBricksToOutput(bricksToExecute, infra, conf.Action)
+	if err != nil {
+		return exstatuscode.ENRICH_ERROR, err
+	}
+
+	err = enrichOutputs(bricksToOutput)
+	if err != nil {
+		return exstatuscode.ENRICH_ERROR, err
+	}
+
 	for i, b := range bricksToExecute {
 		extools.DisplaySeparator(b.Name + "(" + b.Module.Name + ")")
 		report := ExecReport{Brick: b}
