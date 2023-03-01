@@ -20,12 +20,19 @@ const BRICK_FILE_NAME = "brick.yml"
 type Infra struct {
 	Modules []Module
 	Bricks  BricksMap
+	Conf    struct {
+		ExceptionIsInputNeeded []string
+		DefaultIsInputNeeded   bool
+	}
 }
 
 func CreateInfra(configuration exargs.Configuration) (Infra, error) {
 	i := Infra{
 		Bricks: make(map[string]*Brick),
 	}
+
+	i.Conf.ExceptionIsInputNeeded = configuration.ExceptionIsInputNeeded
+	i.Conf.DefaultIsInputNeeded = configuration.DefaultIsInputNeeded
 
 	// create Modules
 	for name, path := range configuration.Modules {
@@ -56,12 +63,8 @@ func CreateInfra(configuration exargs.Configuration) (Infra, error) {
 	return i, nil
 }
 
-var hasDigitPrefixRegexp = regexp.MustCompile(`.*/\d+-[^/]+$`) // TODO(arthur91f): change regex
-// .../1-database2-eu_confAdmin is a valid brick dirname
-var prefixRegexp = regexp.MustCompile(`/\d+-`) // TODO(arthur91f): replace regex
-// `^\d+-` or `/\d+-` but we want to change
-// OK  rooms/1-database2-eu -> rooms/database2-eu
-// NOK rooms/1-database2-eu -> rooms/databaseeu
+var hasDigitPrefixRegexp = regexp.MustCompile(`.*/\d+-[^/]+$`)
+var prefixRegexp = regexp.MustCompile(`/\d+-`) // rooms/1-database2-eu -> rooms/database2-eu
 
 func validateDirName(path string) bool {
 	return hasDigitPrefixRegexp.MatchString(path)
@@ -241,6 +244,72 @@ func (infra *Infra) GetLinkedPrevious(brick *Brick) (results Bricks, err error) 
 		toAdd := Bricks{}
 		for _, b := range added {
 			directPrevious, err = infra.GetDirectPrevious(b)
+			for _, dp := range directPrevious {
+				if !results.BricksContains(dp) {
+					toAdd = append(toAdd, dp)
+				}
+			}
+		}
+		if len(toAdd) == 0 {
+			break
+		}
+		results = append(results, toAdd...)
+		added = toAdd
+	}
+	return
+}
+
+func (infra *Infra) GetDirectPreviousFor(
+	brick *Brick,
+	action string,
+) (
+	results Bricks, err error,
+) {
+	var bricksFromInputs Bricks
+	for _, i := range brick.Inputs {
+		if i.IsInputNeeded(action) {
+			bricksFromInputs = append(bricksFromInputs, i.Brick)
+		}
+	}
+	bricksFromInputs = RemoveDuplicates(bricksFromInputs)
+
+	for _, dp := range bricksFromInputs {
+		err = dp.EnrichError
+		if dp.EnrichError != nil {
+			return
+		}
+
+		if dp.IsElementary {
+			results = append(results, dp)
+		} else {
+			var elementaryBricks Bricks
+			elementaryBricks, err = infra.GetSubBricks(dp)
+			if err != nil {
+				return
+			}
+			results = append(results, elementaryBricks...)
+		}
+	}
+
+	return
+}
+
+func (infra *Infra) GetLinkedPreviousFor(
+	brick *Brick,
+	action string,
+) (
+	results Bricks, err error,
+) {
+	var directPrevious Bricks
+	added, err := infra.GetDirectPreviousFor(brick, action)
+	if err != nil {
+		return
+	}
+	results = added
+	for {
+		toAdd := Bricks{}
+		for _, b := range added {
+			directPrevious, err = infra.GetDirectPreviousFor(b, action)
 			for _, dp := range directPrevious {
 				if !results.BricksContains(dp) {
 					toAdd = append(toAdd, dp)

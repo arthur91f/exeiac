@@ -27,11 +27,31 @@ type Input struct {
 	Type string
 	// The relative path from the brickPath of the file where the input will be written
 	Path string // (obviously it is "" for env_var type)
+	// Is inputs needed for an action by default
+	DefaultNeededFor bool
+	// For which action the input doesn't respect the default needed behaviour
+	ExceptionNeededFor []string
 }
 
 func (i Input) String() string {
-	return fmt.Sprintf("%s(%s):%s -> %s:%v",
-		i.Path, i.Type, i.VarName, i.Brick.Name, i.JsonPath)
+	var need_for_str string
+	if i.DefaultNeededFor {
+		need_for_str = "not need for"
+	} else {
+		need_for_str = "need for"
+	}
+	return fmt.Sprintf("%s(%s):%s -> %s:%v\n\t\t  %s %s",
+		i.Path, i.Type, i.VarName, i.Brick.Name, i.JsonPath, need_for_str, i.ExceptionNeededFor)
+}
+
+func (i Input) IsInputNeeded(
+	action string,
+) bool {
+
+	if extools.ContainsString(i.ExceptionNeededFor, action) {
+		return !i.DefaultNeededFor
+	}
+	return i.DefaultNeededFor
 }
 
 func (b *Brick) GetInputsThatCallthisOutput(
@@ -96,8 +116,10 @@ type BrickConfYaml struct {
 		// Can be json, yaml, env
 		Format string `yaml:"format"`
 		// If the type is a path, it is the path the dependency output should be saved to
-		Path string `yaml:"path"`
-		Data []struct {
+		Path         string   `yaml:"path"`
+		NeededFor    []string `yaml:"needed_for"`
+		NotNeededFor []string `yaml:"not_needed_for"`
+		Data         []struct {
 			// The name the variable is expected to have
 			Name string `yaml:"name"`
 			// The key path the input variable should match
@@ -165,7 +187,7 @@ func (brick *Brick) SetElementary(cfp string) {
 	brick.ConfigurationFilePath = cfp
 }
 
-// Processes the relevant parts of a brick's configuration and updates the brick itself
+// Processes the relevant (everything except output) parts of a brick's configuration and updates the brick itself
 // with it.
 func (brick *Brick) Enrich(bcy BrickConfYaml, infra *Infra) error {
 	if !brick.IsElementary {
@@ -199,7 +221,7 @@ func (brick *Brick) Enrich(bcy BrickConfYaml, infra *Infra) error {
 // Returns a map with the intput file path as the key, and the relevant Formatter as the value.
 // The key is `env` if there is no path and the inputs are supposed to be passed around as
 // environment variables
-func (b *Brick) CreateFormatters() (fileFormatters map[string]Formatter, env_formatters EnvFormat, err error) {
+func (b *Brick) CreateFormatters(action string) (fileFormatters map[string]Formatter, env_formatters EnvFormat, err error) {
 	fileFormatters = make(map[string]Formatter)
 
 	// Temporary variable holding the values dispatched by format, path and variable name.
@@ -207,7 +229,14 @@ func (b *Brick) CreateFormatters() (fileFormatters map[string]Formatter, env_for
 	// NOTE: This is a pretty good use case for a tree-like structure!
 	rawInputs := make(map[InputFormat]map[string]map[string]interface{})
 
+	var neededInputs []Input
 	for _, i := range b.Inputs {
+		if i.IsInputNeeded(action) {
+			neededInputs = append(neededInputs, i)
+		}
+	}
+
+	for _, i := range neededInputs {
 		var output interface{}
 		err := json.Unmarshal(i.Brick.Output, &output)
 		if err != nil {
@@ -293,6 +322,22 @@ func (bcy BrickConfYaml) resolveDependencies(infra *Infra) (inputs []Input, err 
 	}
 
 	for _, i := range bcy.Input {
+
+		// preprocess if input needed for every action
+		var exceptionNeededFor []string
+		if infra.Conf.DefaultIsInputNeeded {
+			exceptionNeededFor = append(
+				infra.Conf.ExceptionIsInputNeeded,
+				i.NotNeededFor...,
+			)
+		} else {
+			exceptionNeededFor = append(
+				infra.Conf.ExceptionIsInputNeeded,
+				i.NeededFor...,
+			)
+		}
+		exceptionNeededFor = extools.Deduplicate(exceptionNeededFor)
+
 		for _, d := range i.Data {
 			if d.Name == "" {
 				err = fmt.Errorf("data item hasn't any field \"name\"")
@@ -326,12 +371,14 @@ func (bcy BrickConfYaml) resolveDependencies(infra *Infra) (inputs []Input, err 
 
 			if inputFormat, isSupported := SupportedFormats[i.Format]; isSupported {
 				inputs = append(inputs, Input{
-					VarName:  d.Name,
-					JsonPath: keyPath,
-					Brick:    brick,
-					Format:   inputFormat,
-					Type:     i.Type,
-					Path:     i.Path,
+					VarName:            d.Name,
+					JsonPath:           keyPath,
+					Brick:              brick,
+					Format:             inputFormat,
+					Type:               i.Type,
+					Path:               i.Path,
+					DefaultNeededFor:   infra.Conf.DefaultIsInputNeeded,
+					ExceptionNeededFor: exceptionNeededFor,
 				})
 			} else {
 				err = errors.New(fmt.Sprintf("Format %s not supported in %s",
