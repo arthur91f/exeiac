@@ -18,6 +18,7 @@ var BehaviourMap = map[string]func(*exinfra.Infra, *exargs.Configuration, exinfr
 	"help":          Help,
 	"init":          PassthroughAction,
 	"lay":           Lay,
+	"smart-lay":     SmartLay,
 	"plan":          Plan,
 	"remove":        Remove,
 	"show":          Show,
@@ -175,6 +176,32 @@ func enrichOutputs(bricksToOutput exinfra.Bricks) error {
 		// 2.3. set brick.Outputs
 		b.Output = stdout.Output
 
+	}
+
+	return nil
+}
+
+func enrichOutputsBeforeExec(
+	brick *exinfra.Brick,
+	infra *exinfra.Infra,
+	action string,
+) error {
+	bricksWhomOutputIsNeeded, err := getBricksToOutput(exinfra.Bricks{brick}, infra, action)
+	if err != nil {
+		return err
+	}
+
+	var bricksToOutput exinfra.Bricks
+	for _, b := range bricksWhomOutputIsNeeded {
+		if b.Output == nil {
+			bricksToOutput = append(bricksToOutput, b)
+		}
+	}
+	bricksToOutput = append(bricksWhomOutputIsNeeded, brick) // we can add it at the end because its needed output are before
+
+	err = enrichOutputs(bricksToOutput)
+	if err != nil {
+		return err
 	}
 
 	return nil

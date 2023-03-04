@@ -44,7 +44,7 @@ func (a Arguments) String() string {
 
 // An array containing all of the supported actions
 var actions_list = [...]string{
-	"plan", "lay", "remove", "output", "init", "validate_code", "help",
+	"plan", "lay", "smart-lay", "remove", "output", "init", "validate_code", "help",
 	"show_input", "list_elementary_bricks",
 	"get_brick_path", "get_brick_name"}
 
