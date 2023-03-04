@@ -74,6 +74,7 @@ func Lay(
 			statusCode = exstatuscode.Update(statusCode, exstatuscode.RUN_ERROR)
 			report.Error = fmt.Errorf("not able to get env file and vars before execute: %v", err)
 			report.Status = TAG_ERROR
+			skipFollowing = true
 			continue
 		}
 
