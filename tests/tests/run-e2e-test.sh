@@ -2,6 +2,14 @@
 script_dir="$(cd "$(dirname "$0")"; pwd)"
 exit_status=0
 
+if grep -qE "(-h|--help)" <<<"$@"; then
+    echo "run-e2e-test [FILE:NUMBER] [FILE:]...
+    
+    run end to end test descibe in yaml file in $script_dir
+
+    example: ./run-e2e-test.sh 1-init-error:2 2-dependencies:4,5,8,9 3-not-changing-actions"
+fi
+
 function get_tests_list {
     file="$1"
     python3 -c "import sys, yaml ; y=yaml.safe_load(sys.stdin.read()) ; print(y, end = \"\")" <"$file"
@@ -35,10 +43,40 @@ function update_status_code {
     fi
 }
 
+function test_asked {
+    if [ -z "$2" ]; then
+        return 0
+    fi
+
+    file_name1="$(cut -d: -f1 <<<"$1")"
+    index1="$(cut -d: -f2 <<<"$1")"
+    shift
+
+    for arg in "$@" ; do
+        file_name2="$(cut -d: -f1 <<<"$arg")"
+        if [ "$file_name2" != "$file_name1" ]; then
+            continue
+        fi
+
+        index2="$(cut -d: -f2 <<<"$arg" | sed 's/,/ /g')"
+        if [ -z "$index2" ] || [ "$index2" == "*" ]; then
+            return 0
+        fi
+
+        for i in $index2 ; do
+            if [ "$index1" == "$i" ]; then
+                return 0
+            fi
+        done
+        
+    done
+
+    return 1
+}
+
 for file in $(find "$script_dir" -name '*.yml' | sort); do
     file_name="$(sed 's|^.*/\([^/]*\)\.yml$|\1|g' <<<"$file")"
     
-    indice=0
     if ! tests_list="$(get_tests_list "$file")" ; then
         echo -e "\e[01;31mERROR\e[0;31m:test file not valid: $file : should be a yaml format\n\e[0;0m" >&2
         exit_status="$(update_status_code $exit_status 4)"
@@ -57,7 +95,13 @@ for file in $(find "$script_dir" -name '*.yml' | sort); do
             exit_status="$(update_status_code $exit_status 3)"
             continue
         fi
+
+
         title="$(get_field "$item" title 2>/dev/null)"
+        if ! test_asked "$file_name:$i" $@; then
+            continue
+        fi
+
         cmd="$(get_field "$item" cmd 2>/dev/null)"
         if [ -z "$cmd" ]; then
             echo -e "\e[01;31mERROR\e[0;31m: test file $file_name not valid: item with title \"$title\" without cmd\n\e[0;0m" >&2
@@ -71,7 +115,7 @@ for file in $(find "$script_dir" -name '*.yml' | sort); do
 
         if stdout="$(get_field "$item" stdout 2>/dev/null)" ; then
             if ! diff -qs <(echo "$stdout") <(echo "$result_stdout") >/dev/null ; then
-                echo -e "\e[01;33mFAILED\e[0;33m:stdout_diff:$file_name: $title\e[0;0m"
+                echo -e "\e[01;33mFAILED\e[0;33m:stdout_diff:$file_name:$i: $title\e[0;0m"
                 diff --color <(echo "$stdout") <(echo "$result_stdout")
                 echo ""
                 pass="false"
@@ -80,14 +124,14 @@ for file in $(find "$script_dir" -name '*.yml' | sort); do
 
         if status="$(get_field "$item" status 2>/dev/null)" ; then
             if [ "$status" != "$result_status" ]; then
-                echo -e "\e[01;33mFAILED\e[0;33m:status_diff:$file_name: $title"
+                echo -e "\e[01;33mFAILED\e[0;33m:status_diff:$file_name:$i $title"
                 echo -e "  is $result_status instead of $status\e[0;0m"
                 pass="false"
             fi
         fi
 
         if [ "$pass" == "true" ]; then
-            echo -e "\e[01;32mPASSED\e[0;32m:*:$file_name: $title\e[0;0m"
+            echo -e "\e[01;32mPASSED\e[0;32m:*:$file_name:$i: $title\e[0;0m"
         else
             exit_status="$(update_status_code $exit_status 2)"
         fi
