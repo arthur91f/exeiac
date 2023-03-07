@@ -69,38 +69,40 @@ func main() {
 		os.Exit(exstatuscode.INIT_ERROR)
 	}
 
-	// enrich bricks that we will execute
-	infra.EnrichBricks()
+	exaction.Test129_2_1(&infra) /*
 
-	// get bricks selected
-	var bricks exinfra.Bricks
-	bricks, err = infra.GetBricksFromNames(exargs.Args.BricksNames)
-	if err != nil {
-		fmt.Fprintln(os.Stderr, err)
+		// enrich bricks that we will execute
+		infra.EnrichBricks()
 
-		os.Exit(exstatuscode.INIT_ERROR)
-	}
+		// get bricks selected
+		var bricks exinfra.Bricks
+		bricks, err = infra.GetBricksFromNames(exargs.Args.BricksNames)
+		if err != nil {
+			fmt.Fprintln(os.Stderr, err)
 
-	// get bricks specified by parameters
-	var bricksToExecute exinfra.Bricks
-	bricksToExecute, err = infra.GetCorrespondingBricks(bricks, configuration.BricksSpecifiers)
-	if err != nil {
-		fmt.Fprintln(os.Stderr, err)
+			os.Exit(exstatuscode.INIT_ERROR)
+		}
 
-		os.Exit(exstatuscode.INIT_ERROR)
-	}
+		// get bricks specified by parameters
+		var bricksToExecute exinfra.Bricks
+		bricksToExecute, err = infra.GetCorrespondingBricks(bricks, configuration.BricksSpecifiers)
+		if err != nil {
+			fmt.Fprintln(os.Stderr, err)
 
-	// executeAction
-	// if exargs.Args.action is in the list do that else use otherAction
-	if behaviour, ok := exaction.BehaviourMap[configuration.Action]; ok {
-		statusCode, err = behaviour(&infra, &configuration, bricksToExecute)
-	} else {
-		statusCode, err = exaction.BehaviourMap["default"](&infra, &configuration, bricksToExecute)
-	}
+			os.Exit(exstatuscode.INIT_ERROR)
+		}
 
-	if err != nil {
-		fmt.Fprintln(os.Stderr, err)
-	}
+		// executeAction
+		// if exargs.Args.action is in the list do that else use otherAction
+		if behaviour, ok := exaction.BehaviourMap[configuration.Action]; ok {
+			statusCode, err = behaviour(&infra, &configuration, bricksToExecute)
+		} else {
+			statusCode, err = exaction.BehaviourMap["default"](&infra, &configuration, bricksToExecute)
+		}
 
+		if err != nil {
+			fmt.Fprintln(os.Stderr, err)
+		}
+	*/
 	os.Exit(statusCode)
 }
