@@ -28,21 +28,32 @@
   cmd: exeiac plan infra-ground/envs/production
   status: 2
 - title: plan brick with a module that can't decide if their is a drift
+  cmd: exeiac plan users/users_and_groups --non-interactive | sed -r "s/\x1B\[([0-9]{1,3}(;[0-9]{1,2};?)?)?[mGK]//g"
+  status: 0
+  stdout: |
+    -- users/users_and_groups ------------------------------------------------------
+    manual-module:plan: as the lay is a manual and the non-interactive mode is enabled, can't determine if there is a drift
+
+    Summary:
+    ?DRIFT? users/users_and_groups
+- title: plan brick with a module that can't decide if their is a drift status_code
   cmd: exeiac plan users/users_and_groups --non-interactive
   status: 3
-  # NOTE(arthur91f): to correct: manage color code
-  # stdout: |
-  #   \e[01;36m-- users/users_and_groups ------------------------------------------------\e[0;0m
-  #   manual-module:plan: as the lay is a manual and the non-interactive mode is enabled, can't determine if there is a drift
-
-  #   Summary:
-  #   ?DRIFT? users/users_and_groups
 - title: lay an already layed brick
   cmd: exeiac lay infra-ground/envs/production/network --non-interactive  | tail -n2
   status: 0
   stdout: |
     Summary:
     OK      infra-ground/envs/production/network
+- title: smart-lay no drift
+  cmd: exeiac smart-lay infra-ground/envs/production/prometheus | tail -n5
+  status: 0
+  stdout: |
+    Summary:
+    OK      infra-ground/envs/production/prometheus
+    SKIP    infra-ground/envs/monitoring/prometheus_federated
+    SKIP    infra-ground/envs/monitoring/grafana
+    SKIP    users/monitoring/grafana
 - title: output
   cmd: exeiac output infra-ground/envs/production/network
   status: 0
