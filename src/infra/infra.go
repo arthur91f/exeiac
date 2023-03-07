@@ -12,7 +12,6 @@ import (
 	exargs "src/exeiac/arguments"
 	extools "src/exeiac/tools"
 	"strings"
-	"sync"
 )
 
 const BRICK_FILE_NAME = "brick.yml"
@@ -349,44 +348,29 @@ func (infra *Infra) GetDirectNext(brick *Brick) (results Bricks, err error) {
 	return
 }
 
-// Cheks wheither or not the brick that dependends (directly or not) of the given brick are enriched.
-// Returns a slice of brick's pointers if they are, or the first error encountered otherwise
-func (infra *Infra) GetLinkedNext(bricks *Bricks, brick *Brick) (err error) {
-	var wg sync.WaitGroup
-
-	for _, b := range infra.Bricks {
-		err = b.EnrichError
-		if err != nil {
-			return
-		}
-		var directPrevious Bricks
-		directPrevious, err = infra.GetDirectPrevious(b)
-		if err != nil {
-			return
-		}
-		for _, dp := range directPrevious {
-			if dp.Name == brick.Name {
-				*bricks = append(*bricks, infra.Bricks[b.Name])
-
-				// TODO(half-shell): handle cases of cirulare dependencies
-				// or misconfiguration. We want to add a check to either limit
-				// the number of wait group created, or just a check over the indexes
-				// of the bricks handled here. Or prevent adding a brick already added
-				// to avoid those cases.
-				if len(b.DirectPrevious) > 0 {
-					wg.Add(1)
-
-					go func(bricks *Bricks, brick *Brick) {
-						defer wg.Done()
-						infra.GetLinkedNext(bricks, brick)
-					}(bricks, b)
+func (infra *Infra) GetLinkedNext(brick *Brick) (results Bricks, err error) {
+	var directNext Bricks
+	added, err := infra.GetDirectNext(brick)
+	if err != nil {
+		return
+	}
+	results = added
+	for {
+		toAdd := Bricks{}
+		for _, b := range added {
+			directNext, err = infra.GetDirectNext(b)
+			for _, dp := range directNext {
+				if !results.BricksContains(dp) {
+					toAdd = append(toAdd, dp)
 				}
 			}
 		}
+		if len(toAdd) == 0 {
+			break
+		}
+		results = append(results, toAdd...)
+		added = toAdd
 	}
-
-	wg.Wait()
-
 	return
 }
 
@@ -449,8 +433,7 @@ func (infra *Infra) GetCorrespondingBricks(
 			}
 		case "linked_next", "all_next", "ln", "an":
 			for _, brick := range elementaryBricks {
-				var bs Bricks
-				infra.GetLinkedNext(&bs, brick)
+				bs, _ := infra.GetLinkedNext(brick)
 				bricksToAdd = append(bricksToAdd, bs...)
 			}
 		default:
