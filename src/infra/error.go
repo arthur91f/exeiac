@@ -43,3 +43,11 @@ func (e ErrBadArg) Error() string {
 		return fmt.Sprintf("! Bad argument: %s: %s", e.Reason, e.Value)
 	}
 }
+
+type ErrNilModule struct {
+	Brick *Brick
+}
+
+func (e ErrNilModule) Error() string {
+	return fmt.Sprintf("Brick %s doesn't have any valid module", e.Brick.Name)
+}

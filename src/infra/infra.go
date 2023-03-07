@@ -23,11 +23,13 @@ type Infra struct {
 		ExceptionIsInputNeeded []string
 		DefaultIsInputNeeded   bool
 	}
+	NilModule Module
 }
 
 func CreateInfra(configuration exargs.Configuration) (Infra, error) {
 	i := Infra{
-		Bricks: make(map[string]*Brick),
+		Bricks:    make(map[string]*Brick),
+		NilModule: Module{IsNil: true},
 	}
 
 	i.Conf.ExceptionIsInputNeeded = configuration.ExceptionIsInputNeeded
@@ -36,8 +38,9 @@ func CreateInfra(configuration exargs.Configuration) (Infra, error) {
 	// create Modules
 	for name, path := range configuration.Modules {
 		i.Modules = append(i.Modules, Module{
-			Name: name,
-			Path: path,
+			Name:  name,
+			Path:  path,
+			IsNil: false,
 		})
 	}
 
@@ -167,21 +170,27 @@ func (infra Infra) String() string {
 	return sb.String()
 }
 
-func (infra *Infra) GetModule(name string, b *Brick) (*Module, error) {
+func (infra *Infra) GetModule(name string, b *Brick) *Module {
 	for i, m := range infra.Modules {
 		if m.Name == name {
-			return &(infra.Modules[i]), nil
+			return &(infra.Modules[i])
 		}
 	}
 	if strings.HasPrefix(name, "./") {
+		path := b.Path + "/" + strings.TrimPrefix(name, "./")
+		_, err := os.Stat(path)
+		if err != nil {
+			log.Printf("Don't manage to get module \"%s\" for brick %s: %v", name, b.Name, err)
+			return &infra.NilModule
+		}
 		infra.Modules = append(infra.Modules, Module{
 			Name: b.Name,
-			Path: b.Path + "/" + strings.TrimPrefix(name, "./"),
+			Path: path,
 		})
-		return &(infra.Modules[len(infra.Modules)-1:][0]), nil
+		return &(infra.Modules[len(infra.Modules)-1:][0])
 	}
 
-	return nil, errors.New("No matching module name")
+	return &infra.NilModule
 }
 
 // Resolve a brick to a slice of elementary bricks.

@@ -22,6 +22,7 @@ type Module struct {
 	Name    string
 	Path    string
 	Actions []string
+	IsNil   bool
 }
 
 func (m Module) String() string {
@@ -42,6 +43,9 @@ func (m Module) String() string {
 func (module *Module) LoadAvailableActions() (err error) {
 	// Actions are already loaded; no need to reprocess it
 	if len(module.Actions) > 0 {
+		return
+	}
+	if module.IsNil {
 		return
 	}
 
@@ -113,6 +117,12 @@ func (m *Module) Exec(
 	statusCode int,
 	err error,
 ) {
+	if m.IsNil {
+		err = ErrNilModule{Brick: b}
+		statusCode = 12
+
+		return
+	}
 	if !extools.ContainsString(m.Actions, action) {
 		err = ActionNotImplementedError{Action: action, Module: m}
 
