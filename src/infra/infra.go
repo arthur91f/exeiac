@@ -351,7 +351,7 @@ func (infra *Infra) GetDirectNext(brick *Brick) (results Bricks, err error) {
 
 // Cheks wheither or not the brick that dependends (directly or not) of the given brick are enriched.
 // Returns a slice of brick's pointers if they are, or the first error encountered otherwise
-func (infra *Infra) GetLinkedNext(bricks *Bricks, brick *Brick) (err error) {
+func (infra *Infra) GetLinkedNextOpti(bricks *Bricks, brick *Brick) (err error) {
 	var wg sync.WaitGroup
 
 	for _, b := range infra.Bricks {
@@ -378,7 +378,7 @@ func (infra *Infra) GetLinkedNext(bricks *Bricks, brick *Brick) (err error) {
 
 					go func(bricks *Bricks, brick *Brick) {
 						defer wg.Done()
-						infra.GetLinkedNext(bricks, brick)
+						infra.GetLinkedNextOpti(bricks, brick)
 					}(bricks, b)
 				}
 			}
@@ -387,6 +387,32 @@ func (infra *Infra) GetLinkedNext(bricks *Bricks, brick *Brick) (err error) {
 
 	wg.Wait()
 
+	return
+}
+
+func (infra *Infra) GetLinkedNext(brick *Brick) (results Bricks, err error) {
+	var directNext Bricks
+	added, err := infra.GetDirectNext(brick)
+	if err != nil {
+		return
+	}
+	results = added
+	for {
+		toAdd := Bricks{}
+		for _, b := range added {
+			directNext, err = infra.GetDirectNext(b)
+			for _, dp := range directNext {
+				if !results.BricksContains(dp) {
+					toAdd = append(toAdd, dp)
+				}
+			}
+		}
+		if len(toAdd) == 0 {
+			break
+		}
+		results = append(results, toAdd...)
+		added = toAdd
+	}
 	return
 }
 
@@ -449,8 +475,7 @@ func (infra *Infra) GetCorrespondingBricks(
 			}
 		case "linked_next", "all_next", "ln", "an":
 			for _, brick := range elementaryBricks {
-				var bs Bricks
-				infra.GetLinkedNext(&bs, brick)
+				bs, _ := infra.GetLinkedNext(brick)
 				bricksToAdd = append(bricksToAdd, bs...)
 			}
 		default:
