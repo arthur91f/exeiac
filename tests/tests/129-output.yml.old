@@ -1,0 +1,604 @@
+- title: no arg
+  cmd: exeiac show infra-ground app-a app-b app-admin users -f o | sed -r "s/\x1B\[([0-9]{1,3}(;[0-9]{1,2};?)?)?[mGK]//g"
+  status: 0
+  stdout: |
+    -- infra-ground/init/create_accounts -------------------------------------------
+    {
+      "cloud_providers": {
+        "mycloudprovider": {
+          "name": "mycloudprovider.com",
+          "signup_url": "mycloudprovider.com/sign-up",
+          "organisation": "mycompany"
+        },
+        "git": {
+          "name": "gitasaservice.com",
+          "signup_url": "gitasaservice.com/signup",
+          "organisation": "my-company"
+        }
+      },
+      "projects": {
+        "production": {
+          "env": "production",
+          "cloud_provider": "mycloudprovider",
+          "project_id": "mycompany/production-191222"
+        },
+        "staging": {
+          "env": "staging",
+          "cloud_provider": "mycloudprovider",
+          "project_id": "mycompany/staging-221219"
+        },
+        "monitoring": {
+          "env": "monitoring",
+          "cloud_provider": "mycloudprovider",
+          "project_id": "mycompany/monitoring-221201"
+        }
+      }
+    }
+
+    -- infra-ground/init/cicd_secrets ----------------------------------------------
+    {
+      "monitoring_user": {
+        "userkey": {
+          "bcrypt_hash": "$2a$10$YM/adwc5Lw5yzZRRJPjgled5dIISDGbQ9yasNFbjQp5qNEb2cAVze",
+          "id": "none",
+          "keepers": null,
+          "length": 16,
+          "lower": true,
+          "min_lower": 0,
+          "min_numeric": 0,
+          "min_special": 0,
+          "min_upper": 0,
+          "number": true,
+          "numeric": true,
+          "override_special": null,
+          "result": "HPbb4jxHQ7tg8pKf",
+          "special": false,
+          "upper": true
+        },
+        "username": "ci-monitoring"
+      },
+      "production_user": {
+        "userkey": {
+          "bcrypt_hash": "$2a$10$qs9vq7eWG/S5HRI6myPTyOG4MaYbEE8melYBAvSN2h4wWXC3eNIE6",
+          "id": "none",
+          "keepers": null,
+          "length": 16,
+          "lower": true,
+          "min_lower": 0,
+          "min_numeric": 0,
+          "min_special": 0,
+          "min_upper": 0,
+          "number": true,
+          "numeric": true,
+          "override_special": null,
+          "result": "fdEARlxGvkxIQ3Io",
+          "special": false,
+          "upper": true
+        },
+        "username": "ci-production"
+      },
+      "staging_user": {
+        "userkey": {
+          "bcrypt_hash": "$2a$10$ytijSoubR5NEtpnZYU8ybOnQAQLEbdekHno9jH3aIEZjLHC3jfJe6",
+          "id": "none",
+          "keepers": null,
+          "length": 16,
+          "lower": true,
+          "min_lower": 0,
+          "min_numeric": 0,
+          "min_special": 0,
+          "min_upper": 0,
+          "number": true,
+          "numeric": true,
+          "override_special": null,
+          "result": "kZMt2C1H8oEEFnsw",
+          "special": false,
+          "upper": true
+        },
+        "username": "ci-staging"
+      }
+    }
+
+    -- infra-ground/init/container_registry ----------------------------------------
+    {
+      "registry": {
+        "url": "mycompany/monitoring-221201/container-registry"
+      },
+      "user": {
+        "userkey": {
+          "bcrypt_hash": "$2a$10$koGtlUvNaJau/5zyj8v8ie2I9ppL7AHded/tjU33BRJVbw9aO/2b6",
+          "id": "none",
+          "keepers": null,
+          "length": 16,
+          "lower": true,
+          "min_lower": 0,
+          "min_numeric": 0,
+          "min_special": 0,
+          "min_upper": 0,
+          "number": true,
+          "numeric": true,
+          "override_special": null,
+          "result": "DspRZ2LEzgYnI89Y",
+          "special": false,
+          "upper": true
+        },
+        "username": "registry-user"
+      }
+    }
+
+    -- infra-ground/envs/production/network ----------------------------------------
+    {
+      "domain_name": {
+        "internal": "production.myp.tech",
+        "private": "production.private",
+        "public": "myproduct.com"
+      },
+      "network": {
+        "ip_range": "10.2.0.0/20",
+        "nat_ip": "34.99.71.44",
+        "network_id": "mycompany/production-191222/network/5e5b8daf-c7f8-428d-3c27-d4f0ffa6e801"
+      }
+    }
+
+    -- infra-ground/envs/production/bastion ----------------------------------------
+    {
+      "bastion": {
+        "instance_id": "mycompany/production-191222/instance/ecc717a9-9671-1e09-5ce7-29e511939754",
+        "internal_domain_name": "bastion.production.myp.tech",
+        "private_domain_name": "bastion.production.private",
+        "private_ip": "10.2.0.2",
+        "public_ip": "34.90.70.34"
+      }
+    }
+
+    -- infra-ground/envs/production/cluster_k8s ------------------------------------
+    {
+      "cluster": {
+        "instance_id": "mycompany/production-191222/instance/ecc717a9-9671-1e09-5ce7-29e511939754",
+        "internal_domain_name": "cluster-main.production.myp.tech",
+        "private_domain_name": "cluster-main.production.private",
+        "private_ip": "10.2.0.3",
+        "public_ip": "34.90.70.34"
+      }
+    }
+
+    -- infra-ground/envs/production/database ---------------------------------------
+    {
+      "cluster": {
+        "instance_id": "mycompany/production-191222/instance/c4170873-145c-040d-a0f8-031e1e7f13cd",
+        "internal_domain_name": "cluster-main.production.myp.tech",
+        "private_domain_name": "cluster-main.production.private",
+        "private_ip": "10.2.0.3",
+        "public_ip": "34.64.76.186"
+      }
+    }
+
+    -- infra-ground/envs/production/prometheus -------------------------------------
+    {
+      "from_cluster": "[map[instance_id:mycompany/production-191222/instance/ecc717a9-9671-1e09-5ce7-29e511939754 internal_domain_name:cluster-main.production.myp.tech private_domain_name:cluster-main.production.private private_ip:10.2.0.3 public_ip:34.90.70.34]]",
+      "from_database": "[map[instance_id:mycompany/production-191222/instance/c4170873-145c-040d-a0f8-031e1e7f13cd internal_domain_name:cluster-main.production.myp.tech private_domain_name:cluster-main.production.private private_ip:10.2.0.3 public_ip:34.64.76.186]]",
+      "from_env": "staging",
+      "from_project_id": "mycompany/staging-221219"
+    }
+
+    -- infra-ground/envs/staging/network -------------------------------------------
+    {
+      "domain_name": {
+        "internal": "staging.myp.tech",
+        "private": "staging.private",
+        "public": "staging.public"
+      },
+      "network": {
+        "ip_range": "10.3.0.0/20",
+        "nat_ip": "34.133.110.225",
+        "network_id": "mycompany/staging-221219/network/bd12fdc5-c942-3ece-7bf1-865fb846880d"
+      }
+    }
+
+    -- infra-ground/envs/staging/bastion -------------------------------------------
+    {
+      "bastion": {
+        "instance_id": "mycompany/staging-221219/instance/a3f78b6f-375d-5a1c-b441-9ce621a05297",
+        "internal_domain_name": "bastion.staging.myp.tech",
+        "private_domain_name": "bastion.staging.private",
+        "private_ip": "10.3.0.2",
+        "public_ip": "34.160.102.76"
+      }
+    }
+
+    -- infra-ground/envs/staging/cluster_k8s ---------------------------------------
+    {
+      "cluster": {
+        "instance_id": "mycompany/staging-221219/instance/a94420e2-d413-b2ee-7773-a92edac5492e",
+        "internal_domain_name": "cluster-main.staging.myp.tech",
+        "private_domain_name": "cluster-main.staging.private",
+        "private_ip": "10.3.0.3",
+        "public_ip": "34.65.163.29"
+      }
+    }
+
+    -- infra-ground/envs/staging/database ------------------------------------------
+    {
+      "from_env": "staging",
+      "from_network": "[map[internal:staging.myp.tech private:staging.private public:staging.public] map[ip_range:10.3.0.0/20 nat_ip:34.133.110.225 network_id:mycompany/staging-221219/network/bd12fdc5-c942-3ece-7bf1-865fb846880d]]",
+      "from_project_id": "mycompany/staging-221219"
+    }
+
+    -- infra-ground/envs/staging/prometheus ----------------------------------------
+    {
+      "from_cluster": "[map[instance_id:mycompany/staging-221219/instance/a94420e2-d413-b2ee-7773-a92edac5492e internal_domain_name:cluster-main.staging.myp.tech private_domain_name:cluster-main.staging.private private_ip:10.3.0.3 public_ip:34.65.163.29]]",
+      "from_database": "[staging [map[internal:staging.myp.tech private:staging.private public:staging.public] map[ip_range:10.3.0.0/20 nat_ip:34.133.110.225 network_id:mycompany/staging-221219/network/bd12fdc5-c942-3ece-7bf1-865fb846880d]] mycompany/staging-221219]",
+      "from_env": "staging",
+      "from_project_id": "mycompany/staging-221219"
+    }
+
+    -- infra-ground/envs/monitoring/network ----------------------------------------
+    {
+      "domain_name": {
+        "internal": "monitoring.myp.tech",
+        "private": "monitoring.private",
+        "public": "myproduct.com"
+      },
+      "network": {
+        "ip_range": "10.1.0.0/20",
+        "nat_ip": "34.21.201.77",
+        "network_id": "mycompany/monitoring-221201/network/e618224a-3a96-71bc-0d76-1fb2c75ff793"
+      }
+    }
+
+    -- infra-ground/envs/monitoring/bastion ----------------------------------------
+    {
+      "bastion": {
+        "instance_id": "mycompany/monitoring-221201/instance/2101ee61-7746-54ae-bd28-4bc32e1d5210",
+        "internal_domain_name": "bastion.monitoring.myp.tech",
+        "private_domain_name": "bastion.monitoring.private",
+        "private_ip": "10.1.0.2",
+        "public_ip": "34.103.53.32"
+      }
+    }
+
+    -- infra-ground/envs/monitoring/cluster_k8s ------------------------------------
+    {
+      "cluster": {
+        "instance_id": "mycompany/monitoring-221201/instance/b00e0fe0-fd48-8fae-623e-d3ea5de1d26b",
+        "internal_domain_name": "cluster-main.monitoring.myp.tech",
+        "private_domain_name": "cluster-main.monitoring.private",
+        "private_ip": "10.1.0.3",
+        "public_ip": "34.243.198.57"
+      }
+    }
+
+    -- infra-ground/envs/monitoring/prometheus_federated ---------------------------
+    {
+      "from_cluster": "[map[instance_id:mycompany/monitoring-221201/instance/b00e0fe0-fd48-8fae-623e-d3ea5de1d26b internal_domain_name:cluster-main.monitoring.myp.tech private_domain_name:cluster-main.monitoring.private private_ip:10.1.0.3 public_ip:34.243.198.57]]",
+      "from_env": "monitoring",
+      "from_network": "[map[internal:monitoring.myp.tech private:monitoring.private public:myproduct.com] map[ip_range:10.1.0.0/20 nat_ip:34.21.201.77 network_id:mycompany/monitoring-221201/network/e618224a-3a96-71bc-0d76-1fb2c75ff793]]",
+      "from_production_monitoring": "[[map[instance_id:mycompany/production-191222/instance/c4170873-145c-040d-a0f8-031e1e7f13cd internal_domain_name:cluster-main.production.myp.tech private_domain_name:cluster-main.production.private private_ip:10.2.0.3 public_ip:34.64.76.186]] staging mycompany/staging-221219 [map[instance_id:mycompany/production-191222/instance/ecc717a9-9671-1e09-5ce7-29e511939754 internal_domain_name:cluster-main.production.myp.tech private_domain_name:cluster-main.production.private private_ip:10.2.0.3 public_ip:34.90.70.34]]]",
+      "from_project_id": "mycompany/monitoring-221201",
+      "from_staging_monitoring": "[[map[instance_id:mycompany/staging-221219/instance/a94420e2-d413-b2ee-7773-a92edac5492e internal_domain_name:cluster-main.staging.myp.tech private_domain_name:cluster-main.staging.private private_ip:10.3.0.3 public_ip:34.65.163.29]] [staging [map[internal:staging.myp.tech private:staging.private public:staging.public] map[ip_range:10.3.0.0/20 nat_ip:34.133.110.225 network_id:mycompany/staging-221219/network/bd12fdc5-c942-3ece-7bf1-865fb846880d]] mycompany/staging-221219] staging mycompany/staging-221219]"
+    }
+
+    -- infra-ground/envs/monitoring/grafana ----------------------------------------
+    {
+      "from_cluster": "[map[instance_id:mycompany/monitoring-221201/instance/b00e0fe0-fd48-8fae-623e-d3ea5de1d26b internal_domain_name:cluster-main.monitoring.myp.tech private_domain_name:cluster-main.monitoring.private private_ip:10.1.0.3 public_ip:34.243.198.57]]",
+      "from_env": "monitoring",
+      "from_project_id": "mycompany/monitoring-221201",
+      "from_prometheus": "[[map[instance_id:mycompany/monitoring-221201/instance/b00e0fe0-fd48-8fae-623e-d3ea5de1d26b internal_domain_name:cluster-main.monitoring.myp.tech private_domain_name:cluster-main.monitoring.private private_ip:10.1.0.3 public_ip:34.243.198.57]] monitoring [map[internal:monitoring.myp.tech private:monitoring.private public:myproduct.com] map[ip_range:10.1.0.0/20 nat_ip:34.21.201.77 network_id:mycompany/monitoring-221201/network/e618224a-3a96-71bc-0d76-1fb2c75ff793]] [[map[instance_id:mycompany/production-191222/instance/c4170873-145c-040d-a0f8-031e1e7f13cd internal_domain_name:cluster-main.production.myp.tech private_domain_name:cluster-main.production.private private_ip:10.2.0.3 public_ip:34.64.76.186]] staging mycompany/staging-221219 [map[instance_id:mycompany/production-191222/instance/ecc717a9-9671-1e09-5ce7-29e511939754 internal_domain_name:cluster-main.production.myp.tech private_domain_name:cluster-main.production.private private_ip:10.2.0.3 public_ip:34.90.70.34]]] mycompany/monitoring-221201 [[map[instance_id:mycompany/staging-221219/instance/a94420e2-d413-b2ee-7773-a92edac5492e internal_domain_name:cluster-main.staging.myp.tech private_domain_name:cluster-main.staging.private private_ip:10.3.0.3 public_ip:34.65.163.29]] [staging [map[internal:staging.myp.tech private:staging.private public:staging.public] map[ip_range:10.3.0.0/20 nat_ip:34.133.110.225 network_id:mycompany/staging-221219/network/bd12fdc5-c942-3ece-7bf1-865fb846880d]] mycompany/staging-221219] staging mycompany/staging-221219]]"
+    }
+
+    -- app-a/production/infra ------------------------------------------------------
+    {
+      "from_bastion": "bastion.production.myp.tech",
+      "from_cluster_k8s": "[map[instance_id:mycompany/production-191222/instance/ecc717a9-9671-1e09-5ce7-29e511939754 internal_domain_name:cluster-main.production.myp.tech private_domain_name:cluster-main.production.private private_ip:10.2.0.3 public_ip:34.90.70.34]]",
+      "from_database": "[map[instance_id:mycompany/production-191222/instance/c4170873-145c-040d-a0f8-031e1e7f13cd internal_domain_name:cluster-main.production.myp.tech private_domain_name:cluster-main.production.private private_ip:10.2.0.3 public_ip:34.64.76.186]]",
+      "from_env": "production",
+      "from_project_id": "mycompany/production-191222"
+    }
+
+    -- app-a/production/build ------------------------------------------------------
+    {
+      "from_docker_registry": "bastion.production.myp.tech",
+      "from_env": "production",
+      "from_project_id": "mycompany/production-191222"
+    }
+
+    -- app-a/production/deploy -----------------------------------------------------
+    {
+      "from_bastion": "bastion.production.myp.tech",
+      "from_cluster_k8s": "[map[instance_id:mycompany/production-191222/instance/ecc717a9-9671-1e09-5ce7-29e511939754 internal_domain_name:cluster-main.production.myp.tech private_domain_name:cluster-main.production.private private_ip:10.2.0.3 public_ip:34.90.70.34]]",
+      "from_database": "[map[instance_id:mycompany/production-191222/instance/c4170873-145c-040d-a0f8-031e1e7f13cd internal_domain_name:cluster-main.production.myp.tech private_domain_name:cluster-main.production.private private_ip:10.2.0.3 public_ip:34.64.76.186]]",
+      "from_docker_registry": "bastion.production.myp.tech",
+      "from_env": "production",
+      "from_project_id": "mycompany/production-191222"
+    }
+
+    -- app-a/staging/infra ---------------------------------------------------------
+    {
+      "from_bastion": "bastion.staging.myp.tech",
+      "from_cluster_k8s": "[map[instance_id:mycompany/staging-221219/instance/a94420e2-d413-b2ee-7773-a92edac5492e internal_domain_name:cluster-main.staging.myp.tech private_domain_name:cluster-main.staging.private private_ip:10.3.0.3 public_ip:34.65.163.29]]",
+      "from_database": "[staging [map[internal:staging.myp.tech private:staging.private public:staging.public] map[ip_range:10.3.0.0/20 nat_ip:34.133.110.225 network_id:mycompany/staging-221219/network/bd12fdc5-c942-3ece-7bf1-865fb846880d]] mycompany/staging-221219]",
+      "from_env": "staging",
+      "from_project_id": "mycompany/staging-221219"
+    }
+
+    -- app-a/staging/build ---------------------------------------------------------
+    {
+      "from_docker_registry": "bastion.staging.myp.tech",
+      "from_env": "staging",
+      "from_project_id": "mycompany/staging-221219"
+    }
+
+    -- app-a/staging/deploy --------------------------------------------------------
+    {
+      "from_bastion": "bastion.staging.myp.tech",
+      "from_cluster_k8s": "[map[instance_id:mycompany/staging-221219/instance/a94420e2-d413-b2ee-7773-a92edac5492e internal_domain_name:cluster-main.staging.myp.tech private_domain_name:cluster-main.staging.private private_ip:10.3.0.3 public_ip:34.65.163.29]]",
+      "from_database": "[staging [map[internal:staging.myp.tech private:staging.private public:staging.public] map[ip_range:10.3.0.0/20 nat_ip:34.133.110.225 network_id:mycompany/staging-221219/network/bd12fdc5-c942-3ece-7bf1-865fb846880d]] mycompany/staging-221219]",
+      "from_docker_registry": "bastion.staging.myp.tech",
+      "from_env": "staging",
+      "from_project_id": "mycompany/staging-221219"
+    }
+
+    -- app-b/production/infra ------------------------------------------------------
+    {
+      "from_bastion": "bastion.production.myp.tech",
+      "from_cluster_k8s": "[map[instance_id:mycompany/production-191222/instance/ecc717a9-9671-1e09-5ce7-29e511939754 internal_domain_name:cluster-main.production.myp.tech private_domain_name:cluster-main.production.private private_ip:10.2.0.3 public_ip:34.90.70.34]]",
+      "from_database": "[map[instance_id:mycompany/production-191222/instance/c4170873-145c-040d-a0f8-031e1e7f13cd internal_domain_name:cluster-main.production.myp.tech private_domain_name:cluster-main.production.private private_ip:10.2.0.3 public_ip:34.64.76.186]]",
+      "from_env": "production",
+      "from_project_id": "mycompany/production-191222"
+    }
+
+    -- app-b/production/build ------------------------------------------------------
+    {
+      "from_docker_registry": "bastion.production.myp.tech",
+      "from_env": "production",
+      "from_project_id": "mycompany/production-191222"
+    }
+
+    -- app-b/production/deploy -----------------------------------------------------
+    {
+      "from_bastion": "bastion.production.myp.tech",
+      "from_cluster_k8s": "[map[instance_id:mycompany/production-191222/instance/ecc717a9-9671-1e09-5ce7-29e511939754 internal_domain_name:cluster-main.production.myp.tech private_domain_name:cluster-main.production.private private_ip:10.2.0.3 public_ip:34.90.70.34]]",
+      "from_database": "[map[instance_id:mycompany/production-191222/instance/c4170873-145c-040d-a0f8-031e1e7f13cd internal_domain_name:cluster-main.production.myp.tech private_domain_name:cluster-main.production.private private_ip:10.2.0.3 public_ip:34.64.76.186]]",
+      "from_docker_registry": "bastion.production.myp.tech",
+      "from_env": "production",
+      "from_project_id": "mycompany/production-191222"
+    }
+
+    -- app-b/staging/infra ---------------------------------------------------------
+    {
+      "from_bastion": "bastion.staging.myp.tech",
+      "from_cluster_k8s": "[map[instance_id:mycompany/staging-221219/instance/a94420e2-d413-b2ee-7773-a92edac5492e internal_domain_name:cluster-main.staging.myp.tech private_domain_name:cluster-main.staging.private private_ip:10.3.0.3 public_ip:34.65.163.29]]",
+      "from_database": "[staging [map[internal:staging.myp.tech private:staging.private public:staging.public] map[ip_range:10.3.0.0/20 nat_ip:34.133.110.225 network_id:mycompany/staging-221219/network/bd12fdc5-c942-3ece-7bf1-865fb846880d]] mycompany/staging-221219]",
+      "from_env": "staging",
+      "from_project_id": "mycompany/staging-221219"
+    }
+
+    -- app-b/staging/build ---------------------------------------------------------
+    {
+      "from_docker_registry": "bastion.staging.myp.tech",
+      "from_env": "staging",
+      "from_project_id": "mycompany/staging-221219"
+    }
+
+    -- app-b/staging/deploy --------------------------------------------------------
+    {
+      "from_bastion": "bastion.staging.myp.tech",
+      "from_cluster_k8s": "[map[instance_id:mycompany/staging-221219/instance/a94420e2-d413-b2ee-7773-a92edac5492e internal_domain_name:cluster-main.staging.myp.tech private_domain_name:cluster-main.staging.private private_ip:10.3.0.3 public_ip:34.65.163.29]]",
+      "from_database": "[staging [map[internal:staging.myp.tech private:staging.private public:staging.public] map[ip_range:10.3.0.0/20 nat_ip:34.133.110.225 network_id:mycompany/staging-221219/network/bd12fdc5-c942-3ece-7bf1-865fb846880d]] mycompany/staging-221219]",
+      "from_docker_registry": "bastion.staging.myp.tech",
+      "from_env": "staging",
+      "from_project_id": "mycompany/staging-221219"
+    }
+
+    -- app-admin/production1-eu/infra ----------------------------------------------
+    {
+      "from_bastion": "bastion.production.myp.tech",
+      "from_cluster_k8s": "[map[instance_id:mycompany/production-191222/instance/ecc717a9-9671-1e09-5ce7-29e511939754 internal_domain_name:cluster-main.production.myp.tech private_domain_name:cluster-main.production.private private_ip:10.2.0.3 public_ip:34.90.70.34]]",
+      "from_database": "[map[instance_id:mycompany/production-191222/instance/c4170873-145c-040d-a0f8-031e1e7f13cd internal_domain_name:cluster-main.production.myp.tech private_domain_name:cluster-main.production.private private_ip:10.2.0.3 public_ip:34.64.76.186]]",
+      "from_env": "production",
+      "from_project_id": "mycompany/production-191222"
+    }
+
+    -- app-admin/production1-eu/build ----------------------------------------------
+    {
+      "from_docker_registry": "bastion.production.myp.tech",
+      "from_env": "production",
+      "from_project_id": "mycompany/production-191222"
+    }
+
+    -- app-admin/production1-eu/deploy ---------------------------------------------
+    {
+      "from_bastion": "bastion.production.myp.tech",
+      "from_cluster_k8s": "[map[instance_id:mycompany/production-191222/instance/ecc717a9-9671-1e09-5ce7-29e511939754 internal_domain_name:cluster-main.production.myp.tech private_domain_name:cluster-main.production.private private_ip:10.2.0.3 public_ip:34.90.70.34]]",
+      "from_database": "[map[instance_id:mycompany/production-191222/instance/c4170873-145c-040d-a0f8-031e1e7f13cd internal_domain_name:cluster-main.production.myp.tech private_domain_name:cluster-main.production.private private_ip:10.2.0.3 public_ip:34.64.76.186]]",
+      "from_docker_registry": "bastion.production.myp.tech",
+      "from_env": "production",
+      "from_project_id": "mycompany/production-191222"
+    }
+
+    -- app-admin/production2-us/infra ----------------------------------------------
+    {
+      "from_bastion": "bastion.production.myp.tech",
+      "from_cluster_k8s": "[map[instance_id:mycompany/production-191222/instance/ecc717a9-9671-1e09-5ce7-29e511939754 internal_domain_name:cluster-main.production.myp.tech private_domain_name:cluster-main.production.private private_ip:10.2.0.3 public_ip:34.90.70.34]]",
+      "from_database": "[map[instance_id:mycompany/production-191222/instance/c4170873-145c-040d-a0f8-031e1e7f13cd internal_domain_name:cluster-main.production.myp.tech private_domain_name:cluster-main.production.private private_ip:10.2.0.3 public_ip:34.64.76.186]]",
+      "from_env": "production",
+      "from_project_id": "mycompany/production-191222"
+    }
+
+    -- app-admin/production2-us/build ----------------------------------------------
+    {
+      "from_docker_registry": "bastion.production.myp.tech",
+      "from_env": "production",
+      "from_project_id": "mycompany/production-191222"
+    }
+
+    -- app-admin/production2-us/deploy1-us-east1 -----------------------------------
+    {
+      "from_bastion": "bastion.production.myp.tech",
+      "from_cluster_k8s": "[map[instance_id:mycompany/production-191222/instance/ecc717a9-9671-1e09-5ce7-29e511939754 internal_domain_name:cluster-main.production.myp.tech private_domain_name:cluster-main.production.private private_ip:10.2.0.3 public_ip:34.90.70.34]]",
+      "from_database": "[map[instance_id:mycompany/production-191222/instance/c4170873-145c-040d-a0f8-031e1e7f13cd internal_domain_name:cluster-main.production.myp.tech private_domain_name:cluster-main.production.private private_ip:10.2.0.3 public_ip:34.64.76.186]]",
+      "from_docker_registry": "bastion.production.myp.tech",
+      "from_env": "production",
+      "from_project_id": "mycompany/production-191222"
+    }
+
+    -- app-admin/production2-us/deploy2-us-west3 -----------------------------------
+    {
+      "from_bastion": "bastion.production.myp.tech",
+      "from_cluster_k8s": "[map[instance_id:mycompany/production-191222/instance/ecc717a9-9671-1e09-5ce7-29e511939754 internal_domain_name:cluster-main.production.myp.tech private_domain_name:cluster-main.production.private private_ip:10.2.0.3 public_ip:34.90.70.34]]",
+      "from_database": "[map[instance_id:mycompany/production-191222/instance/c4170873-145c-040d-a0f8-031e1e7f13cd internal_domain_name:cluster-main.production.myp.tech private_domain_name:cluster-main.production.private private_ip:10.2.0.3 public_ip:34.64.76.186]]",
+      "from_docker_registry": "bastion.production.myp.tech",
+      "from_env": "production",
+      "from_project_id": "mycompany/production-191222"
+    }
+
+    -- app-admin/staging/infra -----------------------------------------------------
+    {
+      "from_bastion": "bastion.staging.myp.tech",
+      "from_cluster_k8s": "[map[instance_id:mycompany/staging-221219/instance/a94420e2-d413-b2ee-7773-a92edac5492e internal_domain_name:cluster-main.staging.myp.tech private_domain_name:cluster-main.staging.private private_ip:10.3.0.3 public_ip:34.65.163.29]]",
+      "from_database": "[staging [map[internal:staging.myp.tech private:staging.private public:staging.public] map[ip_range:10.3.0.0/20 nat_ip:34.133.110.225 network_id:mycompany/staging-221219/network/bd12fdc5-c942-3ece-7bf1-865fb846880d]] mycompany/staging-221219]",
+      "from_env": "staging",
+      "from_project_id": "mycompany/staging-221219"
+    }
+
+    -- app-admin/staging/build -----------------------------------------------------
+    {
+      "from_docker_registry": "bastion.staging.myp.tech",
+      "from_env": "staging",
+      "from_project_id": "mycompany/staging-221219"
+    }
+
+    -- app-admin/staging/deploy ----------------------------------------------------
+    {
+      "from_bastion": "bastion.staging.myp.tech",
+      "from_cluster_k8s": "[map[instance_id:mycompany/staging-221219/instance/a94420e2-d413-b2ee-7773-a92edac5492e internal_domain_name:cluster-main.staging.myp.tech private_domain_name:cluster-main.staging.private private_ip:10.3.0.3 public_ip:34.65.163.29]]",
+      "from_database": "[staging [map[internal:staging.myp.tech private:staging.private public:staging.public] map[ip_range:10.3.0.0/20 nat_ip:34.133.110.225 network_id:mycompany/staging-221219/network/bd12fdc5-c942-3ece-7bf1-865fb846880d]] mycompany/staging-221219]",
+      "from_docker_registry": "bastion.staging.myp.tech",
+      "from_env": "staging",
+      "from_project_id": "mycompany/staging-221219"
+    }
+
+    -- users/users_and_groups ------------------------------------------------------
+    {
+      "users": [
+        {
+          "default": "arthur91f",
+          "mail": "arthur91f@gmail.com",
+          "github": "arthur91f",
+          "ssh": "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQDb/CWdGRB9pt2EDmqzCYsg/pAvPy99BWz6dzUhJ/MQmL56UVNNrrl8d4GH1z8GRmYcOZIQ8973wn9Amk3wJV/I8LFjSexZKzI0485tFWkjG89cKmnPcv3EtKqQu7+40L2LT6NqOjTmdnT95yu7nbVmk/x1aT5JzoZF3Jvj8yyVOND+hop7pZ9eVXZCzkajjUp5OwU78FEXUnr+689EQSRuPuacwvY6UXmj8nNLg9ND0QsZZa/lugf5wzXSLqiFAdlI7KwzY8454j1V68Bwr+amm2XaqTqcnKZOMrQNGJfEFe3+e4CyG2m+fhIp5BBtjeLCtz8BiUH7tLbeMyCU97QMilx1+7lg09HtOliYm9tLNlpLV/o2gi71BFHEOQFaqcMpeuP29IQKMdMvbThdW+r9OGrFgMdJXF8j5JfzPjIuDwzlYhlwPY6ND5/bMbgC2VBydGQht5B3/QzxEmAtRmNu9HW/2Oyfbo3mrDDir4Nm7kyV8XIJNbkBOEklBmbZpuNeF9cApoV2AV9lAcaSNJlGRtGaYwLkRvF9qktGj+A0RO+MRaNMmway6kQ8lCsY9f9ffLeTe5xnvvdDD46nGjlc02Ne16yXco9cVx3Ui0ElKzwKbKeM30D33OFdP02eLtpbYGDxTrQMzXW/eh3iHpFaIrUOMTf8qNSOT0iAn3jOsw== arthur91f@hpK3"
+        },
+        {
+          "default": "halfshell",
+          "mail": "mmaubert@protonmail.com",
+          "github": "half-shell"
+        },
+        {
+          "default": "titi",
+          "mail": "titi@myproduct.co",
+          "github": "grosminet"
+        },
+        {
+          "default": "tata",
+          "mail": "tata@myproduct.co"
+        },
+        {
+          "default": "toto",
+          "mail": "toto@myproduct.co",
+          "github": "deltatxdeltat"
+        }
+      ],
+      "groups": {
+        "admin": [
+          "arthur91f",
+          "halfshell"
+        ],
+        "ops": [
+          "arthur91f"
+        ],
+        "dev": [
+          "halfshell",
+          "toto",
+          "titi"
+        ],
+        "product": [
+          "tata"
+        ],
+        "front": [
+          "toto",
+          "tata"
+        ],
+        "back": [
+          "titi",
+          "tata"
+        ]
+      }
+    }
+
+    -- users/monitoring/bastion ----------------------------------------------------
+    {
+      "from_admins_group": "[arthur91f halfshell]",
+      "from_bastion_dns": "bastion.monitoring.myp.tech",
+      "from_bastion_instance_id": "mycompany/monitoring-221201/instance/2101ee61-7746-54ae-bd28-4bc32e1d5210",
+      "from_devs_groups": "[halfshell toto titi]",
+      "from_ops_group": "[arthur91f]",
+      "from_products_groups": "[tata]"
+    }
+
+    -- users/monitoring/grafana ----------------------------------------------------
+    {
+      "from_admins_group": "[arthur91f halfshell]",
+      "from_bastion": "bastion.monitoring.myp.tech",
+      "from_devs_groups": "[halfshell toto titi]",
+      "from_grafana": "[[map[instance_id:mycompany/monitoring-221201/instance/b00e0fe0-fd48-8fae-623e-d3ea5de1d26b internal_domain_name:cluster-main.monitoring.myp.tech private_domain_name:cluster-main.monitoring.private private_ip:10.1.0.3 public_ip:34.243.198.57]] monitoring mycompany/monitoring-221201 [[map[instance_id:mycompany/monitoring-221201/instance/b00e0fe0-fd48-8fae-623e-d3ea5de1d26b internal_domain_name:cluster-main.monitoring.myp.tech private_domain_name:cluster-main.monitoring.private private_ip:10.1.0.3 public_ip:34.243.198.57]] monitoring [map[internal:monitoring.myp.tech private:monitoring.private public:myproduct.com] map[ip_range:10.1.0.0/20 nat_ip:34.21.201.77 network_id:mycompany/monitoring-221201/network/e618224a-3a96-71bc-0d76-1fb2c75ff793]] [[map[instance_id:mycompany/production-191222/instance/c4170873-145c-040d-a0f8-031e1e7f13cd internal_domain_name:cluster-main.production.myp.tech private_domain_name:cluster-main.production.private private_ip:10.2.0.3 public_ip:34.64.76.186]] staging mycompany/staging-221219 [map[instance_id:mycompany/production-191222/instance/ecc717a9-9671-1e09-5ce7-29e511939754 internal_domain_name:cluster-main.production.myp.tech private_domain_name:cluster-main.production.private private_ip:10.2.0.3 public_ip:34.90.70.34]]] mycompany/monitoring-221201 [[map[instance_id:mycompany/staging-221219/instance/a94420e2-d413-b2ee-7773-a92edac5492e internal_domain_name:cluster-main.staging.myp.tech private_domain_name:cluster-main.staging.private private_ip:10.3.0.3 public_ip:34.65.163.29]] [staging [map[internal:staging.myp.tech private:staging.private public:staging.public] map[ip_range:10.3.0.0/20 nat_ip:34.133.110.225 network_id:mycompany/staging-221219/network/bd12fdc5-c942-3ece-7bf1-865fb846880d]] mycompany/staging-221219] staging mycompany/staging-221219]]]",
+      "from_ops_group": "[arthur91f]",
+      "from_products_groups": "[tata]"
+    }
+
+    -- users/production/bastion ----------------------------------------------------
+    {
+      "from_admins_group": "[arthur91f halfshell]",
+      "from_bastion_dns": "bastion.production.myp.tech",
+      "from_bastion_instance_id": "mycompany/production-191222/instance/ecc717a9-9671-1e09-5ce7-29e511939754",
+      "from_ops_group": "[arthur91f]"
+    }
+
+    -- users/production/cluster_k8s ------------------------------------------------
+    {
+      "from_admins_group": "[arthur91f halfshell]",
+      "from_cluster_id": "mycompany/production-191222/instance/ecc717a9-9671-1e09-5ce7-29e511939754",
+      "from_ops_group": "[arthur91f]"
+    }
+
+    -- users/production/database ---------------------------------------------------
+    {
+      "from_admins_group": "[arthur91f halfshell]",
+      "from_database": "[map[instance_id:mycompany/production-191222/instance/c4170873-145c-040d-a0f8-031e1e7f13cd internal_domain_name:cluster-main.production.myp.tech private_domain_name:cluster-main.production.private private_ip:10.2.0.3 public_ip:34.64.76.186]]",
+      "from_ops_group": "[arthur91f]"
+    }
+
+    -- users/staging/bastion -------------------------------------------------------
+    {
+      "from_admins_group": "[arthur91f halfshell]",
+      "from_bastion_dns": "bastion.staging.myp.tech",
+      "from_bastion_instance_id": "mycompany/staging-221219/instance/a3f78b6f-375d-5a1c-b441-9ce621a05297",
+      "from_devs_groups": "[halfshell toto titi]",
+      "from_ops_group": "[arthur91f]",
+      "from_products_groups": "[tata]"
+    }
+
+    -- users/staging/cluster_k8s ---------------------------------------------------
+    {
+      "from_admins_group": "[arthur91f halfshell]",
+      "from_cluster_id": "mycompany/staging-221219/instance/a94420e2-d413-b2ee-7773-a92edac5492e",
+      "from_devs_groups": "[halfshell toto titi]",
+      "from_ops_group": "[arthur91f]"
+    }
+
+    -- users/staging/database ------------------------------------------------------
+    {
+      "from_admins_group": "[arthur91f halfshell]",
+      "from_database": "[staging [map[internal:staging.myp.tech private:staging.private public:staging.public] map[ip_range:10.3.0.0/20 nat_ip:34.133.110.225 network_id:mycompany/staging-221219/network/bd12fdc5-c942-3ece-7bf1-865fb846880d]] mycompany/staging-221219]",
+      "from_devs_groups": "[halfshell toto titi]",
+      "from_ops_group": "[arthur91f]",
+      "from_products_groups": "[tata]"
+    }
