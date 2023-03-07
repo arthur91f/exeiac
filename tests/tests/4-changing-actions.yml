@@ -1,0 +1,54 @@
+- title: smart-lay first time
+  cmd: |
+    brick_path="$(find -path '*/repos/infra-grounds/2-envs/1-staging/1-network/network.tf')"
+    sed -i 's|network_ip = "10.3.0.0/20"|network_ip = "10.30.0.0/20"|g' "$brick_path" && 
+    exeiac smart-lay infra-ground/envs/staging/network --non-interactive | tail -n21
+  status: 0
+  # we should have a brick in the middle that change reapply but is OK (no change on the output)
+  stdout: |
+    Summary:
+    DONE    infra-ground/envs/staging/network
+    DONE    infra-ground/envs/staging/bastion
+    DONE    infra-ground/envs/staging/cluster_k8s
+    DONE    infra-ground/envs/staging/database
+    DONE    infra-ground/envs/staging/prometheus
+    DONE    infra-ground/envs/monitoring/prometheus_federated
+    DONE    infra-ground/envs/monitoring/grafana
+    DONE    app-a/staging/infra
+    SKIP    app-a/staging/build
+    DONE    app-a/staging/deploy
+    DONE    app-b/staging/infra
+    SKIP    app-b/staging/build
+    DONE    app-b/staging/deploy
+    DONE    app-admin/staging/infra
+    SKIP    app-admin/staging/build
+    DONE    app-admin/staging/deploy
+    DONE    users/monitoring/grafana
+    SKIP    users/staging/bastion
+    SKIP    users/staging/cluster_k8s
+    DONE    users/staging/database
+- title: smart-lay redo
+  cmd: exeiac smart-lay infra-ground/envs/staging/network --non-interactive | tail -n21
+  status: 0
+  stdout: |
+    Summary:
+    OK      infra-ground/envs/staging/network
+    SKIP    infra-ground/envs/staging/bastion
+    SKIP    infra-ground/envs/staging/cluster_k8s
+    SKIP    infra-ground/envs/staging/database
+    SKIP    infra-ground/envs/staging/prometheus
+    SKIP    infra-ground/envs/monitoring/prometheus_federated
+    SKIP    infra-ground/envs/monitoring/grafana
+    SKIP    app-a/staging/infra
+    SKIP    app-a/staging/build
+    SKIP    app-a/staging/deploy
+    SKIP    app-b/staging/infra
+    SKIP    app-b/staging/build
+    SKIP    app-b/staging/deploy
+    SKIP    app-admin/staging/infra
+    SKIP    app-admin/staging/build
+    SKIP    app-admin/staging/deploy
+    SKIP    users/monitoring/grafana
+    SKIP    users/staging/bastion
+    SKIP    users/staging/cluster_k8s
+    SKIP    users/staging/database
