@@ -55,10 +55,11 @@ to it. Flag with arguments need to be enclosed in double quotes
 	flag.Usage = func() {
 		fmt.Println("Usage: exeiac ACTION (BRICK_PATH|BRICK_NAME) [OPTION...]")
 		fmt.Println()
-		fmt.Println("ACTION:")
+		fmt.Println("MODULE ACTION:")
 		fmt.Println("  init: get some dependencies, typically download terraform modules or ansible deps")
 		fmt.Println("  plan: a dry run to check what we want to lay")
 		fmt.Println("  lay: lay the brick on the wall. Run the IaC with the right tools")
+		fmt.Println("  smart-lay: as lay but re-lay recursively all bricks whom inputs have changed due to lay")
 		fmt.Println("  remove: remove a brick from your wall to destroy it properly.")
 		fmt.Println("  validate_code: validate if the syntaxe is ok")
 		fmt.Println("  help: display this help or the specified help for the brick")

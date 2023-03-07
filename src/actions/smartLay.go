@@ -10,7 +10,7 @@ import (
 	extools "src/exeiac/tools"
 )
 
-func Lay(
+func SmartLay(
 	infra *exinfra.Infra,
 	conf *exargs.Configuration,
 	bricksToExecute exinfra.Bricks,
@@ -18,15 +18,27 @@ func Lay(
 	statusCode int,
 	err error,
 ) {
+	var bricksToPotentiallyExecute exinfra.Bricks
 	if len(bricksToExecute) == 0 {
 		err = exinfra.ErrBadArg{Reason: "Error: you should specify at least a brick for lay action"}
 
 		return exstatuscode.INIT_ERROR, err
 	}
 
+	bricksToPotentiallyExecute, err = infra.GetCorrespondingBricks(bricksToExecute, []string{"selected", "linked_next"})
+	if err != nil {
+		return exstatuscode.ENRICH_ERROR, err
+	}
+
 	if conf.Interactive {
-		fmt.Println("Here, the bricks list to lay :")
-		fmt.Print(bricksToExecute)
+		fmt.Println("Here, the bricks list that will potentially be layed :")
+		for _, b := range bricksToPotentiallyExecute {
+			if bricksToExecute.BricksContains(b) {
+				fmt.Printf("  > %s\n", b.Name)
+			} else {
+				fmt.Printf("  ? %s\n", b.Name)
+			}
+		}
 
 		// NOTE(half-shell): We might change this behavior to only ask for a "\n" input
 		// instead of a Y/N choice.
@@ -40,13 +52,15 @@ func Lay(
 	}
 
 	var bricksToOutput exinfra.Bricks
-	bricksToOutput, err = getBricksToOutput(bricksToExecute, infra, conf.Action)
+	bricksToOutput, err = getBricksToOutput(bricksToExecute, infra, "lay")
 	if err != nil {
 		return exstatuscode.ENRICH_ERROR, err
 	}
 
 	bricksToOutput = append(bricksToOutput, bricksToExecute...) // to know if there is a diff
+	bricksToOutput = exinfra.RemoveDuplicates(bricksToOutput)
 	sort.Sort(bricksToOutput)
+	sort.Sort(bricksToPotentiallyExecute)
 
 	err = enrichOutputs(bricksToOutput)
 	if err != nil {
@@ -54,9 +68,10 @@ func Lay(
 	}
 
 	skipFollowing := false
-	execSummary := make(ExecSummary, len(bricksToExecute))
+	execSummary := make(ExecSummary, len(bricksToPotentiallyExecute))
+	changes := make(ChangedOutputs)
 
-	for i, b := range bricksToExecute {
+	for i, b := range bricksToPotentiallyExecute {
 		extools.DisplaySeparator(b.Name)
 		report := ExecReport{Brick: b}
 
@@ -64,12 +79,31 @@ func Lay(
 		if skipFollowing {
 			report.Status = TAG_SKIP
 			execSummary[i] = report
-			fmt.Printf("lay skipped\n\n")
+			fmt.Printf("lay cancelled by a previous lay fail\n\n")
+			continue
+		}
+
+		// skip if it wasn't asked explicitly to lay the brick AND if inputs hasn't changed
+		if !bricksToExecute.BricksContains(b) {
+			if !changes.NeedToLayBrick(b) {
+				report.Status = TAG_SKIP
+				execSummary[i] = report
+				fmt.Printf("lay skipped (it's useless according to changes)\n\n")
+				continue
+			}
+		}
+
+		err = enrichOutputsBeforeExec(b, infra, "lay")
+		if err != nil {
+			statusCode = exstatuscode.Update(statusCode, exstatuscode.RUN_ERROR)
+			report.Error = fmt.Errorf("not able to get needed outputs before execute: %v", err)
+			report.Status = TAG_ERROR
+			skipFollowing = true
 			continue
 		}
 
 		// write env file if needed
-		envs, err := writeEnvFilesAndGetEnvs(b, conf.Action)
+		envs, err := writeEnvFilesAndGetEnvs(b, "lay")
 		if err != nil {
 			statusCode = exstatuscode.Update(statusCode, exstatuscode.RUN_ERROR)
 			report.Error = fmt.Errorf("not able to get env file and vars before execute: %v", err)
@@ -87,8 +121,25 @@ func Lay(
 			if bytes.Compare(stdout.Output, b.Output) == 0 {
 				report.Status = TAG_NO_CHANGE
 			} else {
-				b.Output = stdout.Output
-				report.Status = TAG_DONE
+				comparedJson, areEqual, err := CompareJsons(b.Output, stdout.Output)
+				if err != nil {
+					report.Error = fmt.Errorf("Not able to flatten %s %v", b.Name, err)
+					skipFollowing = true
+					report.Status = TAG_ERROR
+					statusCode = exstatuscode.Update(statusCode, exstatuscode.MODULE_ERROR)
+				} else if areEqual {
+					b.Output = stdout.Output // useless but there is a change byte to byte
+					report.Status = TAG_NO_CHANGE
+				} else {
+					b.Output = stdout.Output
+					report.Status = TAG_DONE
+					changes[b.Name] = comparedJson
+					for bn, cjson := range changes {
+						for k, v := range cjson {
+							fmt.Printf("  %s:%s: %s\n", bn, k, v)
+						}
+					}
+				}
 			}
 		} else { // there is at least one error
 			skipFollowing = true
