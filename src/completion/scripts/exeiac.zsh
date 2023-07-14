@@ -13,6 +13,7 @@ function _exeiac {
         init
         plan
         lay
+        smart-lay
         remove
         help
         validate_code
