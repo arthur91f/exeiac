@@ -11,6 +11,27 @@ function show_implemented_actions {
     exit 0
 }
 
+function describe_module_for_exeiac {
+    echo '{
+    "init": {
+        "behaviour": "standard"
+    },
+    "plan": {
+        "behaviour": "plan"
+    },
+    "lay": {
+        "behaviour": "lay"
+    },
+    "remove": {
+        "behaviour": "remove"
+    },
+    "output": {
+        "behaviour": "output"
+    }
+}'
+    exit 0
+}
+
 function ask_confirmation {
     echo -en "\033[1m$1\033[0m\033[3m (only yes accepted): \033[0m"
     read answer

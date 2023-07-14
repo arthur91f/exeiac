@@ -3,6 +3,45 @@ ACTION="$1"
 ALL_ARGS="$@"
 CURRENT_PATH="$(pwd)"
 
+function describe_module_for_exeiac {
+    echo '{
+    "init": {
+        "behaviour": "standard"
+    },
+    "plan": {
+        "behaviour": "plan"
+    },
+    "lay": {
+        "behaviour": "lay",
+        "status_code_fail": "1,3-255",
+        "events": {
+            "nothing_todo": {
+                "type": "status_code",
+                "status_code": "0"
+            },
+            "drift": {
+                "type": "status_code",
+                "status_code": "2"
+            },
+            "recreated_resources": {
+                "type": "file",
+                "path": "./.exeiac_events"
+            }
+        }
+    },
+    "remove": {
+        "behaviour": "remove"
+    },
+    "output": {
+        "behaviour": "output"
+    },
+    "clean": {
+        "behaviour": "clean"
+    }
+}'
+    exit 0
+}
+
 function show_implemented_actions {
     grep "^function " $0 |
         sed 's|^function \([^ ]*\) .*$|\1|g' |
