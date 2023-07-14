@@ -65,7 +65,7 @@ func Help(
 				// NOTE(half-shell): if action if not implemented, we don't take it as an error
 				// and move on with the execution
 				fmt.Printf("help: no specific help for this module: %s\n", b.Module.Name)
-				originalActions := extools.StrSliceXor([]string{"show_implemented_actions", "init", "plan", "lay", "remove", "validate_code", "clean", "output"}, b.Module.Actions)
+				originalActions := extools.StrSliceXor([]string{"describe_module_for_exeiac", "init", "plan", "lay", "remove", "validate_code", "clean", "output"}, b.Module.ListActions())
 				if len(originalActions) != 0 {
 					fmt.Printf("Nethertheless some other actions are implemented for this module:%s\n",
 						extools.StringListOfString(originalActions))

@@ -1,13 +1,15 @@
 package infra
 
 import (
-	"bytes"
+	// "bytes"
+	"encoding/json"
 	"fmt"
 	"io"
+	"log"
 	"os"
 	"os/exec"
 	extools "src/exeiac/tools"
-	"strings"
+	// "strings"
 )
 
 const ACTION_HELP = "help"
@@ -16,29 +18,50 @@ const ACTION_LAY = "lay"
 const ACTION_OUTPUT = "output"
 const ACTION_PLAN = "plan"
 const ACTION_REMOVE = "remove"
-const ACTION_SHOW_AVAILABLE_ACTIONS = "show_implemented_actions"
+const ACTION_DESCRIBE_MODULE = "describe_module_for_exeiac"
+
+type Event struct {
+	Type       string                  `json:"type"`
+	StatusCode extools.NumbersSequence `json:"status_code"`
+	Path       string                  `json:"path" `
+}
+
+type Action struct {
+	Behaviour      string                  `json:"behaviour"`
+	StatusCodeFail extools.NumbersSequence `json:"status_code_fail"`
+	Events         map[string]Event        `json:"events"`
+}
 
 type Module struct {
 	Name    string
 	Path    string
-	Actions []string
+	Actions map[string]Action
 }
 
 func (m Module) String() string {
-	var sb strings.Builder
 
-	sb.WriteString(fmt.Sprintf("-\tName: %s\n", m.Name))
-	sb.WriteString(fmt.Sprintf("\tPath: %s\n", m.Path))
-	sb.WriteString(fmt.Sprintf("\tActions: %v\n", m.Actions))
+	j, err := json.MarshalIndent(m, "", "  ")
+	if err != nil {
+		log.Fatal(err)
+	}
 
-	return sb.String()
+	return string(j)
 }
 
-// Executes the ACTION_SHOW_AVAILABLE_ACTIONS command on a module to get
+func (m Module) ListActions() (actions []string) {
+	for name, _ := range m.Actions {
+		actions = append(actions, name)
+	}
+	return
+}
+
+// Executes the describe_module_for_exeiac command on a module to get
 // the available actions from the module. Then parses and saves them in the
 // *Actions* slice.
-// If the *Actions* slice is not empty, bypass the call the the command.
+// If the *Actions* slice is not empty, bypass the call of the command.
 // NOTE(half-shell): Do we have a use to force the call to be triggered again here?
+//
+//	ANSWER(arthur91f): I don't think so, you shouldn't change your module during a run
 func (module *Module) LoadAvailableActions() (err error) {
 	// Actions are already loaded; no need to reprocess it
 	if len(module.Actions) > 0 {
@@ -53,20 +76,54 @@ func (module *Module) LoadAvailableActions() (err error) {
 	stdout := StoreStdout{}
 	cmd := exec.Cmd{
 		Path:   path,
-		Args:   []string{path, ACTION_SHOW_AVAILABLE_ACTIONS},
+		Args:   []string{path, ACTION_DESCRIBE_MODULE},
 		Stdout: &stdout,
 		Stderr: os.Stderr,
 	}
 
 	err = cmd.Run()
 	if err != nil {
-		return fmt.Errorf("unable to load available actions for module %s: %v", module.Name, err)
+		return fmt.Errorf("unable to load module descriptions for module %s: %v", module.Name, err)
 	}
 
-	for _, action := range bytes.Split(stdout.Output, []byte("\n")) {
-		if len(action) > 0 {
-			module.Actions = append(module.Actions, string(action))
+	actions := map[string]Action{}
+	err = json.Unmarshal(stdout.Output, &actions)
+	if err != nil {
+		fmt.Printf("err: %v\n", err)
+		return fmt.Errorf("unable to load module descriptions for module %s: %v", module.Name, err)
+	}
+	for actionName, action := range actions {
+		if action.Behaviour == "" {
+			action.Behaviour = "standard"
 		}
+		if action.StatusCodeFail == "" {
+			action.StatusCodeFail = "1-255"
+		} else {
+			if !action.StatusCodeFail.IsValid() {
+				return fmt.Errorf("Error invalid sequence format: module %s %s in $.%s.status_code_fail: \"%s\"",
+					module.Name, ACTION_DESCRIBE_MODULE, actionName, action.StatusCodeFail)
+			}
+		}
+		if action.Events == nil {
+			action.Events = map[string]Event{}
+		} else {
+			for k, v := range action.Events {
+				if v.Type == "" {
+					return fmt.Errorf("module error: event without type: module: %s, action: %s, event: %s",
+						module.Name, actionName, k)
+				}
+				if v.StatusCode == "" && v.Path == "" {
+					return fmt.Errorf("module error: event without path nor status_code: module: %s, action: %s, event: %s",
+						module.Name, actionName, k)
+				} else if v.StatusCode != "" {
+					if !v.StatusCode.IsValid() {
+						return fmt.Errorf("Error invalid sequence format: module %s %s in $.%s.events.%s: \"%s\"",
+							module.Name, ACTION_DESCRIBE_MODULE, actionName, k, v.StatusCode)
+					}
+				}
+			}
+		}
+		module.Actions[actionName] = action
 	}
 
 	return
@@ -113,7 +170,7 @@ func (m *Module) Exec(
 	statusCode int,
 	err error,
 ) {
-	if !extools.ContainsString(m.Actions, action) {
+	if !extools.ContainsString(m.ListActions(), action) {
 		err = ActionNotImplementedError{Action: action, Module: m}
 
 		return
