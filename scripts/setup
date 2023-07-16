@@ -1,0 +1,6 @@
+#!/bin/bash
+
+set -e
+
+asdf plugin add golang || true
+asdf install
