@@ -9,6 +9,7 @@ import (
 	"os"
 	"os/exec"
 	extools "src/exeiac/tools"
+	"strings"
 	// "strings"
 )
 
@@ -112,6 +113,10 @@ func (module *Module) LoadAvailableActions() (err error) {
 					return fmt.Errorf("module error: event without type: module: %s, action: %s, event: %s",
 						module.Name, actionName, k)
 				}
+				if v.Type != "status_code" && v.Type != "file" && v.Type != "json" && v.Type != "yaml" {
+					return fmt.Errorf("module error: event with bad type (should be 'status_code' or 'file' or json or yaml): module: %s, action: %s, event: %s",
+						module.Name, actionName, k)
+				}
 				if v.StatusCode == "" && v.Path == "" {
 					return fmt.Errorf("module error: event without path nor status_code: module: %s, action: %s, event: %s",
 						module.Name, actionName, k)
@@ -123,6 +128,7 @@ func (module *Module) LoadAvailableActions() (err error) {
 				}
 			}
 		}
+
 		module.Actions[actionName] = action
 	}
 
@@ -153,6 +159,73 @@ func (m *Module) exec(
 	return
 }
 
+// REFACTO: should be a brick method or take the brick path as argument
+// REFACTO: should take default result for plan
+func (m *Module) getExecutionEvents(
+	brickPath string,
+	action string,
+	statusCode int,
+) (
+	events map[string]interface{},
+	execErr error,
+) {
+	var boolean bool
+	var err error
+
+	boolean, err = m.Actions[action].StatusCodeFail.Contains(statusCode)
+	if err != nil {
+		execErr = fmt.Errorf("%s %s bad status_code_fail: %v",
+			m.Name, action, err)
+	}
+	if boolean {
+		execErr = fmt.Errorf("%s %s execution has failed with status code: %d",
+			m.Name, action, statusCode)
+	}
+
+	for eventName, event := range m.Actions[action].Events {
+		if event.Type == "status_code" {
+			boolean, err = event.StatusCode.Contains(statusCode)
+			if err != nil {
+				execErr = fmt.Errorf("%s %s event %s bad status_code: %v",
+					m.Name, action, eventName, err)
+			}
+			if boolean {
+				events[eventName] = true
+			} else {
+				events[eventName] = false
+			}
+		} else if event.Type == "file" || event.Type == "json" || event.Type == "yaml" {
+			var path string
+			if strings.HasPrefix(event.Path, "/") {
+				path = event.Path
+			} else {
+				path = brickPath + "/" + event.Path
+			}
+			events[eventName], err = os.ReadFile(path)
+			if err != nil {
+				if event.Path == "" { // could be catched before but may be it's simplier to do it it here
+					err = fmt.Errorf("%s event %s of type %s doesn't specify a path",
+						m.Name, eventName, event.Type)
+				}
+				if execErr != nil {
+					execErr = fmt.Errorf("%v\n%v", execErr, err)
+				} else {
+					execErr = err
+				}
+			}
+		} else {
+			err := fmt.Errorf("module error: event with bad type (should be 'status_code' or 'file'): module: %s, action: %s, event: %s",
+				m.Name, action, eventName)
+			if execErr != nil {
+				execErr = fmt.Errorf("%v\n%v", execErr, err)
+			} else {
+				execErr = err
+			}
+		}
+	}
+	return
+}
+
 // Executes a module's action over a brick, the provided CLI arguments and environment
 // variables. It takes between 0 and 2 writers; they are used to process the module's
 // `stdout` and `stderr`. They'll *usually* match one of infra's writers.
@@ -167,6 +240,7 @@ func (m *Module) Exec(
 	confEnv []string,
 	writers ...io.Writer,
 ) (
+	events map[string]interface{},
 	statusCode int,
 	err error,
 ) {
@@ -206,6 +280,8 @@ func (m *Module) Exec(
 			err = nil
 		}
 	}
+
+	events, err = m.getExecutionEvents(b.Path, action, statusCode)
 
 	return
 }
