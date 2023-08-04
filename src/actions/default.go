@@ -51,7 +51,7 @@ func PassthroughAction(
 			continue
 		}
 
-		exitStatus, err := b.Module.Exec(b, conf.Action, conf.OtherOptions, envs)
+		_, exitStatus, err := b.Module.Exec(b, conf.Action, conf.OtherOptions, envs)
 
 		if err != nil {
 			if actionNotImplementedError, isActionNotImplemented := err.(exinfra.ActionNotImplementedError); isActionNotImplemented {

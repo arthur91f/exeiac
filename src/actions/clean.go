@@ -61,7 +61,7 @@ func Clean(
 
 		// module clean
 		if !skipModuleClean {
-			exitStatus, err := b.Module.Exec(b, "clean", conf.OtherOptions, envs)
+			_, exitStatus, err := b.Module.Exec(b, "clean", conf.OtherOptions, envs)
 			if err != nil {
 				if actionNotImplementedError, isActionNotImplemented := err.(exinfra.ActionNotImplementedError); isActionNotImplemented {
 					// NOTE(half-shell): if action if not implemented, we don't take it as an error

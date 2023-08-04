@@ -78,9 +78,9 @@ func Lay(
 			continue
 		}
 
-		layExitStatus, layErr := b.Module.Exec(b, "lay", conf.OtherOptions, envs)
+		_, layExitStatus, layErr := b.Module.Exec(b, "lay", conf.OtherOptions, envs)
 		stdout := exinfra.StoreStdout{}
-		outputExitStatus, outputErr := b.Module.Exec(b, "output", []string{}, envs, &stdout)
+		_, outputExitStatus, outputErr := b.Module.Exec(b, "output", []string{}, envs, &stdout)
 
 		// set skipFollowing, report.Status, report.Error and update b.Ouput
 		if layErr == nil && layExitStatus == 0 && outputErr == nil && outputExitStatus == 0 { // everything runs well

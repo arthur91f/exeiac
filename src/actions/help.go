@@ -58,7 +58,7 @@ func Help(
 	for i, b := range bricksToExecute {
 		extools.DisplaySeparator(b.Name + "(" + b.Module.Name + ")")
 		report := ExecReport{Brick: b}
-		exitStatus, err := b.Module.Exec(b, conf.Action, conf.OtherOptions, []string{})
+		_, exitStatus, err := b.Module.Exec(b, conf.Action, conf.OtherOptions, []string{})
 
 		if err != nil {
 			if _, isActionNotImplemented := err.(exinfra.ActionNotImplementedError); isActionNotImplemented {

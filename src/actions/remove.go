@@ -78,7 +78,7 @@ func Remove(
 		}
 
 		// lay and manage error
-		exitStatus, err := b.Module.Exec(b, "remove", conf.OtherOptions, envs)
+		_, exitStatus, err := b.Module.Exec(b, "remove", conf.OtherOptions, envs)
 		if err != nil {
 			skipFollowing = true
 			report.Error = err

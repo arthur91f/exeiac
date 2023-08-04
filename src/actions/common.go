@@ -164,7 +164,7 @@ func enrichOutputs(bricksToOutput exinfra.Bricks) error {
 		}
 
 		stdout := exinfra.StoreStdout{}
-		statusCode, err := b.Module.Exec(b, "output", []string{}, envs, &stdout)
+		_, statusCode, err := b.Module.Exec(b, "output", []string{}, envs, &stdout)
 		if err != nil {
 			return err
 		}
