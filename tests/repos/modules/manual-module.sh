@@ -6,6 +6,29 @@ CURRENT_PATH="$(pwd)"
 FILES_LIST="users.yml
 groups.yml"
 
+function describe_module_for_exeiac {
+    echo '{
+    "init": {
+        "behaviour": "standard"
+    },
+    "plan": {
+        "behaviour": "plan"
+    },
+    "lay": {
+        "behaviour": "lay"
+    },
+    "remove": {
+        "behaviour": "remove"
+    },
+    "output": {
+        "behaviour": "output"
+    },
+    "validate_code": {
+        "behaviour": "standard"
+    }
+}'
+    exit 0
+}
 
 function show_implemented_actions {
     grep "^function " $0 |

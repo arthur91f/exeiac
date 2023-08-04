@@ -36,8 +36,9 @@ func CreateInfra(configuration exargs.Configuration) (Infra, error) {
 	// create Modules
 	for name, path := range configuration.Modules {
 		i.Modules = append(i.Modules, Module{
-			Name: name,
-			Path: path,
+			Name:    name,
+			Path:    path,
+			Actions: map[string]Action{},
 		})
 	}
 
@@ -157,7 +158,7 @@ func (infra Infra) String() string {
 	var bricksSb strings.Builder
 
 	for _, m := range infra.Modules {
-		modulesSb.WriteString(fmt.Sprintf("%s", m))
+		modulesSb.WriteString(fmt.Sprintf("%s,\n", m))
 	}
 
 	bricksSb.WriteString(fmt.Sprintf("%v", infra.Bricks))
@@ -175,8 +176,9 @@ func (infra *Infra) GetModule(name string, b *Brick) (*Module, error) {
 	}
 	if strings.HasPrefix(name, "./") {
 		infra.Modules = append(infra.Modules, Module{
-			Name: b.Name,
-			Path: b.Path + "/" + strings.TrimPrefix(name, "./"),
+			Name:    b.Name,
+			Path:    b.Path + "/" + strings.TrimPrefix(name, "./"),
+			Actions: map[string]Action{},
 		})
 		return &(infra.Modules[len(infra.Modules)-1:][0]), nil
 	}

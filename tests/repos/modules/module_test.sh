@@ -44,6 +44,27 @@ function internal_display_diff {
     esac
 }
 
+function describe_module_for_exeiac {
+    echo '{
+    "init": {
+        "behaviour": "standard"
+    },
+    "plan": {
+        "behaviour": "plan"
+    },
+    "lay": {
+        "behaviour": "lay"
+    },
+    "remove": {
+        "behaviour": "remove"
+    },
+    "output": {
+        "behaviour": "output"
+    }
+}'
+    exit 0
+}
+
 function show_implemented_actions {
     grep "^function " $0 |
         sed 's|^function \([^ ]*\) .*$|\1|g' |
