@@ -61,7 +61,7 @@ func Clean(
 
 		// module clean
 		if !skipModuleClean {
-			_, exitStatus, err := b.Module.Exec(b, "clean", conf.OtherOptions, envs)
+			events, err := b.Module.Exec(b, "clean", conf.OtherOptions, envs)
 			if err != nil {
 				if actionNotImplementedError, isActionNotImplemented := err.(exinfra.ActionNotImplementedError); isActionNotImplemented {
 					// NOTE(half-shell): if action if not implemented, we don't take it as an error
@@ -73,10 +73,9 @@ func Clean(
 					report.Status = TAG_ERROR
 					statusCode = exstatuscode.Update(statusCode, exstatuscode.MODULE_ERROR)
 				}
-			} else if exitStatus != 0 {
-				report.Error = fmt.Errorf("clean return: %d", exitStatus)
-				report.Status = TAG_ERROR
-				statusCode = exstatuscode.Update(statusCode, exstatuscode.MODULE_ERROR)
+			} else if len(events) > 0 {
+				report.Error = fmt.Errorf("WARNING: events aren't yet consumed by exeiac for clean action")
+				report.Status = TAG_DONE
 			}
 		}
 
