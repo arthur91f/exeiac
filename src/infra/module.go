@@ -223,6 +223,7 @@ func (m *Module) getExecutionEvents(
 			}
 		}
 	}
+
 	return
 }
 
@@ -241,9 +242,10 @@ func (m *Module) Exec(
 	writers ...io.Writer,
 ) (
 	events map[string]interface{},
-	statusCode int,
 	err error,
 ) {
+	var statusCode int
+
 	if !extools.ContainsString(m.ListActions(), action) {
 		err = ActionNotImplementedError{Action: action, Module: m}
 
