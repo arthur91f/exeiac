@@ -32,6 +32,18 @@ it will output again the current brick to compare the output before and after
 and say if it has changed. But happily it's exeIaC that do all of that, you
 just have to code the module lay and output and specify the inputs needed.
 
+So you haven't to implement:
+- show
+- get-depends
+- smart-lay
+
+## Think to specify your module in your exeIaC and bricks conf
+
+Find a name to your module. It will be used in : 
+- brick.yml files: at field .module
+- exeIaC conf: at field modules[].name
+  and specify the full path of your module
+
 
 ## Module's inputs conventions
 
@@ -41,7 +53,8 @@ just have to code the module lay and output and specify the inputs needed.
     - --non-interactive (is passed to module by exeiac interpretating -i, 
         -interactive, -I or --non-interactive options)
     - other option of your invention can be passed with -o or --other-options
-- **exeIaC env variables**: exeIaC define some env variables that can be used by modules
+- **exeIaC env variables**: exeIaC define some env variables that can be used 
+  by modules
     - EXEIAC_BRICK_PATH
     - EXEIAC_BRICK_NAME
     - EXEIAC_ROOM_PATH
