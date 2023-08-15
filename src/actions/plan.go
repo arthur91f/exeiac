@@ -48,24 +48,38 @@ func Plan(
 			continue
 		}
 
-		// lay and manage error
-		exitStatus, err := b.Module.Exec(b, "plan", conf.OtherOptions, envs)
+		// plan and manage error
+		events, err := b.Module.Exec(b, "plan", conf.OtherOptions, envs)
 		if err != nil {
 			report.Error = err
 			report.Status = TAG_ERROR
 			statusCode = exstatuscode.Update(statusCode, exstatuscode.MODULE_ERROR)
-		} else if exitStatus == 0 {
-			report.Status = TAG_NO_CHANGE
-		} else if exitStatus == 2 {
-			report.Status = TAG_DRIFT
-			statusCode = exstatuscode.Update(statusCode, exstatuscode.MODULE_DRIFT)
-		} else if exitStatus == 3 {
+		} else if len(events) == 0 {
 			report.Status = TAG_MAY_DRIFT
 			statusCode = exstatuscode.Update(statusCode, exstatuscode.MODULE_DRIFT_OR_NOT)
-		} else {
-			report.Error = fmt.Errorf("plan return: %d", exitStatus)
-			report.Status = TAG_ERROR
-			statusCode = exstatuscode.Update(statusCode, exstatuscode.MODULE_ERROR)
+		} else if exeiac_plan, isPresent := events["exeiac_plan"]; isPresent {
+			if exeiac_plan == "no_drift" {
+				report.Status = TAG_NO_CHANGE
+			} else if exeiac_plan == "drift" {
+				report.Status = TAG_DRIFT
+				statusCode = exstatuscode.Update(statusCode, exstatuscode.MODULE_DRIFT)
+			} else if exeiac_plan == "unknown" {
+				report.Status = TAG_MAY_DRIFT
+				statusCode = exstatuscode.Update(statusCode, exstatuscode.MODULE_DRIFT_OR_NOT)
+			} else {
+				report.Error = fmt.Errorf("%s events exeiac_plan has unrecognize value: %s",
+					b.Name, exeiac_plan)
+				report.Status = TAG_ERROR
+				statusCode = exstatuscode.Update(statusCode, exstatuscode.MODULE_ERROR)
+			}
+		} else if exeiac_plan_no_drift, isPresent := events["exeiac_plan_no_drift"]; isPresent && exeiac_plan_no_drift == true {
+			report.Status = TAG_NO_CHANGE
+		} else if exeiac_plan_drift, isPresent := events["exeiac_plan_drift"]; isPresent && exeiac_plan_drift == true {
+			report.Status = TAG_DRIFT
+			statusCode = exstatuscode.Update(statusCode, exstatuscode.MODULE_DRIFT)
+		} else if exeiac_plan_unknown, isPresent := events["exeiac_plan_unknown"]; isPresent && exeiac_plan_unknown == true {
+			report.Status = TAG_MAY_DRIFT
+			statusCode = exstatuscode.Update(statusCode, exstatuscode.MODULE_DRIFT_OR_NOT)
 		}
 
 		execSummary[i] = report

@@ -7,9 +7,9 @@
   # we should have a brick in the middle that change reapply but is OK (no change on the output)
   stdout: |
     Summary:
-    DONE    infra-ground/envs/staging/network
-    DONE    infra-ground/envs/staging/bastion
-    DONE    infra-ground/envs/staging/cluster_k8s
+    DONE    infra-ground/envs/staging/network : WARNING: events aren't yet consumed by exeiac smart-lay action
+    DONE    infra-ground/envs/staging/bastion : WARNING: events aren't yet consumed by exeiac smart-lay action
+    DONE    infra-ground/envs/staging/cluster_k8s : WARNING: events aren't yet consumed by exeiac smart-lay action
     DONE    infra-ground/envs/staging/database
     DONE    infra-ground/envs/staging/prometheus
     DONE    infra-ground/envs/monitoring/prometheus_federated
@@ -32,7 +32,7 @@
   status: 0
   stdout: |
     Summary:
-    OK      infra-ground/envs/staging/network
+    OK      infra-ground/envs/staging/network : WARNING: events aren't yet consumed by exeiac smart-lay action
     SKIP    infra-ground/envs/staging/bastion
     SKIP    infra-ground/envs/staging/cluster_k8s
     SKIP    infra-ground/envs/staging/database
@@ -52,3 +52,26 @@
     SKIP    users/staging/bastion
     SKIP    users/staging/cluster_k8s
     SKIP    users/staging/database
+# - title: clean
+#   cmd: exeiac clean infra-ground/envs/staging/network --non-interactive | tail -n19
+#   status: 0
+#   stdout: |
+#     Summary:
+#     DONE    infra-ground/init/create_accounts
+#     DONE    infra-ground/init/cicd_secrets
+#     DONE    infra-ground/init/container_registry
+#     DONE    infra-ground/envs/production/network
+#     DONE    infra-ground/envs/production/bastion
+#     DONE    infra-ground/envs/production/cluster_k8s
+#     DONE    infra-ground/envs/production/database
+#     DONE    infra-ground/envs/production/prometheus
+#     DONE    infra-ground/envs/staging/network
+#     DONE    infra-ground/envs/staging/bastion
+#     DONE    infra-ground/envs/staging/cluster_k8s
+#     DONE    infra-ground/envs/staging/database
+#     DONE    infra-ground/envs/staging/prometheus
+#     DONE    infra-ground/envs/monitoring/network
+#     DONE    infra-ground/envs/monitoring/bastion
+#     DONE    infra-ground/envs/monitoring/cluster_k8s
+#     DONE    infra-ground/envs/monitoring/prometheus_federated
+#     DONE    infra-ground/envs/monitoring/grafana

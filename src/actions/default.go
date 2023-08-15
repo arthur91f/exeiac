@@ -51,7 +51,7 @@ func PassthroughAction(
 			continue
 		}
 
-		exitStatus, err := b.Module.Exec(b, conf.Action, conf.OtherOptions, envs)
+		events, err := b.Module.Exec(b, conf.Action, conf.OtherOptions, envs)
 
 		if err != nil {
 			if actionNotImplementedError, isActionNotImplemented := err.(exinfra.ActionNotImplementedError); isActionNotImplemented {
@@ -65,12 +65,11 @@ func PassthroughAction(
 				report.Status = "ERR"
 				report.Error = err
 			}
-		} else if exitStatus == 0 {
+		} else if len(events) > 0 {
+			report.Error = fmt.Errorf("WARNING: events aren't yet consumed by exeiac for clean action")
 			report.Status = "DONE"
 		} else {
-			statusCode = exstatuscode.Update(statusCode, exstatuscode.MODULE_ERROR)
-			report.Status = "ERR"
-			report.Error = fmt.Errorf("module exit with status code %d", exitStatus)
+			report.Status = "DONE"
 		}
 
 		execSummary[i] = report

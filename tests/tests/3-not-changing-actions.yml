@@ -44,7 +44,7 @@
   status: 0
   stdout: |
     Summary:
-    OK      infra-ground/envs/production/network
+    OK      infra-ground/envs/production/network : WARNING: events aren't consumed by exeiac for lay action, use smart-lay instead
 - title: smart-lay no drift
   cmd: exeiac smart-lay infra-ground/envs/production/prometheus | tail -n5
   status: 0

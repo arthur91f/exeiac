@@ -58,7 +58,7 @@ func Help(
 	for i, b := range bricksToExecute {
 		extools.DisplaySeparator(b.Name + "(" + b.Module.Name + ")")
 		report := ExecReport{Brick: b}
-		exitStatus, err := b.Module.Exec(b, conf.Action, conf.OtherOptions, []string{})
+		events, err := b.Module.Exec(b, conf.Action, conf.OtherOptions, []string{})
 
 		if err != nil {
 			if _, isActionNotImplemented := err.(exinfra.ActionNotImplementedError); isActionNotImplemented {
@@ -77,13 +77,13 @@ func Help(
 				report.Status = "ERR"
 				report.Error = err
 			}
-		} else if exitStatus == 0 {
-			report.Status = "DONE"
+		} else if len(events) > 0 {
+			report.Error = fmt.Errorf("WARNING: events aren't yet consumed by exeiac for clean action")
+			report.Status = TAG_DONE
 		} else {
-			statusCode = exstatuscode.Update(statusCode, exstatuscode.MODULE_ERROR)
-			report.Status = "ERR"
-			report.Error = fmt.Errorf("module exit with status code %d", exitStatus)
+			report.Status = TAG_DONE
 		}
+
 		execSummary[i] = report
 		fmt.Println("")
 	}

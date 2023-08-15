@@ -1,0 +1,11 @@
+[0m[1mrandom_uuid.network: Refreshing state... [id=c91830fb-e9aa-8e27-d28f-4b01ef00f838][0m
+[0m[1mrandom_integer.nat_ip[0]: Refreshing state... [id=165][0m
+[0m[1mrandom_integer.nat_ip[2]: Refreshing state... [id=42][0m
+[0m[1mrandom_integer.nat_ip[1]: Refreshing state... [id=136][0m
+[0m[1mlocal_file.dns: Refreshing state... [id=2618b8cecaa0a94b56932a68b37353e472d9a8b0][0m
+[0m[1mlocal_file.network: Refreshing state... [id=14c2526fca95d2463b8e9a99191f1eed694912c8][0m
+
+[0m[1m[32mNo changes.[0m[1m Your infrastructure matches the configuration.[0m
+
+[0mTerraform has compared your real infrastructure against your configuration
+and found no differences, so no changes are needed.

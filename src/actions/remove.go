@@ -77,20 +77,19 @@ func Remove(
 			continue
 		}
 
-		// lay and manage error
-		exitStatus, err := b.Module.Exec(b, "remove", conf.OtherOptions, envs)
+		// remove and manage error
+		events, err := b.Module.Exec(b, "remove", conf.OtherOptions, envs)
 		if err != nil {
 			skipFollowing = true
 			report.Error = err
 			report.Status = TAG_ERROR
 			statusCode = exstatuscode.Update(statusCode, exstatuscode.MODULE_ERROR)
-		} else if exitStatus != 0 {
-			skipFollowing = true
-			report.Error = fmt.Errorf("remove return: %d", exitStatus)
-			report.Status = TAG_ERROR
-			statusCode = exstatuscode.Update(statusCode, exstatuscode.MODULE_ERROR)
+		} else if len(events) > 0 {
+			// display list to plan
+			report.Error = fmt.Errorf("WARNING: events aren't yet consumed by exeiac for remove action")
+			report.Status = TAG_DONE
 		} else {
-			report.Status = TAG_OK
+			report.Status = TAG_DONE
 		}
 
 		execSummary[i] = report

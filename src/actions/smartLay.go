@@ -112,12 +112,12 @@ func SmartLay(
 			continue
 		}
 
-		layExitStatus, layErr := b.Module.Exec(b, "lay", conf.OtherOptions, envs)
+		layEvents, layErr := b.Module.Exec(b, "lay", conf.OtherOptions, envs)
 		stdout := exinfra.StoreStdout{}
-		outputExitStatus, outputErr := b.Module.Exec(b, "output", []string{}, envs, &stdout)
+		_, outputErr := b.Module.Exec(b, "output", []string{}, envs, &stdout)
 
 		// set skipFollowing, report.Status, report.Error and update b.Ouput
-		if layErr == nil && layExitStatus == 0 && outputErr == nil && outputExitStatus == 0 { // everything runs well
+		if layErr == nil && outputErr == nil { // everything runs well
 			if bytes.Compare(stdout.Output, b.Output) == 0 {
 				report.Status = TAG_NO_CHANGE
 			} else {
@@ -141,23 +141,19 @@ func SmartLay(
 					}
 				}
 			}
+			if len(layEvents) > 0 {
+				// display list to plan
+				report.Error = fmt.Errorf("WARNING: events aren't yet consumed by exeiac smart-lay action")
+			}
 		} else { // there is at least one error
 			skipFollowing = true
 			report.Status = TAG_ERROR
 			statusCode = exstatuscode.Update(statusCode, exstatuscode.MODULE_ERROR)
 
-			// simplify the next condition tree
-			if layExitStatus != 0 && layErr == nil {
-				layErr = fmt.Errorf("exit with status %d", layExitStatus)
-			}
-			if outputExitStatus != 0 && outputErr == nil {
-				outputErr = fmt.Errorf("exit with status %d", outputExitStatus)
-			}
-
 			if layErr != nil && outputErr != nil { // 2 errors
 				report.Error = fmt.Errorf("2 errors lay and output error: "+
 					"{\"lay\": \"%v\", \"output\": \"%v\"}", layErr, outputErr)
-			} else if layErr != nil && outputExitStatus == 0 { // 1 error: check if output changed
+			} else if layErr != nil && outputErr == nil { // 1 error: check if output changed
 				if bytes.Compare(stdout.Output, b.Output) == 0 {
 					report.Error = fmt.Errorf(
 						"lay has failed, output doesn't seem to has changed: %v",
@@ -168,7 +164,7 @@ func SmartLay(
 						layErr)
 					b.Output = stdout.Output
 				}
-			} else if layExitStatus == 0 && outputErr != nil { // 1 error: can't get output
+			} else if layErr == nil && outputErr != nil { // 1 error: can't get output
 				report.Error = fmt.Errorf(
 					"lay seems to success but the following output failed: %v",
 					outputErr)

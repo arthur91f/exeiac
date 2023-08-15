@@ -164,13 +164,9 @@ func enrichOutputs(bricksToOutput exinfra.Bricks) error {
 		}
 
 		stdout := exinfra.StoreStdout{}
-		statusCode, err := b.Module.Exec(b, "output", []string{}, envs, &stdout)
+		_, err = b.Module.Exec(b, "output", []string{}, envs, &stdout)
 		if err != nil {
 			return err
-		}
-
-		if statusCode != 0 {
-			return fmt.Errorf("unable to get output of %s", b.Name)
 		}
 
 		// 2.3. set brick.Outputs

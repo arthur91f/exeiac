@@ -50,7 +50,18 @@ function describe_module_for_exeiac {
         "behaviour": "standard"
     },
     "plan": {
-        "behaviour": "plan"
+        "behaviour": "plan",
+        "status_code_fail": "1,3-255",
+        "events": {
+            "exeiac_plan_no_drift": {
+                "type": "status_code",
+                "status_code": "0"
+            },
+            "exeiac_plan_drift": {
+                "type": "status_code",
+                "status_code": "2"
+            }
+        }
     },
     "lay": {
         "behaviour": "lay"

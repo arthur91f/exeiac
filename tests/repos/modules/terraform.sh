@@ -2,6 +2,7 @@
 ACTION="$1"
 ALL_ARGS="$@"
 CURRENT_PATH="$(pwd)"
+PLAN_PATH="$CURRENT_PATH/.exeiac_module.tfplan"
 
 function describe_module_for_exeiac {
     echo '{
@@ -9,7 +10,18 @@ function describe_module_for_exeiac {
         "behaviour": "standard"
     },
     "plan": {
-        "behaviour": "plan"
+        "behaviour": "plan",
+        "status_code_fail": "1,3-255",
+        "events": {
+            "exeiac_plan_no_drift": {
+                "type": "status_code",
+                "status_code": "0"
+            },
+            "exeiac_plan_drift": {
+                "type": "status_code",
+                "status_code": "2"
+            }
+        }
     },
     "lay": {
         "behaviour": "lay",
@@ -39,13 +51,6 @@ function describe_module_for_exeiac {
         "behaviour": "clean"
     }
 }'
-    exit 0
-}
-
-function show_implemented_actions {
-    grep "^function " $0 |
-        sed 's|^function \([^ ]*\) .*$|\1|g' |
-        grep -v "internal"
     exit 0
 }
 
@@ -104,14 +109,35 @@ function plan {
     return $?
 }
 
+function internal_create_event {
+    cat "$PLAN_PATH.txt" |
+        grep -E '^(\-/\+|\+|\-) resource "[^"]*" "[^"]*" {' | 
+        sed 's|^\(.*\) resource "\([^"]*\)" "\([^"]*\)" {|\1 \2.\3|g' > "$CURRENT_PATH/.exeiac_events"
+}
+
 function lay {
+    terraform plan -out="$PLAN_PATH" > "$PLAN_PATH.txt"
+    plan_status_code="$?"
+
     if grep -q ".*--non-interactive" <<<"$ALL_ARGS" ; then
-        terraform apply -auto-approve
-        return $?
+        terraform apply -auto-approve "$PLAN_PATH"
+        status_code="$?"
     else
-        terraform apply
-        return $?
+        terraform apply "$PLAN_PATH"
+        status_code="$?"
     fi
+    if [ "$status_code" != 0 ]; then
+        echo "terraform apply failed with code $status_code" >&2
+        return 11
+    fi
+
+    internal_create_event
+    if [ "$?" != 0 ]; then
+        echo "terraform module failed to create events: $status_code" >&2
+        return 12
+    fi
+
+    return "$plan_status_code"
 }
 
 function remove {
@@ -153,10 +179,15 @@ function clean {
         rm ./terraform.tfstate || 
             internal_quit "clean:error when 'rm terraform.tfstate'" 23
     fi
+    if [ -f "./.exeiac_events" ]; then
+        rm "./.exeiac_events"
+    fi
     return 0
 }
 
-if grep -q "^$ACTION$" <(show_implemented_actions) ; then
+if [ "$ACTION" == "describe_module_for_exeiac" ]; then
+    describe_module_for_exeiac
+elif grep -q "^$ACTION$" <(describe_module_for_exeiac | jq -r 'keys | .[]') ; then
     $ACTION
     exitcode="$?"
 else
