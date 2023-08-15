@@ -12,7 +12,22 @@ function describe_module_for_exeiac {
         "behaviour": "standard"
     },
     "plan": {
-        "behaviour": "plan"
+        "behaviour": "plan",
+        "status_code_fail": "1,4-255",
+        "events": {
+            "exeiac_plan_no_drift": {
+                "type": "status_code",
+                "status_code": "0"
+            },
+            "exeiac_plan_drift": {
+                "type": "status_code",
+                "status_code": "2"
+            },
+            "exeiac_plan_unknown": {
+                "type": "status_code",
+                "status_code": "3"
+            }
+        }
     },
     "lay": {
         "behaviour": "lay"

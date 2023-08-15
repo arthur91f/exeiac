@@ -143,7 +143,7 @@ func SmartLay(
 			}
 			if len(layEvents) > 0 {
 				// display list to plan
-				report.Error = fmt.Errorf("WARNING: events aren't consumed by exeiac for lay action, use smart-lay instead")
+				report.Error = fmt.Errorf("WARNING: events aren't yet consumed by exeiac smart-lay action")
 			}
 		} else { // there is at least one error
 			skipFollowing = true

@@ -167,7 +167,7 @@ func CompareJsons(json1 []byte, json2 []byte) (comparedJson JsonCompared, areEqu
 func (changes ChangedOutputs) NeedToLayBrick(brick *exinfra.Brick) bool {
 	for _, i := range brick.Inputs {
 		if _, exist := changes[i.Brick.Name]; exist {
-			for jsonpath, _ := range changes[i.Brick.Name] {
+			for jsonpath := range changes[i.Brick.Name] {
 				if extools.AreJsonPathsLinked(jsonpath, i.JsonPath) {
 					return true
 				}

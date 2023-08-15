@@ -121,7 +121,7 @@ Each action is a dictionnary with thoose fields:
     - for type *status_code*:
         - exeiac_plan_no_drift
         - exeiac_plan_drift
-        - exeiac_plan_unkown
+        - exeiac_plan_unknown
     - for type *file*, *json* or *yaml*: the event name should be exeiac_plan 
         and the content should be in equal to:
         - no_drift

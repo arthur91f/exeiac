@@ -77,7 +77,7 @@ func Plan(
 		} else if exeiac_plan_drift, isPresent := events["exeiac_plan_drift"]; isPresent && exeiac_plan_drift == true {
 			report.Status = TAG_DRIFT
 			statusCode = exstatuscode.Update(statusCode, exstatuscode.MODULE_DRIFT)
-		} else if exeiac_plan_unkown, isPresent := events["exeiac_plan_unkown"]; isPresent && exeiac_plan_unkown == true {
+		} else if exeiac_plan_unknown, isPresent := events["exeiac_plan_unknown"]; isPresent && exeiac_plan_unknown == true {
 			report.Status = TAG_MAY_DRIFT
 			statusCode = exstatuscode.Update(statusCode, exstatuscode.MODULE_DRIFT_OR_NOT)
 		}

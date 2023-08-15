@@ -50,7 +50,7 @@ func (m Module) String() string {
 }
 
 func (m Module) ListActions() (actions []string) {
-	for name, _ := range m.Actions {
+	for name := range m.Actions {
 		actions = append(actions, name)
 	}
 	return
@@ -171,6 +171,8 @@ func (m *Module) getExecutionEvents(
 ) {
 	var boolean bool
 	var err error
+
+	events = make(map[string]interface{})
 
 	boolean, err = m.Actions[action].StatusCodeFail.Contains(statusCode)
 	if err != nil {
