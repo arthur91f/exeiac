@@ -1,17 +1,24 @@
-version: 0.0.1
+version: 1.0.0
 module: test
-input:
-  - type: env_vars
-    format: env
-    path: ""
-    data:
-      - name: EXEIAC_TEST_project_id
-        from: infra-ground/init/create_accounts:$.projects.production.project_id
-      - name: EXEIAC_TEST_env
-        from: infra-ground/init/create_accounts:$.projects.production.env
-      - name: EXEIAC_TEST_bastion
-        from: infra-ground/envs/production/bastion:$.bastion.internal_domain_name
-      - name: EXEIAC_TEST_cluster_k8s
-        from: infra-ground/envs/production/cluster_k8s:$.*
-      - name: EXEIAC_TEST_database
-        from: infra-ground/envs/production/database:$.* #cluster.master.private_domain_name
+dependencies:
+  EXEIAC_TEST_bastion:
+    from: infra-ground/envs/production/bastion:output:$.bastion.internal_domain_name
+  EXEIAC_TEST_cluster_k8s:
+    from: infra-ground/envs/production/cluster_k8s:output:$.*
+  EXEIAC_TEST_database:
+    from: infra-ground/envs/production/database:output:$.*
+  EXEIAC_TEST_env:
+    from: infra-ground/init/create_accounts:output:$.projects.production.env
+  EXEIAC_TEST_project_id:
+    from: infra-ground/init/create_accounts:output:$.projects.production.project_id
+  
+inputs:
+- type: env_vars
+  format: env
+  path: 
+  datas:
+    - EXEIAC_TEST_project_id
+    - EXEIAC_TEST_env
+    - EXEIAC_TEST_bastion
+    - EXEIAC_TEST_cluster_k8s
+    - EXEIAC_TEST_database

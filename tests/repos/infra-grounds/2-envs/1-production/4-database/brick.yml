@@ -1,23 +1,31 @@
-version: 0.0.1
+version: 1.0.0
 module: terraform
-input:
-  - type: env_vars
-    format: env
-    path: ""
-    data:
-      - name: TF_VAR_project_id
-        from: infra-ground/init/create_accounts:$.projects.production.project_id
-      - name: TF_VAR_env_name
-        from: infra-ground/init/create_accounts:$.projects.production.env
-  - type: file
-    format: json
-    path: from_exeiac.auto.tfvars.json
-    data:
-      - name: network_id
-        from: infra-ground/envs/production/network:$.network.network_id
-      - name: network_ip_range
-        from: infra-ground/envs/production/network:$.network.ip_range
-      - name: private_domain_name
-        from: infra-ground/envs/production/network:$.domain_name.private
-      - name: internal_domain_name
-        from: infra-ground/envs/production/network:$.domain_name.internal
+dependencies:
+  TF_VAR_env_name:
+    from: infra-ground/init/create_accounts:output:$.projects.production.env
+  TF_VAR_project_id:
+    from: infra-ground/init/create_accounts:output:$.projects.production.project_id
+  internal_domain_name:
+    from: infra-ground/envs/production/network:output:$.domain_name.internal
+  network_id:
+    from: infra-ground/envs/production/network:output:$.network.network_id
+  network_ip_range:
+    from: infra-ground/envs/production/network:output:$.network.ip_range
+  private_domain_name:
+    from: infra-ground/envs/production/network:output:$.domain_name.private
+  
+inputs:
+- type: env_vars
+  format: env
+  path: 
+  datas:
+    - TF_VAR_project_id
+    - TF_VAR_env_name
+- type: file
+  format: json
+  path: from_exeiac.auto.tfvars.json
+  datas:
+    - network_id
+    - network_ip_range
+    - private_domain_name
+    - internal_domain_name

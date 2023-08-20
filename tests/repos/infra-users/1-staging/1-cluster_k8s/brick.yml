@@ -1,19 +1,27 @@
-version: 0.0.1
+version: 1.0.0
 module: test
-input:
-  - type: env_vars
-    format: env
-    path: ""
-    data:
-      - name: TF_VAR_project_id
-        from: infra-ground/init/create_accounts:$.projects.staging.project_id
-      - name: TF_VAR_env_name
-        from: infra-ground/init/create_accounts:$.projects.staging.env
-      - name: EXEIAC_TEST_admins_group
-        from: users/users_and_groups:$.groups.admin
-      - name: EXEIAC_TEST_ops_group
-        from: users/users_and_groups:$.groups.ops
-      - name: EXEIAC_TEST_devs_groups
-        from: users/users_and_groups:$.groups.dev
-      - name: EXEIAC_TEST_cluster_id
-        from: infra-ground/envs/staging/cluster_k8s:$.cluster.instance_id
+dependencies:
+  EXEIAC_TEST_admins_group:
+    from: users/users_and_groups:output:$.groups.admin
+  EXEIAC_TEST_cluster_id:
+    from: infra-ground/envs/staging/cluster_k8s:output:$.cluster.instance_id
+  EXEIAC_TEST_devs_groups:
+    from: users/users_and_groups:output:$.groups.dev
+  EXEIAC_TEST_ops_group:
+    from: users/users_and_groups:output:$.groups.ops
+  TF_VAR_env_name:
+    from: infra-ground/init/create_accounts:output:$.projects.staging.env
+  TF_VAR_project_id:
+    from: infra-ground/init/create_accounts:output:$.projects.staging.project_id
+  
+inputs:
+- type: env_vars
+  format: env
+  path: 
+  datas:
+    - TF_VAR_project_id
+    - TF_VAR_env_name
+    - EXEIAC_TEST_admins_group
+    - EXEIAC_TEST_ops_group
+    - EXEIAC_TEST_devs_groups
+    - EXEIAC_TEST_cluster_id

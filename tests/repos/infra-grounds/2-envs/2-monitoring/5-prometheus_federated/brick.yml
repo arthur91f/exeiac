@@ -1,19 +1,27 @@
-version: 0.0.1
+version: 1.0.0
 module: test
-input:
-  - type: env_vars
-    format: env
-    path: ""
-    data:
-      - name: EXEIAC_TEST_project_id
-        from: infra-ground/init/create_accounts:$.projects.monitoring.project_id
-      - name: EXEIAC_TEST_env
-        from: infra-ground/init/create_accounts:$.projects.monitoring.env
-      - name: EXEIAC_TEST_network
-        from: infra-ground/envs/monitoring/network:$.*
-      - name: EXEIAC_TEST_cluster
-        from: infra-ground/envs/monitoring/cluster_k8s:$.*
-      - name: EXEIAC_TEST_production_monitoring
-        from: infra-ground/envs/production/prometheus:$.*
-      - name: EXEIAC_TEST_staging_monitoring
-        from: infra-ground/envs/staging/prometheus:$.*
+dependencies:
+  EXEIAC_TEST_cluster:
+    from: infra-ground/envs/monitoring/cluster_k8s:output:$.*
+  EXEIAC_TEST_env:
+    from: infra-ground/init/create_accounts:output:$.projects.monitoring.env
+  EXEIAC_TEST_network:
+    from: infra-ground/envs/monitoring/network:output:$.*
+  EXEIAC_TEST_production_monitoring:
+    from: infra-ground/envs/production/prometheus:output:$.*
+  EXEIAC_TEST_project_id:
+    from: infra-ground/init/create_accounts:output:$.projects.monitoring.project_id
+  EXEIAC_TEST_staging_monitoring:
+    from: infra-ground/envs/staging/prometheus:output:$.*
+  
+inputs:
+- type: env_vars
+  format: env
+  path: 
+  datas:
+    - EXEIAC_TEST_project_id
+    - EXEIAC_TEST_env
+    - EXEIAC_TEST_network
+    - EXEIAC_TEST_cluster
+    - EXEIAC_TEST_production_monitoring
+    - EXEIAC_TEST_staging_monitoring
