@@ -1,19 +1,27 @@
-version: 0.0.1
+version: 1.0.0
 module: test
-input:
-  - type: env_vars
-    format: env
-    path: ""
-    data:
-      - name: EXEIAC_TEST_admins_group
-        from: users/users_and_groups:$.groups.admin
-      - name: EXEIAC_TEST_ops_group
-        from: users/users_and_groups:$.groups.ops
-      - name: EXEIAC_TEST_devs_groups
-        from: users/users_and_groups:$.groups.dev
-      - name: EXEIAC_TEST_products_groups
-        from: users/users_and_groups:$.groups.product
-      - name: EXEIAC_TEST_bastion
-        from: infra-ground/envs/monitoring/bastion:$.bastion.internal_domain_name
-      - name: EXEIAC_TEST_grafana
-        from: infra-ground/envs/monitoring/grafana:$.*
+dependencies:
+  EXEIAC_TEST_admins_group:
+    from: users/users_and_groups:output:$.groups.admin
+  EXEIAC_TEST_bastion:
+    from: infra-ground/envs/monitoring/bastion:output:$.bastion.internal_domain_name
+  EXEIAC_TEST_devs_groups:
+    from: users/users_and_groups:output:$.groups.dev
+  EXEIAC_TEST_grafana:
+    from: infra-ground/envs/monitoring/grafana:output:$.*
+  EXEIAC_TEST_ops_group:
+    from: users/users_and_groups:output:$.groups.ops
+  EXEIAC_TEST_products_groups:
+    from: users/users_and_groups:output:$.groups.product
+  
+inputs:
+- type: env_vars
+  format: env
+  path: 
+  datas:
+    - EXEIAC_TEST_admins_group
+    - EXEIAC_TEST_ops_group
+    - EXEIAC_TEST_devs_groups
+    - EXEIAC_TEST_products_groups
+    - EXEIAC_TEST_bastion
+    - EXEIAC_TEST_grafana

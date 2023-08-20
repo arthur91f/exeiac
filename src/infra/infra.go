@@ -46,7 +46,7 @@ func CreateInfra(configuration exargs.Configuration) (Infra, error) {
 	// i.e. having an overall ordering as the index
 	bricks := Bricks{}
 	for _, room := range configuration.Rooms {
-		b, err := GetBricks(room.Name, room.Path)
+		b, err := DiscoverRoomsBricks(room.Name, room.Path)
 		if err != nil {
 			fmt.Printf("Cannot add \"%s\" (path: %s) room's bricks: %v\n", room.Name, room.Path, err)
 		}
@@ -74,8 +74,8 @@ func SanitizeBrickName(name string) string {
 	return prefixRegexp.ReplaceAllString(name, "/")
 }
 
-// Walks the file system from the provided root, gathers all folders containing a `brick.html` file, and build a Brick struct from it.
-func GetBricks(roomName string, roomPath string) (bricks Bricks, err error) {
+// Walks the file system from the provided root, gathers all folders containing a `brick.yml` file, and build a Brick struct from it.
+func DiscoverRoomsBricks(roomName string, roomPath string) (bricks Bricks, err error) {
 	_, err = os.Stat(roomPath)
 	if err != nil {
 		if errors.Is(err, os.ErrNotExist) {
@@ -266,15 +266,15 @@ func (infra *Infra) GetDirectPreviousFor(
 ) (
 	results Bricks, err error,
 ) {
-	var bricksFromInputs Bricks
-	for _, i := range brick.Inputs {
-		if i.IsInputNeeded(action) {
-			bricksFromInputs = append(bricksFromInputs, i.Brick)
+	var bricksFromDeps Bricks
+	for _, d := range brick.Dependencies {
+		if d.IsDependencyNeeded(action) {
+			bricksFromDeps = append(bricksFromDeps, d.From.Brick)
 		}
 	}
-	bricksFromInputs = RemoveDuplicates(bricksFromInputs)
+	bricksFromDeps = RemoveDuplicates(bricksFromDeps)
 
-	for _, dp := range bricksFromInputs {
+	for _, dp := range bricksFromDeps {
 		err = dp.EnrichError
 		if dp.EnrichError != nil {
 			return
@@ -465,30 +465,6 @@ func (infra *Infra) GetCorrespondingBricks(
 	return
 }
 
-func (infra *Infra) EnrichBricks() {
-	for _, b := range infra.Bricks {
-		if b.IsElementary {
-			conf, err := BrickConfYaml{}.New(b.ConfigurationFilePath)
-			if err != nil {
-				infra.Bricks[b.Name].EnrichError =
-					fmt.Errorf("unable to enrich brick(%s): %v", b.Name, err)
-			}
-
-			err = b.Enrich(conf, infra)
-			if err != nil {
-				infra.Bricks[b.Name].EnrichError =
-					fmt.Errorf("unable to enrich brick(%s): %v", b.Name, err)
-			}
-
-			err = b.Module.LoadAvailableActions()
-			if err != nil {
-				infra.Bricks[b.Name].EnrichError =
-					fmt.Errorf("unable to enrich brick(%s): %v", b.Name, err)
-			}
-		}
-	}
-}
-
 func (infra *Infra) ValidateConfiguration(configuration *exargs.Configuration) (err error) {
 	// validate brick names
 	for _, brickName := range configuration.BricksNames {
@@ -519,9 +495,9 @@ func GetConfFilePath(path string) (string, error) {
 
 func GetBricksThatCallthisOutput(linkedBricks Bricks, brick *Brick, jsonpath string) (depends Bricks) {
 	for _, b := range linkedBricks {
-		for _, i := range b.Inputs {
-			if i.Brick == brick {
-				if extools.AreJsonPathsLinked(jsonpath, i.JsonPath) {
+		for _, d := range b.Dependencies {
+			if d.From.Brick == brick {
+				if extools.AreJsonPathsLinked(jsonpath, d.From.JsonPath) {
 					depends = append(depends, b)
 					break
 				}

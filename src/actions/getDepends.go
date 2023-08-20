@@ -60,7 +60,7 @@ func GetDepends(
 			for _, i := range inputs {
 				fmt.Printf(
 					"%s:%s = %s\n",
-					b.Name, i.VarName, i.JsonPath,
+					b.Name, i.VarName, i.Dependency.From.JsonPath,
 				)
 			}
 		}

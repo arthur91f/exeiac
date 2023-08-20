@@ -61,6 +61,7 @@ $ go install github.com/arthur91f/exeiac/src/exeiac/src/exeiac@main
   - each elementary brick should reference in brick.yml an executable or module
     to execute itself. (a module is simply an executable that is not in the
     brick directory and that can be called by many bricks)
+  - Read [howto_write_brick](./docs/howto_write_brick.md)
 - create a conf file in /etc/exeiac/exeiac.yml or $HOME/.config/exeiac.yml
   ```yaml
   modules_path:
@@ -71,6 +72,7 @@ $ go install github.com/arthur91f/exeiac/src/exeiac/src/exeiac@main
     - $HOME/git-repos/applications
     - $HOME/git-repos/users
   ```
+
 ### Simple command line examples
 
 - display a brick output

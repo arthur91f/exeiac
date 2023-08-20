@@ -118,7 +118,7 @@ func getBricksToOutput(
 		}
 		for _, i := range b.Inputs {
 			if i.IsInputNeeded(action) {
-				neededBricksForOutput = append(neededBricksForOutput, i.Brick)
+				neededBricksForOutput = append(neededBricksForOutput, i.Dependency.From.Brick)
 			}
 		}
 	}
