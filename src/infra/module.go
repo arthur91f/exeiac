@@ -63,15 +63,15 @@ func (m Module) ListActions() (actions []string) {
 // NOTE(half-shell): Do we have a use to force the call to be triggered again here?
 //
 //	ANSWER(arthur91f): I don't think so, you shouldn't change your module during a run
-func (module *Module) LoadAvailableActions() (err error) {
+func (m *Module) LoadAvailableActions() (err error) {
 	// Actions are already loaded; no need to reprocess it
-	if len(module.Actions) > 0 {
+	if len(m.Actions) > 0 {
 		return
 	}
 
-	path, err := exec.LookPath(module.Path)
+	path, err := exec.LookPath(m.Path)
 	if err != nil {
-		return fmt.Errorf("unable to load available actions for module %s: %v", module.Name, err)
+		return fmt.Errorf("unable to load available actions for module %s: %v", m.Name, err)
 	}
 
 	stdout := StoreStdout{}
@@ -84,14 +84,14 @@ func (module *Module) LoadAvailableActions() (err error) {
 
 	err = cmd.Run()
 	if err != nil {
-		return fmt.Errorf("unable to load module descriptions for module %s: %v", module.Name, err)
+		return fmt.Errorf("unable to load module descriptions for module %s: %v", m.Name, err)
 	}
 
 	actions := map[string]Action{}
 	err = json.Unmarshal(stdout.Output, &actions)
 	if err != nil {
 		fmt.Printf("err: %v\n", err)
-		return fmt.Errorf("unable to load module descriptions for module %s: %v", module.Name, err)
+		return fmt.Errorf("unable to load module descriptions for module %s: %v", m.Name, err)
 	}
 	for actionName, action := range actions {
 		if action.Behaviour == "" {
@@ -102,7 +102,7 @@ func (module *Module) LoadAvailableActions() (err error) {
 		} else {
 			if !action.StatusCodeFail.IsValid() {
 				return fmt.Errorf("Error invalid sequence format: module %s %s in $.%s.status_code_fail: \"%s\"",
-					module.Name, ACTION_DESCRIBE_MODULE, actionName, action.StatusCodeFail)
+					m.Name, ACTION_DESCRIBE_MODULE, actionName, action.StatusCodeFail)
 			}
 		}
 		if action.Events == nil {
@@ -111,25 +111,25 @@ func (module *Module) LoadAvailableActions() (err error) {
 			for k, v := range action.Events {
 				if v.Type == "" {
 					return fmt.Errorf("module error: event without type: module: %s, action: %s, event: %s",
-						module.Name, actionName, k)
+						m.Name, actionName, k)
 				}
 				if v.Type != "status_code" && v.Type != "file" && v.Type != "json" && v.Type != "yaml" {
 					return fmt.Errorf("module error: event with bad type (should be 'status_code' or 'file' or json or yaml): module: %s, action: %s, event: %s",
-						module.Name, actionName, k)
+						m.Name, actionName, k)
 				}
 				if v.StatusCode == "" && v.Path == "" {
 					return fmt.Errorf("module error: event without path nor status_code: module: %s, action: %s, event: %s",
-						module.Name, actionName, k)
+						m.Name, actionName, k)
 				} else if v.StatusCode != "" {
 					if !v.StatusCode.IsValid() {
 						return fmt.Errorf("Error invalid sequence format: module %s %s in $.%s.events.%s: \"%s\"",
-							module.Name, ACTION_DESCRIBE_MODULE, actionName, k, v.StatusCode)
+							m.Name, ACTION_DESCRIBE_MODULE, actionName, k, v.StatusCode)
 					}
 				}
 			}
 		}
 
-		module.Actions[actionName] = action
+		m.Actions[actionName] = action
 	}
 
 	return
