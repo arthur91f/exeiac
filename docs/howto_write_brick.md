@@ -28,7 +28,8 @@ brick.yml file that describe its module, inputs, triggers ...
 ## Directory convention
 
 You can identify brick from their path:
-- A brick must be in a "room" (listed in exeiac conf files) or 
+- A brick must be in a "room" (listed in 
+  [exeiac configuration file](./howto_write_configuration_file.md)) or be a room.
 - A brick directory name must begin with a priority number that describe the 
   building sequence of bricks inside the same room or super brick.
 
