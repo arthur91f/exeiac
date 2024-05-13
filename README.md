@@ -34,10 +34,18 @@ find a deeper insight on
 
 ## Get started
 
-- **1. Get exeiac binary**
+- **1. Get exeiac binary and install completion**
   ```bash
-  go install github.com/arthur91f/exeiac/src/exeiac/src/exeiac@main
+  asdf plugin add golang https://github.com/asdf-community/asdf-golang.git
+  asdf install golang 1.19
+  git clone https://github.com/arthur91f/exeiac.git
+  cd exeiac/
+  asdf local golang 1.19
+  go install src/exeiac
   ```
+  - bash completion:  `cp './src/completion/scripts/exeiac.sh' '/usr/share/bash-completion/completions/exeiac'`
+  - zsh completion: `cp './src/completion/scripts/exeiac.zsh' '/usr/share/zsh/site-functions/_exeiac'`
+  - fish completion: `cp './src/completion/scripts/exeiac.fish' '/usr/share/fish/vendor_completions.d/exeiac.fish'`
 
 - **2. Write your modules** in whatever language you want. A module can be seen 
   as a makefile to deploy your brick. Basically, it's a shell script that 
