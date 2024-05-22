@@ -1,0 +1,146 @@
+- title: Don't call not needed dependencies
+  cmd: exeiac init infra/network -o '--debug-env=EXEMOD_.*' 2>&1
+  status: 0
+  stdout: |
+    -- infra/network ---------------------------------------------------------------
+    #######
+    # ENV #
+
+    ########
+    # ARGS #
+    init
+    --debug-env=EXEMOD_.*
+
+    exeiactest:init: jq installed
+
+    Summary:
+    DONE    infra/network
+- title: Properly get string dependency as env var input
+  cmd: exeiac lay infra/network -o '--debug-env=EXEMOD_.*' 2>&1
+  status: 0
+  stdout: |
+    -- infra/network ---------------------------------------------------------------
+    #######
+    # ENV #
+    EXEMOD_project_id=project:prod@mycompany:16461438
+    EXEMOD_admin_token=api-user:myname@prod-16461438:ohv4chaa3ieyahJeehiquie8-chiuj1iexeimouyuchohth5onahth9AexohquahhaiFuH3Re
+
+    ########
+    # ARGS #
+    lay
+    --debug-env=EXEMOD_.*
+
+    #######
+    # LAY #
+
+    Nothing to do
+
+    Summary:
+    OK      infra/network : WARNING: events aren't consumed by exeiac for lay action, use smart-lay instead
+- title: Properly get string dependencies as env file input
+  cmd: exeiac lay infra/bastion/instance 2>&1
+  status: 0
+  stdout: |
+    -- infra/bastion/instance ------------------------------------------------------
+
+    ########
+    # ARGS #
+    lay
+
+    ##############
+    # INPUT FILE #
+    # ./input.env
+    admin_token="api-user:myname@prod-16461438:ohv4chaa3ieyahJeehiquie8-chiuj1iexeimouyuchohth5onahth9AexohquahhaiFuH3Re"
+    ip_range="10.101.1.0/24"
+    network_id="network:16461438-563710"
+    project_id="project:prod@mycompany:16461438"
+    --------------
+    #######
+    # LAY #
+
+    Nothing to do
+
+    Summary:
+    OK      infra/bastion/instance : WARNING: events aren't consumed by exeiac for lay action, use smart-lay instead
+
+- title: Properly get string dependency as json file input
+  cmd: exeiac lay apps/myapp/instance 2>&1 | sed 's/\t/  /g'
+  status: 0
+  stdout: |
+    -- apps/myapp/instance ---------------------------------------------------------
+
+    ########
+    # ARGS #
+    lay
+
+    ##############
+    # INPUT FILE #
+    # ./input.json
+    {
+      "admin_token": "api-user:myname@prod-16461438:ohv4chaa3ieyahJeehiquie8-chiuj1iexeimouyuchohth5onahth9AexohquahhaiFuH3Re",
+      "ip_range": "10.101.1.0/24",
+      "network_id": "network:16461438-563710",
+      "project_id": "project:prod@mycompany:16461438"
+    }
+    --------------
+    #######
+    # LAY #
+
+    Nothing to do
+
+    Summary:
+    OK      apps/myapp/instance : WARNING: events aren't consumed by exeiac for lay action, use smart-lay instead
+- title: Properly get object dependencies as json file input
+  cmd: exeiac lay apps/myapp/configuration 2>&1 | sed 's/\t/  /g'
+  status: 0
+  stdout: |
+    -- apps/myapp/configuration ----------------------------------------------------
+
+    ########
+    # ARGS #
+    lay
+
+    ##############
+    # INPUT FILE #
+    # ./input.json
+    {
+      "bastion_credentials": {
+        "login": "myuser",
+        "password": "My-PasSw0rD",
+        "ssh_key": {
+          "private": "-----BEGIN OPENSSH PRIVATE KEY-----\nthu8Ooxaire6pi2iexae7thah8thies4uray7laifephoof0eipie8iqu8phohwoezai1u\nbie2sueVoh5wa1LaeTiataelajohthorookahwaech2Eiju2aitai9taiW1Ahbeet2iero\neepohqueewuX6aGheeliqu9YuWair6fuuzu8oolahneeDe4thooM6dahzukee9Zo3vai62\nrookahwaech2Eiju2aitai9taiW1Ah\n-----END OPENSSH PRIVATE KEY-----\n",
+          "public": "ssh-ed25519 eepohqueewuX6aGheeliqu9YuWair6fuuzu8oolahneeDe4thooM6dahzukee9Zo3vai6 myuser@mycompany.com"
+        }
+      },
+      "bastion_ip": "10.101.1.10",
+      "database_credentials": {
+        "login": "myapp",
+        "password": "Uf7Zaochuo8keeZai0aewai3"
+      },
+      "instance_ip": "10.101.1.31",
+      "instance_ram": 4096
+    }
+    --------------
+    #######
+    # LAY #
+
+    Nothing to do
+
+    Summary:
+    OK      apps/myapp/configuration : WARNING: events aren't consumed by exeiac for lay action, use smart-lay instead
+# - title: bad input (call non existing output)
+#   cmd: exeiac output infra/network -o '--debug-env=EXEMOD_.*' 2>&1
+#   status: 0
+#   stdout: |
+#     -- infra/network ------------------------------------------------------------------
+#
+#
+#     Summary:
+#     ERR      infra/network
+
+# - title: Properly get object dependency as env var input
+#   cmd:
+#   status: 0
+# - title: Properly get object dependency as env file input
+#   cmd:
+#   status: 0

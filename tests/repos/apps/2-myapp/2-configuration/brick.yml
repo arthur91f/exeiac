@@ -1,0 +1,75 @@
+version: 1.0.0
+module: exeiac-test2
+dependencies:
+  bastion_ip:
+    from: infra/bastion/instance:output:$.ip
+    #trigger_type: weak
+  bastion_credentials:
+    from: infra/bastion/configuration:output:$.users.myuser
+    #trigger_type: weak
+  instance_ip:
+    from: apps/myapp/instance:output:$.ip
+  instance_ram:
+    from: apps/myapp/instance:output:$.ram
+  database_ip:
+    from: apps/database:output:$.instances.master.address
+  database_credentials:
+    from: apps/database:output:$.users.myapp
+inputs:
+- type: file
+  format: json
+  path: input.json
+  datas:
+    - bastion_ip
+    - bastion_credentials
+    - database_credentials
+    - instance_ip
+    - instance_ram
+
+
+# -- apps/database ---------------------------------------------------------------
+# {
+#   "instances": {
+#     "master": {
+#       "address": "10.100.1.20",
+#       "cpu": 2,
+#       "ram": 4096,
+#       "disk": 100,
+#       "role": "master"
+#     },
+#     "failover": {
+#       "address": "10.100.1.29",
+#       "cpu": 2,
+#       "ram": 4096,
+#       "disk": 100,
+#       "role": "replica-failover"
+#     },
+#     "read-1": {
+#       "address": "10.100.1.21",
+#       "cpu": 2,
+#       "ram": 4096,
+#       "disk": 100,
+#       "role": "replica-readonly"
+#     }
+#   },
+#   "users": {
+#     "root": {
+#       "login": "root",
+#       "password": "EWohj0Pipoos9Ahviebohb6u"
+#     },
+#     "wordpress": {
+#       "login": "myapp",
+#       "password": "Uf7Zaochuo8keeZai0aewai3"
+#     }
+#   }
+# }
+
+# -- apps/myapp/instance ---------------------------------------------------------
+# {
+#   "vm_name": "myapp-prod",
+#   "vm-id": "vm:16461438-068776",
+#   "ip": "10.101.1.31",
+#   "cpu": 2,
+#   "ram": 4096,
+#   "disk": 30
+# }

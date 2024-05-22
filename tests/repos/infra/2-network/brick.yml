@@ -1,0 +1,30 @@
+version: 1.0.0
+module: exeiac-test
+dependencies:
+  EXEMOD_project_id:
+    from: infra/base:output:$.cloud_provider.project_id
+  EXEMOD_admin_token:
+    from: infra/base:output:$.cloud_provider.admin_token
+
+inputs:
+- type: env_vars
+  format: env
+  path: 
+  datas:
+    - EXEMOD_project_id
+    - EXEMOD_admin_token
+# - type: file
+#   format: json
+#   path: from_exeiac.auto.tfvars.json
+#   datas:
+#     - network_id
+#     - network_ip_range
+#     - private_domain_name
+#     - internal_domain_name
+
+#   "cloud_provider": {
+#     "url": "https://my.cloudprovider.com",
+#     "account": "mycompany",
+#     "project_id": "project:prod@mycompany:16461438",
+#     "admin_token": "api-user:myname@prod-16461438:ohv4chaa3ieyahJeehiquie8-chiuj1iexeimouyuchohth5onahth9AexohquahhaiFuH3Re"
+#   }

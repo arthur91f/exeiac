@@ -1,0 +1,71 @@
+- title: child
+  cmd: exeiac show infra -f n
+  status: 0
+  stdout: |
+    infra/base
+    infra/network
+    infra/bastion/instance
+    infra/bastion/configuration
+- title: direct next
+  cmd: exeiac show infra/network -f n -s dn
+  status: 0
+  stdout: |
+    infra/bastion/instance
+    apps/database
+    apps/myapp/instance
+- title: linked next
+  cmd: exeiac show infra/network -f n -s ln
+  status: 0
+  stdout: |
+    infra/bastion/instance
+    infra/bastion/configuration
+    apps/database
+    apps/myapp/instance
+    apps/myapp/configuration
+- title: direct previous
+  cmd: exeiac show apps/myapp/configuration -f n -s dp
+  status: 0
+  stdout: |
+    infra/bastion/instance
+    infra/bastion/configuration
+    apps/database
+    apps/myapp/instance
+- title: linked previous
+  cmd: exeiac show apps/myapp/configuration -f n -s lp
+  status: 0
+  stdout: |
+    infra/base
+    infra/network
+    infra/bastion/instance
+    infra/bastion/configuration
+    apps/database
+    apps/myapp/instance
+- title: get-depends format name
+  cmd: exeiac get-depends infra/network -j $.network_id -f n
+  status: 0
+  stdout: |
+    infra/bastion/instance
+    apps/database
+    apps/myapp/instance
+- title: get-depends format all
+  cmd: exeiac get-depends infra/network -j $.network_id
+  status: 0
+  stdout: |
+    infra/bastion/instance:network_id = $.network_id
+    apps/database:network_id = $.network_id
+    apps/myapp/instance:network_id = $.network_id
+
+# - title: child (tricky name with number)
+#   cmd: exeiac show app-admin -f n
+#   status: 0
+#   stdout: |
+#     app-admin/production1-eu/infra
+#     app-admin/production1-eu/build
+#     app-admin/production1-eu/deploy
+#     app-admin/production2-us/infra
+#     app-admin/production2-us/build
+#     app-admin/production2-us/deploy1-us-east1
+#     app-admin/production2-us/deploy2-us-west3
+#     app-admin/staging/infra
+#     app-admin/staging/build
+#     app-admin/staging/deploy

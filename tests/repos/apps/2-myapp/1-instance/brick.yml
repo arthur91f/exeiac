@@ -1,0 +1,21 @@
+version: 1.0.0
+module: exeiac-test
+dependencies:
+  project_id:
+    from: infra/base:output:$.cloud_provider.project_id
+  admin_token:
+    from: infra/base:output:$.cloud_provider.admin_token
+  network_id:
+    from: infra/network:output:$.network_id
+  ip_range:
+    from: infra/network:output:$.ip_range
+
+inputs:
+- type: file
+  format: json
+  path: input.json
+  datas:
+    - project_id
+    - admin_token
+    - network_id
+    - ip_range

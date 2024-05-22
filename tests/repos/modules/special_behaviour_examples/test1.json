@@ -1,0 +1,12 @@
+{
+    "lay": {
+        "stdout": "TEST: begin lay",
+        "stderr": "TEST: an error is emulated",
+        "final_state": { "toto": "titi" },
+        "return_code": 42,
+        "events": { "tata": "tutu" },
+        "run": [ "stdout", "stderr", "default", "final_state", "return_code", "events" ]
+    }
+}
+
+{ "plan": { "return_code": 42, "run": [ "default", "return_code" ] } }
