@@ -1,39 +1,66 @@
 - title: no arg
-  cmd: exeiac 2>/dev/null
+  cmd: exeiac 2>&1
   status: 11
+  stdout: |
+    argument missing: you need at least to specify one action
 - title: no arg (only option)
-  cmd: exeiac --format name 2>/dev/null
+  cmd: exeiac --format name 2>&1
   status: 11
+  stdout: |
+    argument missing: you need at least to specify one action
 - title: no action specified
-  cmd: exeiac infra-ground/envs/production/network 2>/dev/null
+  cmd: exeiac infra/base 2>&1
   status: 11
+  stdout: |
+    ! Bad argument: Error: you should specify at least a brick for infra/base action
 - title: no brick specified init
-  cmd: exeiac init 2>/dev/null
+  cmd: exeiac init 2>&1
   status: 11
+  stdout: |
+    ! Bad argument: Error: you should specify at least a brick for init action
 - title: no brick specified plan
-  cmd: exeiac plan 2>/dev/null
+  cmd: exeiac plan 2>&1
   status: 11
+  stdout: |
+    ! Bad argument: Error: you should specify at least a brick for plan action
 - title: no brick specified lay
-  cmd: exeiac lay 2>/dev/null
+  cmd: exeiac lay 2>&1
   status: 11
+  stdout: |
+    ! Bad argument: Error: you should specify at least a brick for lay action
 - title: no brick specified remove
-  cmd: exeiac remove 2>/dev/null
+  cmd: exeiac remove 2>&1
   status: 11
+  stdout: |
+    ! Bad argument: Error: you should specify at least a brick for remove action
 - title: no brick specified output
-  cmd: exeiac output 2>/dev/null
+  cmd: exeiac output 2>&1
   status: 11
-- title: no brick specified validate_code
-  cmd: exeiac validate_code 2>/dev/null
-  status: 11
+  stdout: |
+    ! Bad argument: Error: you should specify at least a brick for output action
 - title: no brick specified help 
-  cmd: exeiac help 2>/dev/null
+  cmd: exeiac help 2>&1
   status: 11
-- title: no brick specified show
-  cmd: exeiac show 2>/dev/null
-  status: 11
+  stdout: |
+    ! Bad argument: Error: you should specify at least a brick for help action
+    if you want to display exeiac help use --help option
 - title: no brick specified clean
-  cmd: exeiac clean 2>/dev/null
+  cmd: exeiac clean 2>&1
   status: 11
+  stdout: |
+    ! Bad argument: Error: you should specify at least a brick for clean action
+- title: no brick specified show
+  cmd: exeiac show 2>&1
+  status: 11
+  stdout: |
+    ! Bad argument: Error: you should specify at least a brick for show action
 - title: no brick specified with options
-  cmd: exeiac init --format name 2>/dev/null
+  cmd: exeiac badAction --format name 2>&1
   status: 11
+  stdout: |
+    ! Bad argument: Error: you should specify at least a brick for badAction action
+- title: no brick specified with options
+  cmd: exeiac init --format name 2>&1
+  status: 11
+  stdout: |
+    ! Bad argument: Error: you should specify at least a brick for init action

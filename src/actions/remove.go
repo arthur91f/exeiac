@@ -18,7 +18,7 @@ func Remove(
 	err error,
 ) {
 	if len(bricksToExecute) == 0 {
-		err = exinfra.ErrBadArg{Reason: "Error: you should specify at least a brick for \"remove\" action"}
+		err = exinfra.ErrBadArg{Reason: "Error: you should specify at least a brick for remove action"}
 
 		return exstatuscode.INIT_ERROR, err
 	}

@@ -1,0 +1,19 @@
+modules:
+  - name: exeiac-test
+    path: ./repos/modules/exeiactest.sh
+  - name: exeiac-test2
+    path: ./repos/modules/exeiactest2.sh
+  - name: error-test
+    path: ./repos/module/exeiac_error_module.sh
+rooms:
+  - name: infra
+    path: ./repos/infra
+  - name: apps
+    path: ./repos/apps
+default_arguments:
+  other_options: []
+  inputs_needed_for:
+    - plan
+    - lay
+    - remove
+  default_is_input_needed: false

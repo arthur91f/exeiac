@@ -203,16 +203,27 @@ func (m *Module) getExecutionEvents(
 			} else {
 				path = brickPath + "/" + event.Path
 			}
-			events[eventName], err = os.ReadFile(path)
-			if err != nil {
-				if event.Path == "" { // could be catched before but may be it's simplier to do it it here
-					err = fmt.Errorf("%s event %s of type %s doesn't specify a path",
-						m.Name, eventName, event.Type)
-				}
-				if execErr != nil {
-					execErr = fmt.Errorf("%v\n%v", execErr, err)
+
+			if event.Path == "" { // could be catched before but may be it's simplier to do it it here
+				err = fmt.Errorf("%s event %s of type %s doesn't specify a path",
+					m.Name, eventName, event.Type)
+			} else {
+				_, err = os.Stat(path)
+				if os.IsNotExist(err) {
+					events[eventName] = nil
+					// useless as an error will occurs at os.Readfile
+					// } else if err != nil {
+					// 	err = fmt.Errorf("Unable to stat path %s of event %s of module %s : %v",
+					// 		path, eventName, m.Name, err)
 				} else {
-					execErr = err
+					events[eventName], err = os.ReadFile(path)
+					if err != nil {
+						if execErr != nil {
+							execErr = fmt.Errorf("%v\n%v", execErr, err)
+						} else {
+							execErr = err
+						}
+					}
 				}
 			}
 		} else {

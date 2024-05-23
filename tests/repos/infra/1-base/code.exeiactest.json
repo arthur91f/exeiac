@@ -1,0 +1,8 @@
+{
+    "cloud_provider": {
+        "url": "https://my.cloudprovider.com",
+        "account": "mycompany",
+        "project_id": "project:prod@mycompany:16461438",
+        "admin_token": "api-user:myname@prod-16461438:ohv4chaa3ieyahJeehiquie8-chiuj1iexeimouyuchohth5onahth9AexohquahhaiFuH3Re"
+    }
+}

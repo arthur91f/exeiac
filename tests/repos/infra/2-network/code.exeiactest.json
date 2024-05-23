@@ -1,0 +1,6 @@
+{
+    "network_name": "default-prod",
+    "network_id": "network:16461438-563710",
+    "ip_range": "10.101.1.0/24",
+    "gateway": "10.101.1.1"
+}

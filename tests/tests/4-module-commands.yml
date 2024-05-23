@@ -1,0 +1,746 @@
+- title: init already init bricks
+  cmd: path="$(exeiac show infra/bastion/instance -f p)/input.env" ; [ -f "$path" ] && rm "$path" ; exeiac init infra 2>&1
+  status: 0
+  stdout: |
+    -- infra/base ------------------------------------------------------------------
+
+    ########
+    # ARGS #
+    init
+
+    exeiactest:init: jq installed
+
+    -- infra/network ---------------------------------------------------------------
+
+    ########
+    # ARGS #
+    init
+
+    exeiactest:init: jq installed
+
+    -- infra/bastion/instance ------------------------------------------------------
+
+    ########
+    # ARGS #
+    init
+
+    exeiactest:init: jq installed
+
+    -- infra/bastion/configuration -------------------------------------------------
+
+    ########
+    # ARGS #
+    init
+
+    exeiactest:init: jq installed
+
+    Summary:
+    DONE    infra/base
+    DONE    infra/network
+    DONE    infra/bastion/instance
+    DONE    infra/bastion/configuration
+- title: plan layed bricks
+  cmd: exeiac plan infra 2>&1
+  status: 0
+  stdout: |
+    -- infra/base ------------------------------------------------------------------
+
+    ########
+    # ARGS #
+    plan
+
+    ########
+    # PLAN #
+
+    Nothing to do
+
+    -- infra/network ---------------------------------------------------------------
+
+    ########
+    # ARGS #
+    plan
+
+    ########
+    # PLAN #
+
+    Nothing to do
+
+    -- infra/bastion/instance ------------------------------------------------------
+
+    ########
+    # ARGS #
+    plan
+
+    ##############
+    # INPUT FILE #
+    # ./input.env
+    admin_token="api-user:myname@prod-16461438:ohv4chaa3ieyahJeehiquie8-chiuj1iexeimouyuchohth5onahth9AexohquahhaiFuH3Re"
+    ip_range="10.101.1.0/24"
+    network_id="network:16461438-563710"
+    project_id="project:prod@mycompany:16461438"
+    --------------
+    ########
+    # PLAN #
+
+    Nothing to do
+
+    -- infra/bastion/configuration -------------------------------------------------
+
+    ########
+    # ARGS #
+    plan
+
+    ##############
+    # INPUT FILE #
+    # ./input.env
+    ip="10.101.1.10"
+    --------------
+    ########
+    # PLAN #
+
+    Nothing to do
+
+    Summary:
+    OK      infra/base
+    OK      infra/network
+    OK      infra/bastion/instance
+    OK      infra/bastion/configuration
+- title: lay layed bricks
+  cmd: exeiac lay infra 2>&1
+  status: 0
+  stdout: |
+    -- infra/base ------------------------------------------------------------------
+
+    ########
+    # ARGS #
+    lay
+
+    #######
+    # LAY #
+
+    Nothing to do
+
+    -- infra/network ---------------------------------------------------------------
+
+    ########
+    # ARGS #
+    lay
+
+    #######
+    # LAY #
+
+    Nothing to do
+
+    -- infra/bastion/instance ------------------------------------------------------
+
+    ########
+    # ARGS #
+    lay
+
+    ##############
+    # INPUT FILE #
+    # ./input.env
+    admin_token="api-user:myname@prod-16461438:ohv4chaa3ieyahJeehiquie8-chiuj1iexeimouyuchohth5onahth9AexohquahhaiFuH3Re"
+    ip_range="10.101.1.0/24"
+    network_id="network:16461438-563710"
+    project_id="project:prod@mycompany:16461438"
+    --------------
+    #######
+    # LAY #
+
+    Nothing to do
+
+    -- infra/bastion/configuration -------------------------------------------------
+
+    ########
+    # ARGS #
+    lay
+
+    ##############
+    # INPUT FILE #
+    # ./input.env
+    ip="10.101.1.10"
+    --------------
+    #######
+    # LAY #
+
+    Nothing to do
+
+    Summary:
+    OK      infra/base : WARNING: events aren't consumed by exeiac for lay action, use smart-lay instead
+    OK      infra/network : WARNING: events aren't consumed by exeiac for lay action, use smart-lay instead
+    OK      infra/bastion/instance : WARNING: events aren't consumed by exeiac for lay action, use smart-lay instead
+    OK      infra/bastion/configuration : WARNING: events aren't consumed by exeiac for lay action, use smart-lay instead
+- title: clean layed bricks
+  cmd: exeiac clean infra 2>&1
+  status: 0
+  stdout: |
+    -- infra/base ------------------------------------------------------------------
+    Module "exeiac-test" does not implement action "clean" ; assume there is nothing to do.
+
+    -- infra/network ---------------------------------------------------------------
+    Module "exeiac-test" does not implement action "clean" ; assume there is nothing to do.
+
+    -- infra/bastion/instance ------------------------------------------------------
+    Module "exeiac-test" does not implement action "clean" ; assume there is nothing to do.
+
+    -- infra/bastion/configuration -------------------------------------------------
+    Module "exeiac-test2" does not implement action "clean" ; assume there is nothing to do.
+
+    Summary:
+    DONE    infra/base
+    DONE    infra/network
+    DONE    infra/bastion/instance
+    DONE    infra/bastion/configuration
+
+- title: help layed bricks
+  cmd: exeiac help infra/bastion 2>&1
+  status: 0
+  stdout: |
+    -- infra/bastion/instance(exeiac-test) -----------------------------------------
+    exeiactest ACTION [OPTIONS...]
+
+    DESCRIPTION:
+        It is an exeiac module for testing exeiac or debugging.
+
+        This module can be use by two different brick : a normal brick that usually
+        use an other module (for debugging) or a testing brick for e2e exeiac test.
+        - normal brick : in a such case it will only display arguments and env vars.
+        - testing brick : it's a brick that do nothing except simulate a brick. 
+          Those type of brick contains 3 files
+            - state.exeiactest.json (correspond to the output)
+            - code.exeiactest.json (the state willing)
+            - events.exeiactest.txt (jsonpath list that create event when changed)
+            - special_behaviours.exeiactest.json (to simulate errors)
+
+    ACTIONS:
+        help
+        init
+        lay
+        output
+        plan
+        remove
+    OPTIONS:
+        --debug-env=REGEX you could display the env vars value as
+                    exeiac plan my/brick -o '--debug-env=EXEIAC.*'
+                    ./exeiactest.sh --debug-env=SSH_AUTH_SOCK|PWD|USER
+
+    -- infra/bastion/configuration(exeiac-test2) -----------------------------------
+    exeiactest ACTION [OPTIONS...]
+
+    DESCRIPTION:
+        It is an exeiac module for testing exeiac or debugging.
+
+        This module can be use by two different brick : a normal brick that usually
+        use an other module (for debugging) or a testing brick for e2e exeiac test.
+        - normal brick : in a such case it will only display arguments and env vars.
+        - testing brick : it's a brick that do nothing except simulate a brick. 
+          Those type of brick contains 3 files
+            - state.exeiactest.json (correspond to the output)
+            - code.exeiactest.json (the state willing)
+            - events.exeiactest.txt (jsonpath list that create event when changed)
+            - special_behaviours.exeiactest.json (to simulate errors)
+
+    ACTIONS:
+        help
+        init
+        lay
+        output
+        plan
+        remove
+    OPTIONS:
+        --debug-env=REGEX you could display the env vars value as
+                    exeiac plan my/brick -o '--debug-env=EXEIAC.*'
+                    ./exeiactest.sh --debug-env=SSH_AUTH_SOCK|PWD|USER
+
+    Summary:
+    DONE    infra/bastion/instance
+    DONE    infra/bastion/configuration
+- title: output layed bricks
+  cmd: exeiac output infra/bastion 2>&1
+  status: 0
+  stdout: |
+    -- infra/bastion/instance ------------------------------------------------------
+    {
+      "vm_name": "bastion-prod",
+      "vm-id": "vm:16461438-002377",
+      "ip": "10.101.1.10"
+    }
+
+    -- infra/bastion/configuration -------------------------------------------------
+    {
+      "users": {
+        "myuser": {
+          "login": "myuser",
+          "password": "My-PasSw0rD",
+          "ssh_key": {
+            "public": "ssh-ed25519 eepohqueewuX6aGheeliqu9YuWair6fuuzu8oolahneeDe4thooM6dahzukee9Zo3vai6 myuser@mycompany.com",
+            "private": "-----BEGIN OPENSSH PRIVATE KEY-----\nthu8Ooxaire6pi2iexae7thah8thies4uray7laifephoof0eipie8iqu8phohwoezai1u\nbie2sueVoh5wa1LaeTiataelajohthorookahwaech2Eiju2aitai9taiW1Ahbeet2iero\neepohqueewuX6aGheeliqu9YuWair6fuuzu8oolahneeDe4thooM6dahzukee9Zo3vai62\nrookahwaech2Eiju2aitai9taiW1Ah\n-----END OPENSSH PRIVATE KEY-----\n"
+          }
+        }
+      },
+      "installed_packet": [
+        "sshd",
+        "fail2ban"
+      ]
+    }
+
+    Summary:
+    DONE    infra/bastion/instance
+    DONE    infra/bastion/configuration
+- title: SCENARIO 1 (remove and lay) - remove layed bricks
+  cmd: exeiac remove infra/bastion 2>&1
+  status: 0
+  stdout: |
+    -- infra/bastion/configuration -------------------------------------------------
+
+    ########
+    # ARGS #
+    remove
+
+    ##############
+    # INPUT FILE #
+    # ./input.env
+    ip="10.101.1.10"
+    --------------
+    ##########
+    # REMOVE #
+    1,16c1
+    < {
+    <   "installed_packet": [
+    <     "sshd",
+    <     "fail2ban"
+    <   ],
+    <   "users": {
+    <     "myuser": {
+    <       "login": "myuser",
+    <       "password": "My-PasSw0rD",
+    <       "ssh_key": {
+    <         "private": "-----BEGIN OPENSSH PRIVATE KEY-----\nthu8Ooxaire6pi2iexae7thah8thies4uray7laifephoof0eipie8iqu8phohwoezai1u\nbie2sueVoh5wa1LaeTiataelajohthorookahwaech2Eiju2aitai9taiW1Ahbeet2iero\neepohqueewuX6aGheeliqu9YuWair6fuuzu8oolahneeDe4thooM6dahzukee9Zo3vai62\nrookahwaech2Eiju2aitai9taiW1Ah\n-----END OPENSSH PRIVATE KEY-----\n",
+    <         "public": "ssh-ed25519 eepohqueewuX6aGheeliqu9YuWair6fuuzu8oolahneeDe4thooM6dahzukee9Zo3vai6 myuser@mycompany.com"
+    <       }
+    <     }
+    <   }
+    < }
+    ---
+    > {}
+
+    -- infra/bastion/instance ------------------------------------------------------
+
+    ########
+    # ARGS #
+    remove
+
+    ##############
+    # INPUT FILE #
+    # ./input.env
+    admin_token="api-user:myname@prod-16461438:ohv4chaa3ieyahJeehiquie8-chiuj1iexeimouyuchohth5onahth9AexohquahhaiFuH3Re"
+    ip_range="10.101.1.0/24"
+    network_id="network:16461438-563710"
+    project_id="project:prod@mycompany:16461438"
+    --------------
+    ##########
+    # REMOVE #
+    1,5c1
+    < {
+    <   "ip": "10.101.1.10",
+    <   "vm-id": "vm:16461438-002377",
+    <   "vm_name": "bastion-prod"
+    < }
+    ---
+    > {}
+
+    Summary:
+    DONE    infra/bastion/configuration
+    DONE    infra/bastion/instance
+- title: SCENARIO 1 (remove and lay) - lay removed bricks
+  cmd: exeiac lay infra 2>&1
+  status: 0
+  stdout: |
+    -- infra/base ------------------------------------------------------------------
+
+    ########
+    # ARGS #
+    lay
+
+    #######
+    # LAY #
+
+    Nothing to do
+
+    -- infra/network ---------------------------------------------------------------
+
+    ########
+    # ARGS #
+    lay
+
+    #######
+    # LAY #
+
+    Nothing to do
+
+    -- infra/bastion/instance ------------------------------------------------------
+
+    ########
+    # ARGS #
+    lay
+
+    ##############
+    # INPUT FILE #
+    # ./input.env
+    admin_token="api-user:myname@prod-16461438:ohv4chaa3ieyahJeehiquie8-chiuj1iexeimouyuchohth5onahth9AexohquahhaiFuH3Re"
+    ip_range="10.101.1.0/24"
+    network_id="network:16461438-563710"
+    project_id="project:prod@mycompany:16461438"
+    --------------
+    #######
+    # LAY #
+    1c1,5
+    < {}
+    ---
+    > {
+    >   "ip": "10.101.1.10",
+    >   "vm-id": "vm:16461438-002377",
+    >   "vm_name": "bastion-prod"
+    > }
+
+    A drift has been detected
+
+    -- infra/bastion/configuration -------------------------------------------------
+
+    ########
+    # ARGS #
+    lay
+
+    ##############
+    # INPUT FILE #
+    # ./input.env
+    ip="10.101.1.10"
+    --------------
+    #######
+    # LAY #
+    1c1,16
+    < {}
+    ---
+    > {
+    >   "installed_packet": [
+    >     "sshd",
+    >     "fail2ban"
+    >   ],
+    >   "users": {
+    >     "myuser": {
+    >       "login": "myuser",
+    >       "password": "My-PasSw0rD",
+    >       "ssh_key": {
+    >         "private": "-----BEGIN OPENSSH PRIVATE KEY-----\nthu8Ooxaire6pi2iexae7thah8thies4uray7laifephoof0eipie8iqu8phohwoezai1u\nbie2sueVoh5wa1LaeTiataelajohthorookahwaech2Eiju2aitai9taiW1Ahbeet2iero\neepohqueewuX6aGheeliqu9YuWair6fuuzu8oolahneeDe4thooM6dahzukee9Zo3vai62\nrookahwaech2Eiju2aitai9taiW1Ah\n-----END OPENSSH PRIVATE KEY-----\n",
+    >         "public": "ssh-ed25519 eepohqueewuX6aGheeliqu9YuWair6fuuzu8oolahneeDe4thooM6dahzukee9Zo3vai6 myuser@mycompany.com"
+    >       }
+    >     }
+    >   }
+    > }
+
+    A drift has been detected
+
+    Summary:
+    OK      infra/base : WARNING: events aren't consumed by exeiac for lay action, use smart-lay instead
+    OK      infra/network : WARNING: events aren't consumed by exeiac for lay action, use smart-lay instead
+    DONE    infra/bastion/instance : WARNING: events aren't consumed by exeiac for lay action, use smart-lay instead
+    DONE    infra/bastion/configuration : WARNING: events aren't consumed by exeiac for lay action, use smart-lay instead
+- title: SCENARIO 2 (drift display) - setup change infra/base state (check show --format path)
+  cmd: |
+    state_path="$(exeiac show infra/base -f p)/state.exeiactest.json" ||
+      echo "get infra/base state path failed"
+    sed -i 's|^\( *\t* *"project_id":\) "[^"]*"|\1 "project:prod@mycompany:83416461"|g' "$state_path" 2>&1 ||
+      echo "setup changed $state_path failed"
+    
+    state_path="$(exeiac show infra/network -f p)/state.exeiactest.json" ||
+      echo "get infra/network state path failed"
+    sed -i 's|^\( *\t* *"network_id":\) "[^"]*"|\1 "network:83416461-563710"|g' "$state_path" 2>&1 ||
+      echo "setup changed $state_path failed"
+    
+    behaviour_path="$(exeiac show infra/bastion/instance -f p)/special_behaviours.exeiactest.json" ||
+      echo "get infra/bastion/instance state path failed"
+    echo '{ "plan": { "return_code": 3, "run": [ "default", "return_code" ] } }' > "$behaviour_path"
+  status: 0
+  stdout: ""
+- title: SCENARIO 2 (drift display) - plan all
+  cmd: exeiac plan infra 2>&1
+  status: 2
+  stdout: |
+    -- infra/base ------------------------------------------------------------------
+
+    ########
+    # ARGS #
+    plan
+
+    ########
+    # PLAN #
+    5c5
+    <     "project_id": "project:prod@mycompany:83416461",
+    ---
+    >     "project_id": "project:prod@mycompany:16461438",
+
+    A drift has been detected
+
+    -- infra/network ---------------------------------------------------------------
+
+    ########
+    # ARGS #
+    plan
+
+    ########
+    # PLAN #
+    4c4
+    <   "network_id": "network:83416461-563710",
+    ---
+    >   "network_id": "network:16461438-563710",
+
+    A drift has been detected
+
+    -- infra/bastion/instance ------------------------------------------------------
+
+    ########
+    # ARGS #
+    plan
+
+    ##############
+    # INPUT FILE #
+    # ./input.env
+    admin_token="api-user:myname@prod-16461438:ohv4chaa3ieyahJeehiquie8-chiuj1iexeimouyuchohth5onahth9AexohquahhaiFuH3Re"
+    ip_range="10.101.1.0/24"
+    network_id="network:83416461-563710"
+    project_id="project:prod@mycompany:83416461"
+    --------------
+    ########
+    # PLAN #
+
+    Nothing to do
+
+    -- infra/bastion/configuration -------------------------------------------------
+
+    ########
+    # ARGS #
+    plan
+
+    ##############
+    # INPUT FILE #
+    # ./input.env
+    ip="10.101.1.10"
+    --------------
+    ########
+    # PLAN #
+
+    Nothing to do
+
+    Summary:
+    DRIFT   infra/base
+    DRIFT   infra/network
+    ?DRIFT? infra/bastion/instance
+    OK      infra/bastion/configuration
+- title: SCENARIO 2 (drift display) - plan ? & OK
+  cmd: exeiac plan infra/bastion 2>&1
+  status: 3
+# - title: SCENARIO 2 (drift display) - plan OK
+#   cmd: exeiac plan infra/bastion/instance 2>&1
+#   status: 0
+#   stdout: ""
+- title: SCENARIO 2 (drift display) - plan DRIFT
+  cmd: exeiac plan infra/base 2>&1
+  status: 2
+  stdout: |
+    -- infra/base ------------------------------------------------------------------
+
+    ########
+    # ARGS #
+    plan
+
+    ########
+    # PLAN #
+    5c5
+    <     "project_id": "project:prod@mycompany:83416461",
+    ---
+    >     "project_id": "project:prod@mycompany:16461438",
+
+    A drift has been detected
+
+    Summary:
+    DRIFT   infra/base
+- title: SCENARIO 2 (drift display) - plan ?DRIFT?
+  cmd: exeiac plan infra/bastion/instance 2>&1
+  status: 3
+  stdout: |
+    -- infra/bastion/instance ------------------------------------------------------
+
+    ########
+    # ARGS #
+    plan
+
+    ##############
+    # INPUT FILE #
+    # ./input.env
+    admin_token="api-user:myname@prod-16461438:ohv4chaa3ieyahJeehiquie8-chiuj1iexeimouyuchohth5onahth9AexohquahhaiFuH3Re"
+    ip_range="10.101.1.0/24"
+    network_id="network:83416461-563710"
+    project_id="project:prod@mycompany:83416461"
+    --------------
+    ########
+    # PLAN #
+
+    Nothing to do
+
+    Summary:
+    ?DRIFT? infra/bastion/instance
+- title: SCENARIO 2 (drift display) - smart-lay
+  cmd: exeiac smart-lay infra/base 2>&1
+  status: 0
+  stdout: |
+    -- infra/base ------------------------------------------------------------------
+
+    ########
+    # ARGS #
+    lay
+
+    #######
+    # LAY #
+    5c5
+    <     "project_id": "project:prod@mycompany:83416461",
+    ---
+    >     "project_id": "project:prod@mycompany:16461438",
+
+    A drift has been detected
+      infra/base:$.cloud_provider.project_id: "project:prod@mycompany:83416461" -> "project:prod@mycompany:16461438"
+
+    -- infra/network ---------------------------------------------------------------
+
+    ########
+    # ARGS #
+    lay
+
+    #######
+    # LAY #
+    4c4
+    <   "network_id": "network:83416461-563710",
+    ---
+    >   "network_id": "network:16461438-563710",
+
+    A drift has been detected
+      infra/base:$.cloud_provider.project_id: "project:prod@mycompany:83416461" -> "project:prod@mycompany:16461438"
+      infra/network:$.network_id: "network:83416461-563710" -> "network:16461438-563710"
+
+    -- infra/bastion/instance ------------------------------------------------------
+
+    ########
+    # ARGS #
+    lay
+
+    ##############
+    # INPUT FILE #
+    # ./input.env
+    admin_token="api-user:myname@prod-16461438:ohv4chaa3ieyahJeehiquie8-chiuj1iexeimouyuchohth5onahth9AexohquahhaiFuH3Re"
+    ip_range="10.101.1.0/24"
+    network_id="network:16461438-563710"
+    project_id="project:prod@mycompany:16461438"
+    --------------
+    #######
+    # LAY #
+
+    Nothing to do
+
+    -- infra/bastion/configuration -------------------------------------------------
+    lay skipped (it's useless according to changes)
+
+    -- apps/database ---------------------------------------------------------------
+
+    ########
+    # ARGS #
+    lay
+
+    ##############
+    # INPUT FILE #
+    # ./input.json
+    {
+      "admin_token": "api-user:myname@prod-16461438:ohv4chaa3ieyahJeehiquie8-chiuj1iexeimouyuchohth5onahth9AexohquahhaiFuH3Re",
+      "ip_range": "10.101.1.0/24",
+      "network_id": "network:16461438-563710",
+      "project_id": "project:prod@mycompany:16461438"
+    }
+    --------------
+    #######
+    # LAY #
+
+    Nothing to do
+
+    -- apps/myapp/instance ---------------------------------------------------------
+
+    ########
+    # ARGS #
+    lay
+
+    ##############
+    # INPUT FILE #
+    # ./input.json
+    {
+      "admin_token": "api-user:myname@prod-16461438:ohv4chaa3ieyahJeehiquie8-chiuj1iexeimouyuchohth5onahth9AexohquahhaiFuH3Re",
+      "ip_range": "10.101.1.0/24",
+      "network_id": "network:16461438-563710",
+      "project_id": "project:prod@mycompany:16461438"
+    }
+    --------------
+    #######
+    # LAY #
+
+    Nothing to do
+
+    -- apps/myapp/configuration ----------------------------------------------------
+    lay skipped (it's useless according to changes)
+
+    Summary:
+    DONE    infra/base : WARNING: events aren't yet consumed by exeiac smart-lay action
+    DONE    infra/network : WARNING: events aren't yet consumed by exeiac smart-lay action
+    OK      infra/bastion/instance : WARNING: events aren't yet consumed by exeiac smart-lay action
+    SKIP    infra/bastion/configuration
+    OK      apps/database : WARNING: events aren't yet consumed by exeiac smart-lay action
+    OK      apps/myapp/instance : WARNING: events aren't yet consumed by exeiac smart-lay action
+    SKIP    apps/myapp/configuration
+- title: SCENARIO 2 (drift display) - clean
+  cmd: | 
+    behaviour_path="$(exeiac show infra/bastion/instance -f p)/special_behaviours.exeiactest.json" &&
+    rm "$behaviour_path" &&
+    exeiac clean infra 2>&1 &&
+    exeiac clean apps 2>&1 || echo "failed"
+  status: 0
+  stdout: |
+    -- infra/base ------------------------------------------------------------------
+    Module "exeiac-test" does not implement action "clean" ; assume there is nothing to do.
+
+    -- infra/network ---------------------------------------------------------------
+    Module "exeiac-test" does not implement action "clean" ; assume there is nothing to do.
+
+    -- infra/bastion/instance ------------------------------------------------------
+    Module "exeiac-test" does not implement action "clean" ; assume there is nothing to do.
+
+    -- infra/bastion/configuration -------------------------------------------------
+    Module "exeiac-test2" does not implement action "clean" ; assume there is nothing to do.
+
+    Summary:
+    DONE    infra/base
+    DONE    infra/network
+    DONE    infra/bastion/instance
+    DONE    infra/bastion/configuration
+    -- apps/database ---------------------------------------------------------------
+    Module "exeiac-test" does not implement action "clean" ; assume there is nothing to do.
+
+    -- apps/myapp/instance ---------------------------------------------------------
+    Module "exeiac-test" does not implement action "clean" ; assume there is nothing to do.
+
+    -- apps/myapp/configuration ----------------------------------------------------
+    Module "exeiac-test2" does not implement action "clean" ; assume there is nothing to do.
+
+    Summary:
+    DONE    apps/database
+    DONE    apps/myapp/instance
+    DONE    apps/myapp/configuration
+# - title: SCENARIO 3 (smart lay) - clean
+#   cmd: 
+#   status: 0
+#   stdout: ""

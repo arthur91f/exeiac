@@ -1,0 +1,13 @@
+{
+    "users": {
+        "myuser": {
+            "login": "myuser",
+            "password": "My-PasSw0rD",
+            "ssh_key": {
+                "public": "ssh-ed25519 eepohqueewuX6aGheeliqu9YuWair6fuuzu8oolahneeDe4thooM6dahzukee9Zo3vai6 myuser@mycompany.com",
+                "private": "-----BEGIN OPENSSH PRIVATE KEY-----\nthu8Ooxaire6pi2iexae7thah8thies4uray7laifephoof0eipie8iqu8phohwoezai1u\nbie2sueVoh5wa1LaeTiataelajohthorookahwaech2Eiju2aitai9taiW1Ahbeet2iero\neepohqueewuX6aGheeliqu9YuWair6fuuzu8oolahneeDe4thooM6dahzukee9Zo3vai62\nrookahwaech2Eiju2aitai9taiW1Ah\n-----END OPENSSH PRIVATE KEY-----\n"
+            }
+        }
+    },
+    "installed_packet": [ "sshd", "fail2ban" ]
+}

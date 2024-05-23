@@ -109,8 +109,8 @@ for file in $(find "$script_dir" -name '*.yml' | sort); do
             continue
         fi
 
-        result_stdout="$(bash -c "$cmd")"
-        result_status="$?"
+        result_stdout="$(bash -c "$cmd")" ; result_status="$?"
+        result_stdout="$(sed -r 's/\x1B\[(;?[0-9]{1,3})+[mGK]//g' <<<"$result_stdout")" # to remove color
         pass="true"
 
         if stdout="$(get_field "$item" stdout 2>/dev/null)" ; then

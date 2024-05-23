@@ -1,0 +1,36 @@
+{
+    "instances": {
+        "master": {
+            "address": "10.100.1.20",
+            "cpu": 2,
+            "ram": 4096,
+            "disk": 100,
+            "role": "master"
+        },
+        "failover": {
+            "address": "10.100.1.29",
+            "cpu": 2,
+            "ram": 4096,
+            "disk": 100,
+            "role": "replica-failover"
+        },
+        "read-1": {
+            "address": "10.100.1.21",
+            "cpu": 2,
+            "ram": 4096,
+            "disk": 100,
+            "role": "replica-readonly"
+        }
+
+    },
+    "users": {
+        "root": {
+            "login": "root",
+            "password": "EWohj0Pipoos9Ahviebohb6u"
+        },
+        "myapp": {
+            "login": "myapp",
+            "password": "Uf7Zaochuo8keeZai0aewai3"
+        }
+    }
+}

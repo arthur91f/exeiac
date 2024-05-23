@@ -1,0 +1,10 @@
+- title: ask bad action execution
+  cmd: exeiac badAction infra/base 2>&1
+  status: 0
+  stdout: |
+    -- infra/base ------------------------------------------------------------------
+    Module "exeiac-test" does not implement action "badAction" ; assume there is nothing to do.
+
+    Summary:
+    OK      infra/base
+# - title: action return an error status_code

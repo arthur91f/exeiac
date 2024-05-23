@@ -1,0 +1,12 @@
+version: 1.0.0
+module: exeiac-test2
+dependencies:
+  ip:
+    from: infra/bastion/instance:output:$.ip
+
+inputs:
+- type: file
+  format: env
+  path: input.env
+  datas:
+    - ip
