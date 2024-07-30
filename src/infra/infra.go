@@ -16,6 +16,17 @@ import (
 
 const BRICK_FILE_NAME = "brick.yml"
 
+type DependencyTuple {
+	Name string
+	Brick *Brick
+}
+
+type EventAttrib { // rename TrackedEvent 
+	HasOccured bool
+	Value	   []byte
+	DepsTuples []DependencyTuple
+}
+
 type Infra struct {
 	Modules []Module
 	Bricks  BricksMap
@@ -23,6 +34,7 @@ type Infra struct {
 		ExceptionIsInputNeeded []string
 		DefaultIsInputNeeded   bool
 	}
+	Events map[string][Source][jsonPath]EventAttrib //map[brickName][src][jsonPath][]EventAttrib je ne fait pas la compilation de quel action c'est sensé trigger
 }
 
 func CreateInfra(configuration exargs.Configuration) (Infra, error) {

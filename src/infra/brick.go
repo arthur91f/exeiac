@@ -13,9 +13,13 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
+const OUTPUT_SOURCE = true
+const EVENT_SOURCE = false
+type Source bool // OUTPUT_SOURCE or EVENT_SOURCE
+
 type From struct {
 	Brick    *Brick
-	Source   string // can be output or event
+	Source   Source // can be output or event
 	JsonPath string
 }
 
@@ -26,7 +30,7 @@ type Dependency struct {
 	TriggerType        string
 	DefaultNeededFor   bool     // Is inputs needed for an action by default
 	ExceptionNeededFor []string // For which action the input doesn't respect the default needed behaviour
-	Value              any
+	Value              []byte
 }
 
 type Input struct {
@@ -35,6 +39,24 @@ type Input struct {
 	Type       string      // can be env_var or file
 	Format     InputFormat // can be env, json or yaml
 	Path       string      // (obviously it is "" for env_var type)
+}
+
+func (f From) String() (s string) {
+	if f.Source == OUTPUT_SOURCE {
+		s = f.Brick.Name + ':' + 'output' + ':' + f.JsonPath
+	} else if f.Source == EVENT_SOURCE {
+		s = f.Brick.Name + ':' + 'event' + ':' + f.JsonPath
+	}
+
+	return
+}
+
+func (f From) Equal(s string) bool {
+	if f.String() == s {
+		return true
+	}
+
+	return false
 }
 
 func (i Input) String() string {
@@ -114,6 +136,7 @@ type Brick struct {
 	Inputs []Input
 
 	Output []byte
+
 	// Error from the last call to `Enrich()`
 	EnrichError error
 }

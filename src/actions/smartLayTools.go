@@ -20,9 +20,11 @@ type JsonValueCouple struct {
 	V2 JsonValue
 }
 
-type JsonCompared map[string]JsonValueCouple
+type JsonCompared map[string]JsonValueCouple //map[jsonPath]JsonValueCouple
 
-type ChangedOutputs map[string]JsonCompared
+type ChangedOutputs map[string]JsonCompared // map[brickName]JsonCompared
+
+type HappenedEvents map[string][jsonPath]string // map[brickName][jsonPath]JsonValue
 
 func (jv JsonValue) String() string {
 	switch jv.ValueType {
@@ -170,6 +172,39 @@ func (changes ChangedOutputs) NeedToLayBrick(brick *exinfra.Brick) bool {
 			for jsonpath := range changes[i.Dependency.From.Brick.Name] {
 				if extools.AreJsonPathsLinked(jsonpath, i.Dependency.From.JsonPath) {
 					return true
+				}
+			}
+		}
+	}
+
+	return false
+}
+
+
+func (changes ChangedOutputs) NeedToLayBrick(brick *exinfra.Brick, action string) bool {
+	for _, d := range brick.Dependencies {
+		if d.IsDependencyNeeded(action) {
+			if _, exist := changes[d.From.Brick.Name]; exist {
+				for jsonpath := range changes[d.From.Brick.Name] {
+					if extools.AreJsonPathsLinked(jsonpath, d.From.JsonPath) {
+						return true
+					}
+				}
+			}
+		}
+	}
+
+	return false
+}
+
+func (h HappenedEvents) NeedToLayBrick(brick *exinfra.Brick, action string) bool {
+	for _, d := range brick.Dependencies {
+		if d.IsDependencyNeeded(action) {
+			if _, exist := h[d.From.Brick.Name]; exist {
+				for jsonpath := range h[d.From.Brick.Name] {
+					if extools.AreJsonPathsLinked(jsonpath, d.From.JsonPath) {
+						return true
+					}
 				}
 			}
 		}

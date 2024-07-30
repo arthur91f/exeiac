@@ -139,7 +139,14 @@ func (infra *Infra) EnrichBrick(brick *Brick) error {
 
 			return
 		}
-		if fields[1] != "output" && fields[1] != "event" {
+
+		var source Source
+		switch fields[1] {
+		case "output":
+			source = OUTPUT_SOURCE
+		case "event":
+			source = EVENT_SOURCE
+		default:
 			err = fmt.Errorf("field from \"%s\" is not valid: "+
 				"source part should be \"output\" or \"event\"", from)
 
@@ -154,7 +161,7 @@ func (infra *Infra) EnrichBrick(brick *Brick) error {
 			return
 		}
 
-		return fields[0], fields[1], fields[2], nil
+		return fields[0], source, fields[2], nil
 	}
 
 	// -- set dependencies --
@@ -229,6 +236,21 @@ func (infra *Infra) EnrichBricks() {
 				infra.Bricks[b.Name].EnrichError =
 					fmt.Errorf("unable to enrich brick(%s): %v", b.Name, err)
 			}
+			for name, d := range b.Dependencies {
+				if e, exists := infra.Events[d.From.Brick.Name][d.From.Source][d.From.JsonPath] ; exists {
+					infra.Events[d.From.Brick.Name][d.From.Source][d.From.JsonPath].DepsTuples = append(
+						infra.Events[d.From.Brick.Name][d.From.Source][d.From.JsonPath].DepsTuples, 
+						DepsTuples{Name: name, Brick: b}
+					)
+				} else {
+					infra.Events[d.From.Brick.Name][d.From.Source][d.From.JsonPath] = EventAttrib{
+						HasOccured: false,
+						DepsTuples: DepsTuples{Name: name, Brick: b}
+					}
+				}
+			}
+			infra.Events[b.BricksName][]
+			map[brickName][src][jsonPath]Bricks
 
 			err = b.Module.LoadAvailableActions()
 			if err != nil {

@@ -166,7 +166,7 @@ func (m *Module) getExecutionEvents(
 	action string,
 	statusCode int,
 ) (
-	events map[string]interface{},
+	events map[string][]byte,
 	execErr error,
 ) {
 	var boolean bool
@@ -240,6 +240,27 @@ func (m *Module) getExecutionEvents(
 	return
 }
 
+func mergeJsonMap(jsonMap map[string][]byte) ([]byte, error) {
+	mergedMap := make(map[string]interface{})
+
+	for key, jsonData := range jsonMap {
+		var currentMap map[string]interface{}
+		err := json.Unmarshal(jsonData, &currentMap)
+		if err != nil {
+			return nil, fmt.Errorf("error unmarshaling JSON from key %s: %v", key, err)
+		}
+
+		mergedMap[key] = currentMap
+	}
+
+	mergedJSON, err := json.MarshalIndent(mergedMap, "", "  ")
+	if err != nil {
+		return nil, fmt.Errorf("error marshaling merged JSON: %v", err)
+	}
+
+	return mergedJSON, nil
+}
+
 // Executes a module's action over a brick, the provided CLI arguments and environment
 // variables. It takes between 0 and 2 writers; they are used to process the module's
 // `stdout` and `stderr`. They'll *usually* match one of infra's writers.
@@ -254,7 +275,7 @@ func (m *Module) Exec(
 	confEnv []string,
 	writers ...io.Writer,
 ) (
-	events map[string]interface{},
+	events []byte,
 	err error,
 ) {
 	var statusCode int
@@ -296,7 +317,13 @@ func (m *Module) Exec(
 		}
 	}
 
-	events, err = m.getExecutionEvents(b.Path, action, statusCode)
+	var eventsMap map[string][]byte
+	eventsMap, err = m.getExecutionEvents(b.Path, action, statusCode)
+	if err != nil {
+		return
+	}
+
+	events, err = mergeJsonMap(eventsMap)
 
 	return
 }
