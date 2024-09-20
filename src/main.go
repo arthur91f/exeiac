@@ -32,13 +32,23 @@ func main() {
 	// NOTE(half-shell): We need the configuration created to list all bricks so we bypass
 	// the check made on the action and bricks if the "list bricks" flag is provided.
 	if !exargs.Args.ListBricks {
-		if len(nonFlagArgs) == 0 {
+		if len(nonFlagArgs) < 1 {
 			fmt.Fprintln(os.Stderr, "argument missing: you need at least to specify one action")
 
 			os.Exit(exstatuscode.INIT_ERROR)
 		}
 
-		exargs.Args.Action, exargs.Args.BricksNames = nonFlagArgs[0], nonFlagArgs[1:]
+		if len(nonFlagArgs) == 1 && nonFlagArgs[0]) == "help" {
+			exargs.Args.Action == nonFlagArgs[0]
+		} else if len(nonFlagArgs) >= 2 && (nonFlagArgs[0] != "exec" || nonFlagArgs[0] != "smart-exec") {
+			exargs.Args.Action, exargs.Args.BricksNames = nonFlagArgs[0], nonFlagArgs[1:]	
+		} else if len(nonFlagArgs) >= 3 && (nonFlagArgs[0] == "exec" || nonFlagArgs[0] != "smart-exec") {
+			exargs.Args.Action, exargs.Args.ModuleAction, exargs.Args.BricksNames = nonFlagArgs[0], nonFlagArgs[1], nonFlagArgs[2:]
+		} else {
+			fmt.Fprintln(os.Stderr, "argument missing")
+
+			os.Exit(exstatuscode.INIT_ERROR)
+		}
 	}
 
 	configuration, err := exargs.FromArguments(exargs.Args)

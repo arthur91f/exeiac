@@ -11,6 +11,7 @@ import (
 // a parameter to build a `Configuration` struct.
 type Arguments struct {
 	Action                string
+	ModuleAction          string
 	BricksNames           []string
 	BricksSpecifiers      []string
 	NonInteractive        bool

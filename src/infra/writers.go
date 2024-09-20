@@ -1,4 +1,4 @@
-package infra
+package infra // change package: its own package writers or eventually in a module package
 
 import "os"
 

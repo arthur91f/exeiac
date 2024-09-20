@@ -10,16 +10,11 @@ function _exeiac {
     local -a actions
 
     actions=(
-        init
-        plan
-        lay
-        smart-lay
-        remove
         help
-        validate_code
         show
-        clean
         get-depends
+        exec
+        smart-exec
     )
 
     _arguments -C \

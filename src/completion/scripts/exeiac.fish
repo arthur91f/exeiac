@@ -1,4 +1,4 @@
-set -l actions init plan lay smart-lay remove help validate_code show clean get-depends
+set -l actions help show get-depends exec smart-exec
 
 # Prevent file auto completion
 complete -c exeiac -f
